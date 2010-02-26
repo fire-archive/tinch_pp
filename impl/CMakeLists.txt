@@ -1,0 +1,33 @@
+SET(Boost_ADDITIONAL_VERSIONS "1.42" "1.42.0")
+find_package( Boost 1.42.0 REQUIRED )
+
+SET(CPP_SOURCE
+  actual_mailbox.cpp
+  constants.cpp
+  ctrl_msg_dispatcher.cpp
+  epmd_requestor.cpp
+  erlang_value_types.cpp
+  erl_any.cpp
+  erl_cpp_exception.cpp
+  erl_cpp_exception.h
+  erl_string.cpp
+  ext_message_builder.cpp
+  matchable_range.cpp
+  matchable_seq.cpp
+  md5.cpp
+  node_async_tcp_ip.cpp
+  node_connection.cpp
+  node_connection_state.cpp
+  node_connector.cpp
+  node.cpp
+  rpc.cpp
+  type_makers.cpp
+  types.cpp
+  utils.cpp
+)
+
+include_directories(${CMAKE_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
+add_library(tinch++ ${CPP_SOURCE})
+
+install(TARGETS tinch++ 
+  DESTINATION ${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION}/lib )

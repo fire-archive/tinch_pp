@@ -1,0 +1,299 @@
+#ifndef EXT_TERM_GRAMMAR_H
+#define EXT_TERM_GRAMMAR_H
+
+#include "types.h"
+#include "constants.h"
+#include <boost/config/warning_disable.hpp>
+#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/karma.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_fusion.hpp>
+#include <boost/spirit/home/phoenix/container.hpp>
+
+// Namespace aliases.
+namespace qi = boost::spirit::qi;
+namespace karma = boost::spirit::karma;
+
+namespace tinch_pp {
+
+// Implementation of an EBNF-like grammar representing the external term format used in the 
+// distribution mechanism of Erlang.
+// The external term format is a binary protocol (see reference XXX).
+// The format is parsed with Boost Sprit QI and genereated through Karma.
+
+// TODO: this is wrong - should be unsigned!
+template<const int tag>
+struct ext_byte : qi::grammar<msg_seq_iter, signed char()>
+{
+  ext_byte() : base_type(start)
+  {
+    using qi::byte_;
+    using qi::omit;
+
+    start = omit[byte_(tag)] >> byte_;
+  }
+
+  qi::rule<msg_seq_iter, signed char()> start;
+};
+
+template<const int tag>
+struct ext_byte_g : karma::grammar<msg_seq_out_iter, boost::uint8_t()>
+{
+  ext_byte_g() : base_type(start)
+  {
+    using karma::byte_;
+
+    start = byte_(tag) << byte_;
+  }
+
+  karma::rule<msg_seq_out_iter, boost::uint8_t()> start;
+};
+
+typedef ext_byte<type_tag::small_integer> small_integer;
+typedef ext_byte_g<type_tag::small_integer> small_integer_g;
+
+typedef ext_byte<type_tag::atom_cache_ref> atom_cache_ref;
+
+struct integer_ext : qi::grammar<msg_seq_iter, boost::int32_t()>
+{
+  integer_ext() : base_type(start)
+  {
+    using qi::big_dword;
+    using qi::byte_;
+    using qi::omit;
+
+    start = omit[byte_(type_tag::integer)] >> big_dword;
+  }
+
+  qi::rule<msg_seq_iter, boost::int32_t()> start;
+};
+
+struct integer_ext_g : karma::grammar<msg_seq_out_iter, int()>
+{
+  integer_ext_g() : base_type(start)
+  {
+    using namespace karma;
+
+    start = byte_(type_tag::integer) << big_dword;
+  }
+
+  karma::rule<msg_seq_out_iter, int()> start;
+};
+
+// Erlang sends integers on different formats depending on their size.
+// This grammar parses any of them.
+struct integer : qi::grammar<msg_seq_iter, boost::int32_t()>
+{
+  integer() : base_type(start)
+    {
+      start = small_int_ | integer_ext_;
+    }
+
+  // Grammars defined in this module.
+  integer_ext integer_ext_;
+  small_integer small_int_;
+
+  qi::rule<msg_seq_iter, boost::int32_t()> start;
+};
+
+// Erlang sends floating point numbers as string (formated with "%.20e").
+struct float_ext : qi::grammar<msg_seq_iter, std::string()>
+{
+  float_ext() : base_type(start)
+    {
+      using namespace qi;
+
+      start = byte_(type_tag::float_ext) >> repeat(constants::float_digits)[char_];
+    }
+
+  qi::rule<msg_seq_iter, std::string()> start;
+};
+
+struct float_ext_g : karma::grammar<msg_seq_out_iter, std::string()>
+{
+  float_ext_g() : base_type(start)
+  {
+    using namespace karma;
+
+    start %= byte_(type_tag::float_ext) << repeat(constants::float_digits)[char_];
+  }
+
+  karma::rule<msg_seq_out_iter, std::string()> start;
+};
+
+struct atom_ext : qi::grammar<msg_seq_iter, std::string()>
+{
+  atom_ext() : base_type(start)
+  {
+    using qi::big_word;
+    using qi::byte_;
+    using boost::phoenix::ref;
+
+    // EBNF forces the repeat directive to be a constant. However, with this spirit hack, 
+    // we make it variable at runtime by assigning it in a semantic action.
+    // TODO: should be possible with local Spirit variables, right?
+    header = byte_(type_tag::atom_ext) >> big_word[ref(atom_length) = qi::_1];
+    start = header >> qi::repeat(ref(atom_length))[qi::char_];
+  }
+
+  boost::uint16_t atom_length;
+ 
+  qi::rule<msg_seq_iter, qi::unused_type> header;
+  qi::rule<msg_seq_iter, std::string()> start;
+};
+
+}
+
+namespace tinch_pp {
+
+struct atom_ext_g : karma::grammar<msg_seq_out_iter, serializable_string()>
+{
+  atom_ext_g() : base_type(start)
+  {
+    using namespace karma;
+
+    start %= byte_(type_tag::atom_ext) << big_word << *char_;
+  }
+
+  karma::rule<msg_seq_out_iter, serializable_string()> start;
+};
+
+struct pid_ext : qi::grammar<msg_seq_iter, pid_t()>
+{
+  pid_ext() : base_type(start)
+  {
+    using namespace qi;
+
+    start = omit[byte_(type_tag::pid)] >> atom_p >> big_dword >> big_dword >> byte_;
+  }
+
+  atom_ext atom_p;
+  qi::rule<msg_seq_iter, pid_t()> start;
+};
+
+struct pid_ext_g : karma::grammar<msg_seq_out_iter, serializable_pid_t()>
+{
+  pid_ext_g() : base_type(start)
+  {
+    using namespace karma;
+
+    start %= byte_(type_tag::pid) << atom_g << big_dword << big_dword << byte_;
+  }
+
+  atom_ext_g atom_g;
+  karma::rule<msg_seq_out_iter, serializable_pid_t()> start;
+};
+
+struct new_reference_ext_p : qi::grammar<msg_seq_iter, new_reference_type()>
+{
+  new_reference_ext_p() : base_type(start)
+  {
+    using namespace qi;
+    using boost::phoenix::ref;
+
+    // Parse the header for side-effects only; we need to extract the ID length.
+    // The ID contains a sequence of big-endian unsigned integers (4 bytes each, 
+    // so N' is a multiple of 4), but should be regarded as uninterpreted data.
+    const size_t len_multiple = 4;
+
+    header = omit[byte_(type_tag::new_reference_ext) >> big_word[ref(id_length) = qi::_1]];
+    start = header >> node_name_p >> byte_ >> qi::repeat(ref(id_length) * len_multiple)[qi::char_];
+  }
+
+  atom_ext node_name_p;
+  boost::uint16_t id_length;
+  qi::rule<msg_seq_iter, qi::unused_type> header;
+  qi::rule<msg_seq_iter, new_reference_type()> start;
+};
+
+struct new_reference_ext_g : karma::grammar<msg_seq_out_iter, new_reference_g_type()>
+{
+  new_reference_ext_g() : base_type(start)
+  {
+    using namespace karma;
+
+    start %= byte_(type_tag::new_reference_ext) << big_word << atom_g << byte_ << *char_;
+  }
+
+  atom_ext_g atom_g;
+  karma::rule<msg_seq_out_iter, new_reference_g_type()> start;
+};
+
+struct small_tuple_head_ext : qi::grammar<msg_seq_iter, int()>
+{
+  small_tuple_head_ext() : base_type(start)
+  {
+    using namespace qi;
+
+    start = omit[byte_(type_tag::small_tuple)] >> byte_;
+  }
+
+  qi::rule<msg_seq_iter, int()> start;
+};
+
+struct small_tuple_head_g : karma::grammar<msg_seq_out_iter, int()>
+{
+  small_tuple_head_g() : base_type(start)
+  {
+    using namespace karma;
+
+    start = byte_(type_tag::small_tuple) << byte_;
+  }
+
+  karma::rule<msg_seq_out_iter, int()> start;
+};
+
+struct list_head_ext : qi::grammar<msg_seq_iter, size_t()>
+{
+  list_head_ext() : base_type(start)
+  {
+    using namespace qi;
+
+    start = omit[byte_(type_tag::list)] >> big_dword;
+  }
+
+  qi::rule<msg_seq_iter, size_t()> start;
+};
+
+struct list_head_g : karma::grammar<msg_seq_out_iter, size_t()>
+{
+  list_head_g() : base_type(start)
+  {
+    using namespace karma;
+
+    start = byte_(type_tag::list) << big_dword;
+  }
+
+  karma::rule<msg_seq_out_iter, size_t()> start;
+};
+
+// String does NOT have a corresponding Erlang representation, but is an optimization for sending 
+// lists of bytes (integer in the range 0-255) more efficiently over the distribution.
+struct string_head_ext : qi::grammar<msg_seq_iter, size_t()>
+{
+  string_head_ext() : base_type(start)
+  {
+    using namespace qi;
+
+    start = omit[byte_(type_tag::string_ext)] >> big_word;
+  }
+
+  qi::rule<msg_seq_iter, size_t()> start;
+};
+
+struct string_ext_g : karma::grammar<msg_seq_out_iter, serializable_string()>
+{
+  string_ext_g() : base_type(start)
+  {
+    using namespace karma;
+
+    start = byte_(type_tag::string_ext) << big_word << *char_;
+  }
+
+  karma::rule<msg_seq_out_iter, serializable_string()> start;
+};
+
+}
+
+#endif

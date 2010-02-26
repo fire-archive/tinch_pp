@@ -1,0 +1,169 @@
+#include "tinch_pp/node.h"
+#include "tinch_pp/mailbox.h"
+#include "tinch_pp/erlang_types.h"
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+#include <boost/assign/list_of.hpp>
+#include <iostream>
+
+using namespace tinch_pp;
+using namespace tinch_pp::erl;
+using namespace boost;
+using namespace boost::assign;
+
+// USAGE:
+// ======
+// 1. Start an Erlang node with the cookie abcdef.
+// 2. Start the Erlang program reflect_msg:
+//          (testnode@127.0.0.1)4> reflect_msg:start_link().
+// 3. Start this program. The program will send different messages 
+// to reflect_msg, which echoes the messages back.
+
+namespace {
+
+void echo_atom(mailbox_ptr mbox);
+
+void echo_nested_tuples(mailbox_ptr mbox, const std::string& name);
+
+void echo_list(mailbox_ptr mbox);
+
+void echo_empty_tuple(mailbox_ptr mbox);
+
+void echo_string(mailbox_ptr mbox, const std::string& msg_name);
+
+void echo_float(mailbox_ptr mbox, const std::string& msg_name);
+
+// TODO: we can send such a list, but not match it...yet!
+void echo_heterogenous_list(mailbox_ptr mbox);
+
+typedef boost::function<void (mailbox_ptr)> sender_fn_type;
+
+}
+
+// NOTE: A tuple with one element doesn't work => TODO: debug and fix!
+
+int main()
+{
+  node my_node("net_adm_test_node@127.0.0.1", "abcdef");
+
+  mailbox_ptr mbox = my_node.create_mailbox();
+
+  // TODO: Use seperate testcases for any, value, and assignment.
+  // TODO: Test a second match on the any data.
+  const sender_fn_type senders[] = {bind(echo_atom, ::_1), bind(echo_atom, ::_1),
+                                    bind(echo_nested_tuples, ::_1, "start"), bind(echo_nested_tuples, ::_1, "next"),
+                                    bind(echo_empty_tuple, ::_1),
+                                    bind(echo_list, ::_1), bind(echo_list, ::_1),
+                                    bind(echo_string, ::_1, "start"), bind(echo_string, ::_1, "next"),
+                                    bind(echo_float, ::_1, "start"), bind(echo_float, ::_1, "next")};
+  const size_t number_of_senders = sizeof senders / sizeof senders[0];
+
+  for(size_t i = 0; i < number_of_senders; ++i)
+    senders[i](mbox);
+}
+
+namespace {
+
+const std::string remote_node_name("testnode@127.0.0.1");
+const std::string to_name("reflect_msg");
+
+// All messages have the following format: {echo, self(), Msg}
+
+void echo_atom(mailbox_ptr mbox)
+{
+  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), atom("hello")));
+
+  const matchable_ptr reply = mbox->receive();
+
+  std::string name;
+
+  if(reply->match(atom("hello")))
+    std::cout << "Matched atom(hello)" << std::endl;
+  else if(reply->match(atom(&name)))
+    std::cout << "Matched atom(" << name << ")" << std::endl;
+  else
+    std::cerr << "No match - unexpected message!" << std::endl;
+}
+
+void echo_nested_tuples(mailbox_ptr mbox, const std::string& name)
+{
+  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), 
+                                                        erl::make_tuple(atom(name), 
+                                                        erl::make_tuple(atom("nested"), int_(42)))));
+  const matchable_ptr reply = mbox->receive();
+
+  if(reply->match(erl::make_tuple(atom("start"), erl::any())))
+    std::cout << "Matched {start, _}" << std::endl;
+  else if(reply->match(erl::make_tuple(atom("next"), erl::make_tuple(atom("nested"), int_(42)))))
+    std::cout << "Matched {next, {nested, 42}}" << std::endl;
+  else
+    std::cerr << "No match - unexpected message!" << std::endl;
+}
+
+void echo_empty_tuple(mailbox_ptr mbox)
+{
+  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), 
+                                                        erl::make_tuple()));
+  const matchable_ptr reply = mbox->receive();
+
+  if(reply->match(erl::make_tuple()))
+    std::cout << "Matched empty tuple {}" << std::endl;
+  else
+    std::cerr << "No match - unexpected message!" << std::endl;
+}
+
+void echo_string(mailbox_ptr mbox, const std::string& msg_name)
+{
+  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), 
+                                                        erl::make_tuple(atom(msg_name), estring("my string"))));
+
+  const matchable_ptr reply = mbox->receive();
+
+  std::string matched_val;
+
+  if(reply->match(erl::make_tuple(atom("start"), erl::any())))
+    std::cout << "Matched string {start, _}" << std::endl;
+  else if(reply->match(erl::make_tuple(atom("next"), estring(&matched_val))))
+    std::cout << "Matched string {start, " << matched_val << "}" << std::endl;
+  else
+    std::cerr << "No match - unexpected message!" << std::endl;
+}
+
+void echo_float(mailbox_ptr mbox, const std::string& msg_name)
+{
+  const double value = 1234567.98765;
+  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), 
+                                                        erl::make_tuple(atom(msg_name), float_(value))));
+
+  const matchable_ptr reply = mbox->receive();
+
+  double matched_val;
+
+  if(reply->match(erl::make_tuple(atom("start"), erl::any())))
+    std::cout << "Matched float {start, _}" << std::endl;
+  else if(reply->match(erl::make_tuple(atom("next"), float_(&matched_val))))
+    std::cout << "Matched float {start, " << matched_val << "}" << std::endl;
+  else
+    std::cerr << "No match - unexpected message!" << std::endl;
+}
+
+void echo_list(mailbox_ptr mbox)
+{
+  const std::list<erl::object_ptr> send_numbers = list_of(make_int(1))(make_int(2))(make_int(1000));
+
+  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), 
+                                                        erl::make_tuple(atom("numbers"), make_list(send_numbers))));
+
+  const matchable_ptr reply = mbox->receive();
+
+  std::list<int_> numbers;
+
+  if(reply->match(erl::make_tuple(atom("numbers"), make_list(&numbers))))
+    std::cout << "Matched {numbers, List} with List size = " << numbers.size() << std::endl;
+  else if(reply->match(erl::make_tuple(atom("start"), erl::any())))
+    std::cout << "Matched {start, _}" << std::endl;
+  else
+    std::cerr << "No match - unexpected message!" << std::endl;
+}
+
+}
