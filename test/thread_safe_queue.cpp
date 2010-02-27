@@ -74,7 +74,7 @@ void control_thread(mailbox_ptr mbox, size_t times)
     const matchable_ptr result = mbox->receive();
 
     if(!result->match(atom("done")))
-      throw std::exception("control_thread: unexpected reply from worker");
+      throw std::runtime_error("control_thread: unexpected reply from worker");
 
     std::cout << "controller: worker finished order " << times << std::endl;
 
