@@ -26,21 +26,16 @@
 #include <boost/bind.hpp>
 #include <boost/program_options.hpp>
 #include <iostream>
+#include <utility>
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
 
 // USAGE:
 // ======
-// 1. Start an Erlang node with the cookie abcdef.
-// 2. (testnode@127.0.0.1)1> net_adm:ping('net_adm_test_node@127.0.0.1').
-// 3. Stop the program with:
-//       (testnode@127.0.0.1)2> erlang:send({net_kernel,'net_adm_test_node@127.0.0.1'}, stop).
+// See print_usage below.
 
 namespace {
-
-void net_adm_emulator(mailbox_ptr mbox);
-}
 
 void print_usage()
 {
@@ -53,6 +48,12 @@ void print_usage()
   std::cout << "4. Stop the program with:" << std::endl;
   std::cout << "\t(testnode@127.0.0.1)2> erlang:send({net_kernel,'net_adm_test_node@127.0.0.1'}, stop)." << std::endl;
   std::cout << "======" << std::endl;
+}
+
+void run_emulation(const std::string& node_name, const std::string& cookie);
+
+void net_adm_emulator(mailbox_ptr mbox);
+
 }
 
 int main(int ac, char* av[])
@@ -78,6 +79,13 @@ int main(int ac, char* av[])
       return 1;
     }
 
+  run_emulation(node_name, cookie);  
+}
+
+namespace {
+
+void run_emulation(const std::string& node_name, const std::string& cookie)
+{
   node my_node(node_name.c_str(), cookie.c_str());
 
   my_node.publish_port(0xACDC);
@@ -87,8 +95,6 @@ int main(int ac, char* av[])
 
   net_adm.join();
 }
-
-namespace {
 
 void net_adm_emulator(mailbox_ptr mbox)
 {
