@@ -5,6 +5,7 @@ find_package( Boost 1.42.0
     system 
     regex 
     signals
+    program_options
   REQUIRED )
 
 include_directories(${CMAKE_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
