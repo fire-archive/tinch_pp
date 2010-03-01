@@ -9,6 +9,8 @@ find_package( Boost 1.42.0
     program_options
   REQUIRED )
 
+link_directories(${Boost_LIBRARY_DIRS})
+
 add_definitions(-DBOOST_ALL_NO_LIB)
 include_directories(${CMAKE_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 
