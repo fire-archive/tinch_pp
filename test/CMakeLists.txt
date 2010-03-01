@@ -1,4 +1,5 @@
 SET(Boost_ADDITIONAL_VERSIONS "1.42" "1.42.0")
+
 find_package( Boost 1.42.0 
   COMPONENTS 
     thread 
@@ -8,6 +9,7 @@ find_package( Boost 1.42.0
     program_options
   REQUIRED )
 
+add_definitions(-DBOOST_ALL_NO_LIB)
 include_directories(${CMAKE_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
 
 add_executable(net_kernel_sim net_kernel_sim.cpp)
