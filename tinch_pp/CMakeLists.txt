@@ -4,15 +4,13 @@ install(FILES
     erl_any.h
     erl_list.h
     erl_object.h
-    erl_string.h
-   make_erl_tuple.h   
-   erl_tuple.h
+    erl_string.h  
+    erl_tuple.h
     mailbox.h
+    make_erl_tuple.h 
     matchable.h
     node.h
     rpc.h
     type_makers.h
-    string_matcher.h
-    list_matcher.h
   DESTINATION ${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION}/tinch_pp
   )
