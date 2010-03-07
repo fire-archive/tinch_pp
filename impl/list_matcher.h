@@ -49,8 +49,10 @@ struct list_matcher
     const bool matched = length_matched && (val.end() == 
 					                                        std::find_if(val.begin(), val.end(), 
                                                 bind(&erl::object::match, ::_1, boost::ref(f), cref(l)) == false));
+    // TODO: check once we're handling lists properly!
+    qi::parse(f, l, qi::byte_(tinch_pp::type_tag::nil_ext));
 
-    return matched && qi::parse(f, l, qi::byte_(tinch_pp::type_tag::nil_ext));
+    return matched;
   }
 
   static bool assign_match(T* val, msg_seq_iter& f, const msg_seq_iter& l)

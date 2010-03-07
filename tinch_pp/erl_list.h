@@ -22,13 +22,13 @@ public:
   list(const list_type& contained)
     : val(contained),
       to_assign(0),
-      match_fn(boost::bind(&own_type::match_value, this, ::_1, ::_2))
+      match_fn(boost::bind(&own_type::match_value, ::_1, ::_2, ::_3))
   {
   }
 
   list(list_type* contained)
     : to_assign(contained),
-      match_fn(boost::bind(&own_type::assign_matched, ::_1, ::_2, contained))
+      match_fn(boost::bind(&own_type::assign_matched, ::_1, ::_2, ::_3, contained))
   {
   }
 
@@ -45,16 +45,21 @@ public:
 
   virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const
   {
-    return match_fn(f, l);
+    return match_fn(this, f, l);
+  }
+
+  list_type value() const 
+  {
+     return val;
   }
 
 private:
-  bool match_value(msg_seq_iter& f, const msg_seq_iter& l) const
+  static bool match_value(const own_type* self, msg_seq_iter& f, const msg_seq_iter& l)
   {
-    return matcher::match(val, f, l);
+    return matcher::match(self->value(), f, l);
   }
 
-  static bool assign_matched(msg_seq_iter& f, const msg_seq_iter& l, list_type* dest)
+  static bool assign_matched(const own_type*, msg_seq_iter& f, const msg_seq_iter& l, list_type* dest)
   {
     assert(0 != dest);
     return matcher::assign_match(dest, f, l);
@@ -65,7 +70,9 @@ private:
 
   list_type val;
   list_type* to_assign;
-  match_fn_type match_fn;
+  
+  typedef boost::function<bool (const own_type*, msg_seq_iter&, const msg_seq_iter&)> match_list_fn_type;
+  match_list_fn_type match_fn;
 };
 
 template<>
@@ -78,13 +85,13 @@ public:
   list(const list_type& contained)
     : val(contained),
       to_assign(0),
-      match_fn(boost::bind(&own_type::match_value, this, ::_1, ::_2))
+      match_fn(boost::bind(&own_type::match_value, ::_1, ::_2, ::_3))
   {
   }
 
   list(list_type* contained)
     : to_assign(contained),
-      match_fn(boost::bind(&own_type::assign_matched, ::_1, ::_2, contained))
+      match_fn(boost::bind(&own_type::assign_matched, ::_1, ::_2, ::_3, contained))
   {
   }
 
@@ -101,20 +108,25 @@ public:
 
   virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const
   {
-    return match_fn(f, l);
+    return match_fn(this, f, l);
+  }
+
+  list_type value() const 
+  {
+     return val;
   }
 
 private:
-  bool match_value(msg_seq_iter& f, const msg_seq_iter& l) const
+  static bool match_value(const own_type* self, msg_seq_iter& f, const msg_seq_iter& l) 
   {
     // Erlang has an optimization for sending lists of small values (<=255), where 
     // the values are packed into a string.
     const bool is_packed_as_string = (type_tag::string_ext == *f);
 
-    return is_packed_as_string ? matcher_s::match(val, f, l) : matcher_l::match(val, f, l);
+    return is_packed_as_string ? matcher_s::match(self->value(), f, l) : matcher_l::match(self->value(), f, l);
   }
 
-  static bool assign_matched(msg_seq_iter& f, const msg_seq_iter& l, list_type* dest)
+  static bool assign_matched(const own_type*, msg_seq_iter& f, const msg_seq_iter& l, list_type* dest)
   {
     // Erlang has an optimization for sending lists of small values (<=255), where 
     // the values are packed into a string.
@@ -131,7 +143,9 @@ private:
 
   list_type val;
   list_type* to_assign;
-  match_fn_type match_fn;
+
+  typedef boost::function<bool (const own_type*, msg_seq_iter&, const msg_seq_iter&)> match_list_fn_type;
+  match_list_fn_type match_fn;
 };
 
 template<typename T>
