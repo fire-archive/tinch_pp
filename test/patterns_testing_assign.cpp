@@ -70,8 +70,6 @@ int main()
 
   mailbox_ptr mbox = my_node.create_mailbox();
 
-  // TODO: Use seperate testcases for any, value, and assignment.
-  // TODO: Test a second match on the any data.
   const sender_fn_type senders[] = {bind(assign_atom, ::_1),
                                     bind(assign_nested_tuples, ::_1),
                                     bind(assign_list, ::_1),
