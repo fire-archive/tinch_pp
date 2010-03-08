@@ -51,6 +51,12 @@ namespace {
 
 void match_any_atom(mailbox_ptr mbox);
 
+void match_any_negative_int(mailbox_ptr mbox);
+
+void match_any_small_int(mailbox_ptr mbox);
+
+void match_any_medium_int(mailbox_ptr mbox);
+
 void match_any_nested_tuples(mailbox_ptr mbox);
 
 void match_any_list(mailbox_ptr mbox);
@@ -74,6 +80,9 @@ int main()
   mailbox_ptr mbox = my_node.create_mailbox();
 
   const sender_fn_type senders[] = {bind(match_any_atom, ::_1),
+                                    bind(match_any_negative_int, ::_1),
+                                    bind(match_any_small_int, ::_1),
+                                    bind(match_any_medium_int, ::_1),
                                     bind(match_any_nested_tuples, ::_1),
                                     bind(match_any_empty_tuple, ::_1),
                                     bind(match_any_list, ::_1),
@@ -115,6 +124,43 @@ void match_any_atom(mailbox_ptr mbox)
     std::cout << "Matched any atom(hello)" << std::endl;
   else
     std::cerr << "match_any_atom: No match - unexpected message!" << std::endl;
+}
+
+void match_any_negative_int(mailbox_ptr mbox)
+{
+  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), int_(-1)));
+
+  const matchable_ptr reply = receive_any(mbox);
+
+  if(reply->match(int_(-1)))
+    std::cout << "Matched any int_(-1)" << std::endl;
+  else
+    std::cerr << "match_any_negative_int: No match - unexpected message!" << std::endl;
+}
+
+void match_any_small_int(mailbox_ptr mbox)
+{
+  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), int_(2)));
+
+  const matchable_ptr reply = receive_any(mbox);
+
+  if(reply->match(int_(2)))
+    std::cout << "Matched any int_(2)" << std::endl;
+  else
+    std::cerr << "match_any_small_int: No match - unexpected message!" << std::endl;
+}
+
+// NOTE: Erlang supports big ints too, but I haven't implemented them yet.
+void match_any_medium_int(mailbox_ptr mbox)
+{
+  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), int_(10000)));
+
+  const matchable_ptr reply = receive_any(mbox);
+
+  if(reply->match(int_(10000)))
+    std::cout << "Matched any int_(10000)" << std::endl;
+  else
+    std::cerr << "match_any_medium_int: No match - unexpected message!" << std::endl;
 }
 
 void match_any_nested_tuples(mailbox_ptr mbox)

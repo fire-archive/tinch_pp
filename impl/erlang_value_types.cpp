@@ -82,7 +82,8 @@ int_::int_(const any& any_int)
 
 void int_::serialize(msg_seq_out_iter& out) const
 {
-  const bool is_small_int = (val <= std::numeric_limits<boost::uint8_t>::max());
+  // In the name of optimization, Erlang tries to pack small integer values (0-0xFF).
+  const bool is_small_int = (val >= 0) && (val <= std::numeric_limits<boost::uint8_t>::max());
 
   is_small_int ? term_to_binary<small_integer_g>(out, val) : term_to_binary<integer_ext_g>(out, val);
 }

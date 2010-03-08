@@ -43,9 +43,8 @@ namespace tinch_pp {
 // The external term format is a binary protocol (see reference XXX).
 // The format is parsed with Boost Sprit QI and genereated through Karma.
 
-// TODO: this is wrong - should be unsigned!
 template<const int tag>
-struct ext_byte : qi::grammar<msg_seq_iter, signed char()>
+struct ext_byte : qi::grammar<msg_seq_iter, boost::uint8_t()>
 {
   ext_byte() : base_type(start)
   {
@@ -55,7 +54,7 @@ struct ext_byte : qi::grammar<msg_seq_iter, signed char()>
     start = omit[byte_(tag)] >> byte_;
   }
 
-  qi::rule<msg_seq_iter, signed char()> start;
+  qi::rule<msg_seq_iter, boost::uint8_t()> start;
 };
 
 template<const int tag>
