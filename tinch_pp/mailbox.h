@@ -23,6 +23,9 @@ struct pid_t;
 ///
 /// Lifetime: a mailbox is only valid as long as its node, from 
 /// which it is created, exists.
+///
+/// In the current version of tinch++, a mailbox is implicitly closed as 
+/// it goes out of scope (future versions will include an explicit close-method).
 class mailbox : boost::noncopyable
 {
 public:
