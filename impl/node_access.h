@@ -26,6 +26,9 @@
 
 namespace tinch_pp {
 
+class mailbox;
+typedef boost::shared_ptr<mailbox> mailbox_ptr;
+
 class node_access
 {
 protected:
@@ -33,6 +36,8 @@ protected:
 public:
   virtual std::string name() const = 0;
   
+  virtual void close(mailbox_ptr mailbox) = 0;
+
   virtual std::string cookie() const = 0;
 
   virtual void deliver(const msg_seq& msg, const pid_t& to) = 0;

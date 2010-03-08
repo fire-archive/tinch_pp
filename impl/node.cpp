@@ -124,6 +124,13 @@ mailbox_ptr node::create_mailbox(const std::string& registered_name)
   return mbox;
 }
 
+void node::close(mailbox_ptr mailbox)
+{
+  const mutex_guard guard(mailboxes_lock);
+
+  remove(mailbox);
+}
+
 std::vector<std::string> node::connected_nodes() const
 {
   return connector.connected_nodes();

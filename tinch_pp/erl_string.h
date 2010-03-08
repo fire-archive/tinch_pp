@@ -15,9 +15,9 @@ class any;
 // in behaviour is encapsulated by a match_fn.
 typedef boost::function<bool (msg_seq_iter&, const msg_seq_iter&)> match_fn_type;
 
-// String does NOT have a corresponding Erlang representation, but is an 
-// optimization for sending lists of bytes (integer in the range 0-255) 
-// more efficiently over the distribution.
+/// String does NOT have a corresponding Erlang representation, but is an 
+/// optimization for sending lists of bytes (integer in the range 0-255) 
+/// more efficiently over the distribution.
 class estring : public object
 {
 public:

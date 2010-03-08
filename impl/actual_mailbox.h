@@ -26,13 +26,15 @@
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <list>
 
 namespace tinch_pp {
 
 class node_access;
 
-class actual_mailbox : public mailbox
+class actual_mailbox : public mailbox,
+                       public boost::enable_shared_from_this<actual_mailbox>
 {
 public:
   actual_mailbox(node_access& node, const pid_t& own_pid, boost::asio::io_service& service);
@@ -40,6 +42,8 @@ public:
   actual_mailbox(node_access& node, const pid_t& own_pid, 
                  boost::asio::io_service& service, 
                  const std::string& own_name);
+
+  ~actual_mailbox();
 
   // Implementation of the mailbox-interface:
   //

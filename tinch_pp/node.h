@@ -1,23 +1,6 @@
 #ifndef NODE_H
 #define NODE_H
 
-// A node represents one, distributed C++ node connected to the EPMD.
-// A node is responsible for establishing connections with other 
-// nodes on the Erlang infrastructure. There are two ways to estblish connections:
-// 1) The C++ node as originator (by sending a message or pinging), or 
-// 2) another, remote node initiates the connection handshake.
-// As a node registers itself at EPMD, it provides a port number. The node is 
-// responsible for listening to incoming connections at that port (case 2 above).
-// 
-// Networking strategy
-// ===================
-// Calls to EPMD are rare. Thus, all communication with EPMD is synchronous.
-// The communication between connected nodes uses asynchronous TCP/IP.
-//
-// Threading
-// =========
-// A separate thread is used for asynchronous I/O. Shared data is protected 
-// through mutexes.
 #include "impl/node_connector.h"
 #include "impl/epmd_requestor.h"
 #include "impl/node_access.h"
@@ -34,12 +17,27 @@ class mailbox;
 typedef boost::shared_ptr<mailbox> mailbox_ptr;
 class actual_mailbox;
 
+/// A node represents one, distributed C++ node connected to the EPMD.
+/// A node is responsible for establishing connections with other 
+/// nodes on the Erlang infrastructure. There are two ways to estblish connections:
+/// 1) The C++ node as originator (by sending a message or pinging), or 
+/// 2) another, remote node initiates the connection handshake.
+/// As a node registers itself at EPMD, it provides a port number. The node is 
+/// responsible for listening to incoming connections at that port (case 2 above).
+/// 
+/// Networking strategy:
+/// Calls to EPMD are rare. Thus, all communication with EPMD is synchronous.
+/// The communication between connected nodes uses asynchronous TCP/IP.
+///
+/// Threading:
+/// A separate thread is used for asynchronous I/O. Shared data is protected 
+/// through mutexes.
 class node : node_access,
              boost::noncopyable 
 {
 public:
   // Creates a node using the default cookie (read from your user.home).
-  node(const std::string& node_name);
+  //node(const std::string& node_name);
 
   node(const std::string& node_name, const std::string& cookie);
 
@@ -47,23 +45,26 @@ public:
 
   //node(const std::string& node_name, const std::string& cookie, int incoming_connections_port);
 
-  // If you want other nodes to connect to this one, it has to be registered at EPMD.
-  // This method does that.
+  /// If you want other nodes to connect to this one, it has to be registered at EPMD.
+  /// This method does that.
   void publish_port(port_number_type incoming_connections_port);
 
-  // Attempts to establish a connection to the given node.
-  // Note that connections are established implicitly as the first message to a node is sent.
+  /// Attempts to establish a connection to the given node.
+  /// Note that connections are established implicitly as the first message to a node is sent.
   bool ping_peer(const std::string& peer_node_name);
 
-  // Create an unnamed mailbox to communicate with other mailboxes and/or Erlang process.
-  // All messages are sent and received through mailboxes.
+  /// Create an unnamed mailbox to communicate with other mailboxes and/or Erlang process.
+  /// All messages are sent and received through mailboxes.
   mailbox_ptr create_mailbox();
 
-  // Create an named mailbox to communicate with other mailboxes and/or Erlang process.
-  // Messages can be sent to this mailbox by using its registered name or its pid.
+  /// Create an named mailbox to communicate with other mailboxes and/or Erlang process.
+  /// Messages can be sent to this mailbox by using its registered name or its pid.
   mailbox_ptr create_mailbox(const std::string& registered_name);
 
-  // Returns a vector with the names of all nodes connected to this one.
+  // TODO: provide an explicit way to close the mailbox once we got linked processes.
+  // Consider reason sent (see Jinterface node::close(mbox).
+
+  /// Returns a vector with the names of all nodes connected to this one.
   std::vector<std::string> connected_nodes() const;
 
 private:
@@ -110,6 +111,8 @@ private:
   //
   virtual std::string name() const { return node_name_; }
   
+  virtual void close(mailbox_ptr mailbox);
+
   virtual std::string cookie() const { return cookie_; }
 
   virtual void deliver(const msg_seq& msg, const pid_t& to);

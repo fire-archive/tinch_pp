@@ -116,7 +116,7 @@ private:
   match_fn_type match_fn;
 };
 
-// Encode a reference object (an object generated with make_ref/0).
+/// Encode a reference object (an object generated with make_ref/0).
 class ref : public object
 {
 public:

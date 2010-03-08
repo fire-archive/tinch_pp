@@ -20,7 +20,10 @@ inline tuple<boost::fusion::tuple<> > make_tuple()
 
 #define BOOST_PP_FILENAME_1 "tinch_pp/make_erl_tuple.h"
 
-// TODO: Document the constant!
+/// If you need larger tuples, provide your own size through the pre-processor.
+/// But please note that this library is implemented on top of Boost Fusion, which 
+/// implies that you have to increase the maximum tuple size in Fusion too (see 
+/// the Boost documentation).
 #if !defined(MAX_ERL_TUPLE_SIZE)
   #define MAX_ERL_TUPLE_SIZE 10
 #endif
