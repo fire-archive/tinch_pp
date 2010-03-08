@@ -25,6 +25,7 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/program_options.hpp>
 #include <iostream>
 
 using namespace tinch_pp;
@@ -61,11 +62,44 @@ typedef boost::function<void (mailbox_ptr)> sender_fn_type;
 
 }
 
+void print_usage()
+{
+  std::cout << "USAGE:" << std::endl;
+  std::cout << "======" << std::endl;
+  std::cout << "1. Start an Erlang node with a cookie set and a full node name." << std::endl;
+  std::cout << "2. Start the Erlang program reflect_msg:" << std::endl;
+  std::cout << "\t(testnode@127.0.0.1)4> reflect_msg:start_link()." << std::endl;
+  std::cout << "3. Start this program (with thesame cookie)." << std::endl;
+  std::cout << "\tThe program will send different messages to reflect_msg, which echoes the messages back." << std::endl;
+  std::cout << "======" << std::endl;
+}
+
 // NOTE: A tuple with one element doesn't work => TODO: debug and fix!
 
-int main()
+int main(int ac, char* av[])
 {
-  node my_node("net_adm_test_node@127.0.0.1", "abcdef");
+  std::string node_name;
+  std::string cookie;
+
+  boost::program_options::options_description desc("Allowed options");
+  desc.add_options()
+    ("help", "produce help message")
+    ("node", boost::program_options::value<std::string>(&node_name)->default_value("net_adm_test_node@127.0.0.1"), "set node")
+    ("cookie", boost::program_options::value<std::string>(&cookie)->default_value("abcdef"), "set cookie");
+
+  boost::program_options::variables_map vm;
+  boost::program_options::store(boost::program_options::parse_command_line(ac, av, desc), vm);
+  boost::program_options::notify(vm);
+
+  if(vm.count("help"))
+    {
+      print_usage();
+      std::cout << std::endl;
+      std::cout << desc << std::endl;
+      return 1;
+    }
+
+  node my_node(node_name.c_str(), cookie.c_str());
 
   mailbox_ptr mbox = my_node.create_mailbox();
 
