@@ -1,9 +1,9 @@
 option(BUILD_TEST "Build test applications" ON)
 option(INSTALL_TEST "Install test applications" ON)
- 
+
 if(BUILD_TEST)
   SET(Boost_ADDITIONAL_VERSIONS "1.42" "1.42.0")
- 
+
   find_package( Boost 1.42.0 
     COMPONENTS
       thread
@@ -15,16 +15,16 @@ if(BUILD_TEST)
  
   find_program( ERLANG_ERLC erlc
     DOC "Erlang compiler")
- 
+
   link_directories(${Boost_LIBRARY_DIRS})
- 
+
   if(ERLANG_ERLC)
     add_custom_command(OUTPUT reflect_msg.beam COMMAND ${ERLANG_ERLC} -o ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/reflect_msg.erl)
     add_custom_target(build_erlang ALL DEPENDS reflect_msg.beam)
   else(ERLANG_ERLC)
     message("Erlang compiler not found")
   endif(ERLANG_ERLC)
- 
+
   add_definitions(-DBOOST_ALL_NO_LIB)
   include_directories(${CMAKE_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
  
