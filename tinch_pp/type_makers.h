@@ -22,6 +22,8 @@ object_ptr make_pid(const tinch_pp::pid_t& p);
 
 object_ptr make_int(boost::int32_t i);
 
+object_ptr make_string(const std::string& s);
+
 }
 }
 

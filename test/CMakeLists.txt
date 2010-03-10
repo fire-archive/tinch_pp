@@ -45,6 +45,9 @@ if(BUILD_TEST)
 
   add_executable(thread_safe_queue thread_safe_queue.cpp)
   target_link_libraries(thread_safe_queue tinch++ ${Boost_LIBRARIES})
+  
+  add_executable(chat_client chat_client.cpp)
+  target_link_libraries(chat_client tinch++ ${Boost_LIBRARIES})
 
   if(INSTALL_TEST)
     install(TARGETS net_kernel_sim patterns rpc_test 
