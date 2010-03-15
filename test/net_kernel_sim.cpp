@@ -24,7 +24,6 @@
 #include "tinch_pp/erlang_types.h"
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
-#include <boost/program_options.hpp>
 #include <iostream>
 #include <utility>
 
@@ -33,22 +32,19 @@ using namespace tinch_pp::erl;
 
 // USAGE:
 // ======
-// See print_usage below.
+// 
+//  1. Start an Erlang node with a cookie set and a full node name.
+//  2. Start net_kernel_sim with the same cookie.
+//  3. Ping net_kernel_sim node.
+//
+// Example:
+// ========
+//  (testnode@127.0.0.1)1> net_adm:ping('net_adm_test_node@127.0.0.1').
+//
+//  Stop the program with:
+//   (testnode@127.0.0.1)2> erlang:send({net_kernel,'net_adm_test_node@127.0.0.1'}, stop).
 
 namespace {
-
-void print_usage()
-{
-  std::cout << "USAGE:" << std::endl;
-  std::cout << "======" << std::endl;
-  std::cout << "1. Start an Erlang node with a cookie set and a full node name." << std::endl;
-  std::cout << "2. Start net_kernel_sim with the same cookie" << std::endl;
-  std::cout << "3. Ping net_kernel_sim node." << std::endl;
-  std::cout << "\t(testnode@127.0.0.1)1> net_adm:ping('net_adm_test_node@127.0.0.1')" << std::endl;
-  std::cout << "4. Stop the program with:" << std::endl;
-  std::cout << "\t(testnode@127.0.0.1)2> erlang:send({net_kernel,'net_adm_test_node@127.0.0.1'}, stop)." << std::endl;
-  std::cout << "======" << std::endl;
-}
 
 void run_emulation(const std::string& node_name, const std::string& cookie);
 
@@ -58,26 +54,8 @@ void net_adm_emulator(mailbox_ptr mbox);
 
 int main(int ac, char* av[])
 {
-  std::string node_name;
-  std::string cookie;
-
-  boost::program_options::options_description desc("Allowed options");
-  desc.add_options()
-    ("help", "produce help message")
-    ("node", boost::program_options::value<std::string>(&node_name)->default_value("net_adm_test_node@127.0.0.1"), "set node")
-    ("cookie", boost::program_options::value<std::string>(&cookie)->default_value("abcdef"), "set cookie");
-
-  boost::program_options::variables_map vm;
-  boost::program_options::store(boost::program_options::parse_command_line(ac, av, desc), vm);
-  boost::program_options::notify(vm);
-
-  if(vm.count("help"))
-    {
-      print_usage();
-      std::cout << std::endl;
-      std::cout << desc << std::endl;
-      return 1;
-    }
+  std::string node_name = "net_adm_test_node@127.0.0.1";
+  const std::string cookie = "abcdef";
 
   run_emulation(node_name, cookie);  
 }

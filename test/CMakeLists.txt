@@ -13,7 +13,6 @@ if(BUILD_TEST)
       system
       regex
       signals
-      program_options
     REQUIRED )
  
   find_program( ERLANG_ERLC erlc
