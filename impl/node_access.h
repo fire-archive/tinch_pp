@@ -36,7 +36,7 @@ protected:
 public:
   virtual std::string name() const = 0;
   
-  virtual void close(mailbox_ptr mailbox) = 0;
+  virtual void close_mailbox(const pid_t& id, const std::string& name) = 0;
 
   virtual std::string cookie() const = 0;
 

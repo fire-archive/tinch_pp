@@ -62,10 +62,15 @@ actual_mailbox::~actual_mailbox()
   // TODO: Change once linked processes are implemented - in that case,
   // the mailbox may already be closed.
   try {
-    node.close(shared_from_this());
+    node.close_mailbox(own_pid, own_name);
   } catch(...) {
     // don't let any exceptions propagate from the destructor.
   }
+}
+
+void actual_mailbox::close()
+{
+  node.close_mailbox(own_pid, own_name);
 }
 
 tinch_pp::pid_t actual_mailbox::self() const

@@ -98,6 +98,10 @@ private:
   typedef std::map<pid_t, actual_mailbox_ptr> mailboxes_type;
   mailboxes_type mailboxes;
 
+  // Closing a mailbox isn't done right from a design perspective.
+  // I'll have a look at it when implementing linked-processes.
+  bool is_destructing;
+
   typedef std::map<std::string, actual_mailbox_ptr> registered_mailboxes_type;
   registered_mailboxes_type registered_mailboxes;
 
@@ -105,13 +109,14 @@ private:
   typedef boost::lock_guard<boost::mutex> mutex_guard;
 
   void remove(mailbox_ptr mailbox);
+  void remove(const pid_t& id, const std::string& name);
 
 private:
   // Implementation of node_access.
   //
   virtual std::string name() const { return node_name_; }
   
-  virtual void close(mailbox_ptr mailbox);
+  virtual void close_mailbox(const pid_t& id, const std::string& name);
 
   virtual std::string cookie() const { return cookie_; }
 

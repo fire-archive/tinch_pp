@@ -53,6 +53,10 @@ public:
   /// Returns the received messages as a matchable allowing Erlang-style pattern matching.
   /// In case of a time-out, an tinch_pp::receive_tmo_exception is thrown.
   virtual matchable_ptr receive(time_type_sec tmo) = 0;
+
+  /// Closes this mailbox. After this call completes, no more operations are 
+  /// allowed on the mailbox.
+  virtual void close() = 0;
 };
 
 }

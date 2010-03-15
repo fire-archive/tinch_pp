@@ -77,6 +77,8 @@ int main()
 
   for(size_t i = 0; i < number_of_senders; ++i)
     senders[i](mbox);
+
+  mbox->close();
 }
 
 namespace {

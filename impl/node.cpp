@@ -60,14 +60,17 @@ node::node(const std::string& a_node_name, const std::string& a_cookie)
     connector(*this, io_service),
     async_io_runner(&node::run_async_io, this),
     // variabled used to build pids:
-    pid_id(1),
-    serial(0),
-    creation(0)
+    pid_id(1), serial(0), creation(0),
+    is_destructing(false)
 {
 }
 
 node::~node()
 {
+  // A nasty hack in order to avoid deletion attempts on an already destructed container (the 
+  // mailboxes calls close as they go out of scope). I'll fix this in the next version.
+  is_destructing = true;
+
   // Terminate all ongoing operations and kill the thread used to dispatch async I/O.
   // As an alternative, we could invoke work.reset() and allow all ongoing operations 
   // to complete => better?
@@ -124,11 +127,14 @@ mailbox_ptr node::create_mailbox(const std::string& registered_name)
   return mbox;
 }
 
-void node::close(mailbox_ptr mailbox)
+void node::close_mailbox(const pid_t& id, const std::string& name)
 {
+  if(is_destructing)
+    return; // see comment in destructor.
+
   const mutex_guard guard(mailboxes_lock);
 
-  remove(mailbox);
+  remove(id, name);
 }
 
 std::vector<std::string> node::connected_nodes() const
@@ -138,9 +144,14 @@ std::vector<std::string> node::connected_nodes() const
 
 void node::remove(mailbox_ptr mailbox)
 {
-  mailboxes.erase(mailbox->self());
+  remove(mailbox->self(), mailbox->name());
+}
+
+void node::remove(const pid_t& id, const std::string& name)
+{
+   mailboxes.erase(id);
   // Not all mailboxes have an registered name, but erase is fine anyway (no throw).
-  registered_mailboxes.erase(mailbox->name());
+  registered_mailboxes.erase(name);
 }
 
 void node::deliver(const msg_seq& msg, const pid_t& to_pid)
