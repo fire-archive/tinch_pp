@@ -18,6 +18,17 @@ inline tuple<boost::fusion::tuple<> > make_tuple()
   return erl::tuple<Tuple>(boost::fusion::tuple<>());
 }
 
+// A pointer to a tuple is typically used to store it in a list 
+// as RPC argument.
+inline object_ptr make_tuple_ptr()
+{
+  typedef boost::fusion::tuple<> Tuple;
+  
+  object_ptr created(new erl::tuple<Tuple>(boost::fusion::tuple<>()));
+
+  return created;
+}
+
 #define BOOST_PP_FILENAME_1 "tinch_pp/make_erl_tuple.h"
 
 /// If you need larger tuples, provide your own size through the pre-processor.
@@ -50,6 +61,16 @@ make_tuple(BOOST_PP_ENUM_BINARY_PARAMS(N, T, const& t))
   
   return erl::tuple<Tuple>(boost::fusion::tuple<BOOST_PP_ENUM_PARAMS(N, T)>(
                            BOOST_PP_ENUM_PARAMS(N, t)));
+}
+
+template <BOOST_PP_ENUM_PARAMS(N, typename T)>
+inline object_ptr make_tuple_ptr(BOOST_PP_ENUM_BINARY_PARAMS(N, T, const& t))
+{
+  typedef boost::fusion::tuple<BOOST_PP_ENUM_PARAMS(N, T)> Tuple;
+  
+  object_ptr created(new erl::tuple<Tuple>(boost::fusion::tuple<BOOST_PP_ENUM_PARAMS(N, T)>(
+                                           BOOST_PP_ENUM_PARAMS(N, t))));
+  return created;
 }
 
 #undef N
