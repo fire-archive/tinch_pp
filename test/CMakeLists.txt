@@ -6,6 +6,7 @@ option(INSTALL_TEST "Install test applications" ON)
 
 if(BUILD_TEST)
   SET(Boost_ADDITIONAL_VERSIONS "1.42" "1.42.0")
+  add_definitions(-DBOOST_ALL_DYN_LINK)
 
   find_package( Boost 1.42.0 
     COMPONENTS
@@ -13,6 +14,7 @@ if(BUILD_TEST)
       system
       regex
       signals
+      program_options
     REQUIRED )
  
   find_program( ERLANG_ERLC erlc
@@ -45,6 +47,24 @@ if(BUILD_TEST)
   
   add_executable(chat_client chat_client.cpp)
   target_link_libraries(chat_client tinch++ ${Boost_LIBRARIES})
+
+  add_test(thread_safe_queue_test thread_safe_queue)
+
+  find_program(VALGRIND_EXE valgrind)
+  if(VALGRIND_EXE)
+    set(MEMCHECK_CMD ${VALGRIND_EXE} --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes)
+    set(PROFILING_CMD ${VALGRIND_EXE} --tool=callgrind --dump-instr=yes --simulate-cache=yes --collect-jumps=yes)
+    add_custom_target(memcheck)
+    add_custom_target(profiling)
+
+    add_custom_command(TARGET memcheck
+      COMMAND ${MEMCHECK_CMD} ./thread_safe_queue
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+    add_custom_command(TARGET profiling
+      COMMAND ${PROFILING_CMD} --callgrind-out-file=thread_safe_queue.callgrind ./thread_safe_queue
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  endif(VALGRIND_EXE)
 
   if(INSTALL_TEST)
     install(TARGETS net_kernel_sim patterns rpc_test thread_safe_queue chat_client

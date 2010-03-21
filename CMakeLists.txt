@@ -9,9 +9,11 @@ SET(CPACK_PACKAGE_VERSION "0.1")
 
 cmake_minimum_required(VERSION 2.8)
 
+enable_testing()
+
 add_subdirectory(impl)
-add_subdirectory(test)
 add_subdirectory(tinch_pp)
+add_subdirectory(test)
 
 find_package(Doxygen)
 
