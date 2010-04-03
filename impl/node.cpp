@@ -22,15 +22,15 @@
 #include "tinch_pp/node.h"
 #include "utils.h"
 #include "actual_mailbox.h"
+#include "erl_cpp_exception.h"
 #include "ScopeGuard.h"
 #include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
 #include <iostream>
 #include <cassert>
 
 using namespace tinch_pp;
 using namespace boost;
-
-struct erl_cpp_exception;
 
 namespace {
 
@@ -39,6 +39,41 @@ std::string valid_node_name(const std::string& user_provided)
   // TODO: verify the name, throw exception!
   // => move to utilities!
   return user_provided;
+}
+
+template<typename T, typename Key>
+void remove_expired(const Key& key, T& mboxes)
+{
+  mboxes.erase(key);
+}
+
+std::string key_to_name(const std::string& name) { return name; }
+
+std::string key_to_name(const pid_t& p)
+{
+  const std::string name = "<" + p.node_name + ":" + lexical_cast<std::string>(p.id) + ":" +
+                           lexical_cast<std::string>(p.serial) + ":" + 
+                           lexical_cast<std::string>(p.creation) + ">";
+  return name;
+}
+
+template<typename Key, typename T>
+shared_ptr<actual_mailbox> fetch_mailbox(const Key& name,
+                                         T& registered_mboxes)
+{
+  T::iterator mbox = registered_mboxes.find(name);
+
+  if(mbox == registered_mboxes.end())
+    throw erl_cpp_exception("Failed to deliver message - mailbox not known. Name = " + key_to_name(name));
+
+  shared_ptr<actual_mailbox> destination = mbox->second.lock();
+
+  if(!destination) {
+    remove_expired(name, registered_mboxes);
+    throw erl_cpp_exception("Failed to deliver message - mailbox expired (check your lifetime management). Name = " + key_to_name(name));
+  }
+
+  return destination;
 }
 
 }
@@ -60,17 +95,12 @@ node::node(const std::string& a_node_name, const std::string& a_cookie)
     connector(*this, io_service),
     async_io_runner(&node::run_async_io, this),
     // variabled used to build pids:
-    pid_id(1), serial(0), creation(0),
-    is_destructing(false)
+    pid_id(1), serial(0), creation(0)
 {
 }
 
 node::~node()
 {
-  // A nasty hack in order to avoid deletion attempts on an already destructed container (the 
-  // mailboxes calls close as they go out of scope). I'll fix this in the next version.
-  is_destructing = true;
-
   // Terminate all ongoing operations and kill the thread used to dispatch async I/O.
   // As an alternative, we could invoke work.reset() and allow all ongoing operations 
   // to complete => better?
@@ -101,7 +131,7 @@ bool node::ping_peer(const std::string& peer_node_name)
 
 mailbox_ptr node::create_mailbox()
 {
-  actual_mailbox_ptr mbox(new actual_mailbox(*this, make_pid(), io_service));
+  shared_ptr<actual_mailbox> mbox(new actual_mailbox(*this, make_pid(), io_service));
 
   const mutex_guard guard(mailboxes_lock);
 
@@ -113,7 +143,7 @@ mailbox_ptr node::create_mailbox()
 
 mailbox_ptr node::create_mailbox(const std::string& registered_name)
 {
-  actual_mailbox_ptr mbox(new actual_mailbox(*this, make_pid(), io_service, registered_name));
+  shared_ptr<actual_mailbox> mbox(new actual_mailbox(*this, make_pid(), io_service, registered_name));
 
   const mutex_guard guard(mailboxes_lock);
 
@@ -129,9 +159,6 @@ mailbox_ptr node::create_mailbox(const std::string& registered_name)
 
 void node::close_mailbox(const pid_t& id, const std::string& name)
 {
-  if(is_destructing)
-    return; // see comment in destructor.
-
   const mutex_guard guard(mailboxes_lock);
 
   remove(id, name);
@@ -179,12 +206,7 @@ void node::receive_incoming(const msg_seq& msg, const pid_t& to)
 {
   const mutex_guard guard(mailboxes_lock);
 
-  mailboxes_type::iterator mbox = mailboxes.find(to);
-
-  if(mbox == mailboxes.end())
-    throw erl_cpp_exception("Failed to deliver message - mailbox not known!"); // TODO: more info!
-
-  actual_mailbox_ptr destination = mbox->second;
+  shared_ptr<actual_mailbox> destination = fetch_mailbox(to, mailboxes);
   destination->on_incoming(msg);
 }
 
@@ -192,12 +214,7 @@ void node::receive_incoming(const msg_seq& msg, const std::string& to)
 {
   const mutex_guard guard(mailboxes_lock);
 
-  registered_mailboxes_type::iterator mbox = registered_mailboxes.find(to);
-
-  if(mbox == registered_mailboxes.end())
-    throw erl_cpp_exception("Failed to deliver message - mailbox not known. Name = " + to);
-
-  actual_mailbox_ptr destination = mbox->second;
+  shared_ptr<actual_mailbox> destination = fetch_mailbox(to, registered_mailboxes);
   destination->on_incoming(msg);
 }
 

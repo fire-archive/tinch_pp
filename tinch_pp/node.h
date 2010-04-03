@@ -29,6 +29,7 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/utility.hpp>
+#include <boost/weak_ptr.hpp>
 #include <string>
 #include <map>
 
@@ -115,13 +116,11 @@ private:
   pid_t make_pid();
   void update_pid_fields();
 
-  typedef boost::shared_ptr<actual_mailbox> actual_mailbox_ptr;
+  // Use a weak-pointer to break the cyclic ownership => now, the 
+  // client owns the mailbox.
+  typedef boost::weak_ptr<actual_mailbox> actual_mailbox_ptr;
   typedef std::map<pid_t, actual_mailbox_ptr> mailboxes_type;
   mailboxes_type mailboxes;
-
-  // Closing a mailbox isn't done right from a design perspective.
-  // I'll have a look at it when implementing linked-processes.
-  bool is_destructing;
 
   typedef std::map<std::string, actual_mailbox_ptr> registered_mailboxes_type;
   registered_mailboxes_type registered_mailboxes;
