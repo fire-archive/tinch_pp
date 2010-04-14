@@ -25,6 +25,8 @@
 #include "impl/node_connector.h"
 #include "impl/epmd_requestor.h"
 #include "impl/node_access.h"
+#include "impl/linker.h"
+#include "impl/mailbox_controller_type.h"
 
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
@@ -55,6 +57,7 @@ class actual_mailbox;
 /// A separate thread is used for asynchronous I/O. Shared data is protected 
 /// through mutexes.
 class node : node_access,
+             mailbox_controller_type,
              boost::noncopyable 
 {
 public:
@@ -126,7 +129,8 @@ private:
   registered_mailboxes_type registered_mailboxes;
 
   boost::mutex mailboxes_lock;
-  typedef boost::lock_guard<boost::mutex> mutex_guard;
+
+  linker mailbox_linker;
 
   void remove(mailbox_ptr mailbox);
   void remove(const pid_t& id, const std::string& name);
@@ -150,6 +154,17 @@ private:
   virtual void receive_incoming(const msg_seq& msg, const pid_t& to);
 
   virtual void receive_incoming(const msg_seq& msg, const std::string& to);
+
+  virtual void incoming_link(const pid_t& from, const pid_t& to);
+
+  virtual void incoming_unlink(const pid_t& from, const pid_t& to);
+
+  virtual void incoming_exit(const pid_t& from, const pid_t& to, const std::string& reason);
+
+  virtual void incoming_exit2(const pid_t& from, const pid_t& to, const std::string& reason);
+
+  // Implementation of mailbox_controller_type.
+  //
 };
 
 }

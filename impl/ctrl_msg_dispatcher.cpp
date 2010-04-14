@@ -153,13 +153,128 @@ public:
   }
 };
 
+// LINK operation: tuple of {1, FromPid, ToPid}
+// This operation sets-up a bidirectional link between the given processes.
+// If the ToPid dies, it will trigger an exist-message sent to FromPid.
+// If FromPid exits, we forward that information to the linked mailbox (see the EXIT operations below).
+class link_handler : public operation_dispatcher
+{
+public:
+  link_handler(access_ptr access) 
+  : operation_dispatcher(access) {}
+
+  link_handler(access_ptr access, dispatcher_ptr next) 
+    : operation_dispatcher(access, next) {}
+
+  virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
+  {
+    bool handled = false;
+    pid_t from_pid;
+    pid_t to_pid;
+     
+    if(matchable_range(f, l).match(make_tuple(int_(constants::ctrl_msg_link), pid(&from_pid), pid(&to_pid)))) {
+      access->request_link(from_pid, to_pid);
+      handled = true;
+    }
+
+    return handled;
+  }
+};
+
+// UNLINK operation: tuple of {4, FromPid, ToPid}
+// This operation removes a previous link between the given processes.
+class unlink_handler : public operation_dispatcher
+{
+public:
+  unlink_handler(access_ptr access) 
+  : operation_dispatcher(access) {}
+
+  unlink_handler(access_ptr access, dispatcher_ptr next) 
+    : operation_dispatcher(access, next) {}
+
+  virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
+  {
+    bool handled = false;
+    pid_t from_pid;
+    pid_t to_pid;
+     
+    if(matchable_range(f, l).match(make_tuple(int_(constants::ctrl_msg_unlink), pid(&from_pid), pid(&to_pid)))) {
+      access->request_unlink(from_pid, to_pid);
+      handled = true;
+    }
+
+    return handled;
+  }
+};
+
+// EXIT operation: tuple of {3, FromPid, ToPid, Reason}
+// Erlang differs between a controlled shutdown and a violent death.
+// This is an uncontrolled shutdown.
+class exit_handler : public operation_dispatcher
+{
+public:
+  exit_handler(access_ptr access) 
+  : operation_dispatcher(access) {}
+
+  exit_handler(access_ptr access, dispatcher_ptr next) 
+    : operation_dispatcher(access, next) {}
+
+  virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
+  {
+    bool handled = false;
+    pid_t from_pid;
+    pid_t to_pid;
+    std::string reason;
+     
+    if(matchable_range(f, l).match(make_tuple(int_(constants::ctrl_msg_exit), pid(&from_pid), pid(&to_pid), atom(&reason)))) {
+      access->request_exit(from_pid, to_pid, reason);
+      handled = true;
+    }
+
+    return handled;
+  }
+};
+
+
+// EXIT2 operation: tuple of {8, FromPid, ToPid, Reason}
+// Erlang differs between a controlled shutdown and a violent death.
+// This is an controlled shutdown, explicitly requested by the user (distributed operation = EXIT2).
+class exit2_handler : public operation_dispatcher
+{
+public:
+  exit2_handler(access_ptr access) 
+  : operation_dispatcher(access) {}
+
+  exit2_handler(access_ptr access, dispatcher_ptr next) 
+    : operation_dispatcher(access, next) {}
+
+  virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
+  {
+    bool handled = false;
+    pid_t from_pid;
+    pid_t to_pid;
+    std::string reason;
+     
+    if(matchable_range(f, l).match(make_tuple(int_(constants::ctrl_msg_exit2), pid(&from_pid), pid(&to_pid), atom(&reason)))) {
+      access->request_exit2(from_pid, to_pid, reason);
+      handled = true;
+    }
+
+    return handled;
+  }
+};
+
 }
 
 
 ctrl_msg_dispatcher::ctrl_msg_dispatcher(access_ptr access)
   : operation_handler(access),
-    operations_chain(new send_handler(access, dispatcher_ptr(
-		     new reg_send_handler(access))))
+    operations_chain(new send_handler(access,     dispatcher_ptr(
+                     new reg_send_handler(access, dispatcher_ptr(
+                     new link_handler(access,     dispatcher_ptr(
+                     new unlink_handler(access,   dispatcher_ptr(
+                     new exit_handler(access,     dispatcher_ptr(
+                     new exit2_handler(access)))))))))))) // a tribute to Lisp
 {
 }
 

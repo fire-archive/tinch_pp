@@ -34,6 +34,8 @@ using namespace boost;
 
 namespace {
 
+typedef boost::lock_guard<boost::mutex> mutex_guard;
+
 std::string valid_node_name(const std::string& user_provided)
 {
   // TODO: verify the name, throw exception!
@@ -95,7 +97,8 @@ node::node(const std::string& a_node_name, const std::string& a_cookie)
     connector(*this, io_service),
     async_io_runner(&node::run_async_io, this),
     // variabled used to build pids:
-    pid_id(1), serial(0), creation(0)
+    pid_id(1), serial(0), creation(0),
+    mailbox_linker(*this)
 {
 }
 
@@ -216,6 +219,34 @@ void node::receive_incoming(const msg_seq& msg, const std::string& to)
 
   shared_ptr<actual_mailbox> destination = fetch_mailbox(to, registered_mailboxes);
   destination->on_incoming(msg);
+}
+
+void node::incoming_link(const pid_t& from, const pid_t& to)
+{
+  mailbox_linker.link(from, to);
+}
+
+void node::incoming_unlink(const pid_t& from, const pid_t& to)
+{
+  mailbox_linker.unlink(from, to);
+}
+
+void node::incoming_exit(const pid_t& from, const pid_t& to, const std::string& reason)
+{
+  const mutex_guard guard(mailboxes_lock);
+
+  shared_ptr<actual_mailbox> linked_mailbox = fetch_mailbox(to, mailboxes);
+
+  linked_mailbox->on_link_broken(reason, from);
+
+  mailbox_linker.unlink(from, to);
+}
+
+void node::incoming_exit2(const pid_t& from, const pid_t& to, const std::string& reason)
+{
+  // Erlang makes a difference between a termination (exit) and a controlled shutdown (exit2).
+  // However, it doesn't really make a difference for us => treat them the same way.
+  incoming_exit(from, to, reason);
 }
 
 void node::run_async_io()

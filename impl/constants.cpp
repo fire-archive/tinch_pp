@@ -39,8 +39,13 @@ namespace constants {
 
   const int magic_version = 131;
   const int pass_through = 112;
-  const int ctrl_msg_send = 2;
+
+  const int ctrl_msg_link     = 1;
+  const int ctrl_msg_unlink   = 4;
+  const int ctrl_msg_send     = 2;
   const int ctrl_msg_reg_send = 6;
+  const int ctrl_msg_exit     = 3;
+  const int ctrl_msg_exit2    = 8;
 
   const int float_digits = 31;
 }

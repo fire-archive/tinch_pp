@@ -26,7 +26,9 @@
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
+#include <boost/function.hpp>
 #include <list>
+#include <utility>
 
 namespace tinch_pp {
 
@@ -70,12 +72,21 @@ public:
   //
   void on_incoming(const msg_seq& msg);
 
+  // Invoked as a linked (remote) process exits.
+  void on_link_broken(const std::string& reason, const pid_t& pid);
+
 private:
+  // Used to abstract away the common pattern of lock-and-notify as a process 
+  // sends some (message or exit) event to this mailbox.
+  void notify_receive(const boost::function<void ()>& receive_action);
+
   void wait_for_at_least_one_message(boost::unique_lock<boost::mutex>& lock);
 
   msg_seq pick_first_msg();
 
   void receive_tmo(const boost::system::error_code& error);
+
+  void report_broken_link();
 
 private:
   node_access& node;
@@ -91,6 +102,12 @@ private:
   boost::condition_variable message_received_cond;
   boost::mutex received_msgs_mutex;
   bool message_ready;
+
+  // A mailbox may be linked to multiple Erlang processes and/or other mailboxes.
+  // Thus, we need to handle the case where multiple links break. Each broken link 
+  // is reported as an exception in the next receive.
+  typedef std::list<std::pair<std::string, pid_t> > broken_links_type;
+  broken_links_type broken_links;
 };
 
 }

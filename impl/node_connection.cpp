@@ -170,6 +170,26 @@ void node_connection::deliver_received(const msg_seq& msg, const std::string& to
   node.receive_incoming(msg, to);
 }
 
+void node_connection::request_link(const pid_t& from, const pid_t& to)
+{
+  node.incoming_link(from, to);
+}
+
+void node_connection::request_unlink(const pid_t& from, const pid_t& to)
+{
+  node.incoming_unlink(from, to);
+}
+
+void node_connection::request_exit(const pid_t& from, const pid_t& to, const std::string& reason)
+{
+  node.incoming_exit(from, to, reason);
+}
+
+void node_connection::request_exit2(const pid_t& from, const pid_t& to, const std::string& reason)
+{
+  node.incoming_exit2(from, to, reason);
+}
+
 void node_connection::handle_io_error(const boost::system::error_code& error)
 {
   std::stringstream out;

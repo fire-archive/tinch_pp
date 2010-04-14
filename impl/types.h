@@ -35,21 +35,6 @@ typedef std::back_insert_iterator<msg_seq> msg_seq_out_iter;
 typedef msg_seq::iterator msg_seq_iter;
 typedef msg_seq::const_iterator msg_seq_citer;
 
-// TODO: move to cpp file!
-namespace type_tag {
-  const int atom_cache_ref = 82;
-  const int small_integer = 97;
-  const int integer = 98;
-  const int float_ext = 99;
-  const int atom_ext = 100;
-  const int pid = 103;
-  const int small_tuple = 104;
-  const int nil_ext = 106;
-  const int string_ext = 107;
-  const int list = 108;
-  const int new_reference_ext = 114;
-}
-
 // TODO: boost types!
 typedef int creation_number_type;
 typedef int port_number_type;
@@ -63,8 +48,6 @@ struct serializable_string
     : size(a_val.size()),
       val(a_val)
   {}
-
-  //operator std::string() { return val; }
 
   size_t size;
   std::string val;

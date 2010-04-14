@@ -19,57 +19,21 @@
 // ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#include "erl_cpp_exception.h"
+#ifndef MAILBOX_CONTROLLER_TYPE_H
+#define MAILBOX_CONTROLLER_TYPE_H
 
-using namespace tinch_pp;
+#include "types.h"
 
-erl_cpp_exception::erl_cpp_exception(const std::string& a_reason)
-  : reason("erl_cpp exception: " + a_reason)
+namespace tinch_pp {
+
+/// An interface used to decouple the requestor of mailbox operations from the 
+/// controller of the mailboxes (typically the node).
+struct mailbox_controller_type
 {
+protected:
+  inline ~mailbox_controller_type() {}
+};
+
 }
 
-erl_cpp_exception::~erl_cpp_exception() throw()
-{
-}
-
-const char* erl_cpp_exception::what() const throw()
-{
-  return reason.c_str();
-}
-
-connection_io_error::connection_io_error(const std::string& reason, 
-					 const std::string& a_node_name)
-  : erl_cpp_exception(reason),
-    node_name(a_node_name)
-{
-}
-
-connection_io_error::~connection_io_error() throw()
-{
-}
-
-std::string connection_io_error::node() const
-{
-  return node_name;
-}
-
-mailbox_receive_tmo::mailbox_receive_tmo()
-  : erl_cpp_exception("Timed out (user requested) while waiting for a message to arrive.")
-{
-}
-
-mailbox_receive_tmo::~mailbox_receive_tmo() throw()
-{
-}
-
-link_broken::link_broken(const std::string& reason, const pid_t& pid)
-  : erl_cpp_exception("Link to remote process broken."),
-    reason_(reason),
-    pid_(pid)
-{
-}
-
-link_broken::~link_broken() throw() 
-{
-}
-
+#endif

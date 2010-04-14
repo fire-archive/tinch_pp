@@ -49,9 +49,19 @@ public:
 		                     const std::string& on_given_node,
 		                     const pid_t& from_pid) = 0;
 
+  // TODO: Extract a separate interface for the Erlang operations.
+
   virtual void receive_incoming(const msg_seq& msg, const pid_t& to) = 0;
 
   virtual void receive_incoming(const msg_seq& msg, const std::string& to) = 0;
+
+  virtual void incoming_link(const pid_t& from, const pid_t& to) = 0;
+
+  virtual void incoming_unlink(const pid_t& from, const pid_t& to) = 0;
+
+  virtual void incoming_exit(const pid_t& from, const pid_t& to, const std::string& reason) = 0;
+
+  virtual void incoming_exit2(const pid_t& from, const pid_t& to, const std::string& reason) = 0;
 };
 
 }

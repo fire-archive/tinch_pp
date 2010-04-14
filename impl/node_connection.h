@@ -99,6 +99,14 @@ private:
 
   virtual void deliver_received(const msg_seq& msg, const std::string& to);
 
+  virtual void request_link(const pid_t& from, const pid_t& to);
+
+  virtual void request_unlink(const pid_t& from, const pid_t& to);
+
+  virtual void request_exit(const pid_t& from, const pid_t& to, const std::string& reason);
+
+  virtual void request_exit2(const pid_t& from, const pid_t& to, const std::string& reason);
+
   void handle_io_error(const boost::system::error_code& error);
   
 private:

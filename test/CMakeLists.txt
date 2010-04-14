@@ -20,7 +20,7 @@ if(BUILD_TEST)
 
   link_directories(${Boost_LIBRARY_DIRS})
 
-  add_erlang(reflect_msg chat_server)
+  add_erlang(reflect_msg chat_server link_tester)
 
   add_definitions(-DBOOST_ALL_NO_LIB)
   include_directories(${CMAKE_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
@@ -45,6 +45,12 @@ if(BUILD_TEST)
   
   add_executable(chat_client chat_client.cpp)
   target_link_libraries(chat_client tinch++ ${Boost_LIBRARIES})
+  
+  add_executable(local_link local_link.cpp)
+  target_link_libraries(local_link tinch++ ${Boost_LIBRARIES})
+  
+  add_executable(remote_link remote_link.cpp)
+  target_link_libraries(remote_link tinch++ ${Boost_LIBRARIES})
 
   add_test(thread_safe_queue_test thread_safe_queue)
 

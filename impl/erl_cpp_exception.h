@@ -22,8 +22,11 @@
 #ifndef ERL_CPP_EXCEPTION_H
 #define ERL_CPP_EXCEPTION_H
 
+#include "types.h"
 #include <exception>
 #include <string>
+
+// TODO: Rename the file and move it to the public API!
 
 // All exceptions thrown by tinch_pp are of this type.
 namespace tinch_pp {
@@ -62,6 +65,28 @@ public:
 
   virtual ~mailbox_receive_tmo() throw();
 };
+
+// A mailbox or Erlang process may set-up links to each other.
+// In case a link breaks, the exception below is raised immediately in the next receive operation.
+// Links get broken for different reasons, but typically:
+//  - An error in network communication.
+//  - The remote process sends an exit signal.
+//  - The remote process terminates.
+class link_broken : public erl_cpp_exception
+{
+public:
+  link_broken(const std::string& reason, const pid_t& pid);
+
+  virtual ~link_broken() throw();
+
+  std::string reason() const { return reason_; }
+
+  pid_t broken_pid() const { return pid_; }
+
+private:
+  std::string reason_;
+  pid_t pid_;
+}; 
 
 }
 

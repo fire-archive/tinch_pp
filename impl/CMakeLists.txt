@@ -12,6 +12,7 @@ SET(CPP_SOURCE
   erl_cpp_exception.h
   erl_string.cpp
   ext_message_builder.cpp
+  linker.cpp
   matchable_range.cpp
   matchable_seq.cpp
   md5.cpp

@@ -37,6 +37,10 @@ namespace constants {
   extern const int pass_through;
   extern const int ctrl_msg_send;
   extern const int ctrl_msg_reg_send;
+  extern const int ctrl_msg_link;
+  extern const int ctrl_msg_unlink;
+  extern const int ctrl_msg_exit;
+  extern const int ctrl_msg_exit2;
 
   // Constants for the message format.
   extern const int float_digits;

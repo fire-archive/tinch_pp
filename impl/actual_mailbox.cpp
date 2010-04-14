@@ -24,6 +24,7 @@
 #include "node_access.h"
 #include "matchable_seq.h"
 #include "erl_cpp_exception.h"
+#include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 using namespace tinch_pp;
@@ -136,6 +137,9 @@ msg_seq actual_mailbox::pick_first_msg()
 {
   message_ready = false;
 
+  if(!broken_links.empty())
+    report_broken_link();
+
   if(received_msgs.empty())
     throw mailbox_receive_tmo();
 
@@ -148,17 +152,30 @@ msg_seq actual_mailbox::pick_first_msg()
 
 void actual_mailbox::on_incoming(const msg_seq& msg)
 {
+  notify_receive(bind(&received_msgs_type::push_front, ref(received_msgs), cref(msg)));
+}
+
+void actual_mailbox::on_link_broken(const std::string& reason, const pid_t& pid)
+{
+  const broken_links_type::value_type info(reason, pid);
+
+  notify_receive(bind(&broken_links_type::push_back, ref(broken_links), cref(info)));
+}
+
+// Used to abstract away the common pattern of lock-and-notify.
+void actual_mailbox::notify_receive(const function<void ()>& receive_action)
+{
   {
     lock_guard<mutex> lock(received_msgs_mutex);
 
-    // Design decision: for a selective receive, if we already got messages waiting, its 
-    // more likely that this is the one we're waiting for.
-    received_msgs.push_front(msg);
+    receive_action();
 
     message_ready = true;
   }
   message_received_cond.notify_one();
 }
+
+namespace { void no_op() {} }
 
 void actual_mailbox::receive_tmo(const boost::system::error_code& error)
 {
@@ -167,12 +184,17 @@ void actual_mailbox::receive_tmo(const boost::system::error_code& error)
   if(is_old_notification)
     return;
 
-  {
-    lock_guard<mutex> lock(received_msgs_mutex);
+  notify_receive(no_op);
+}
+
+void actual_mailbox::report_broken_link()
+{
+  // NOTE: called in the context of receive - mutex already locked.
+  const broken_links_type::value_type info = broken_links.front();
   
-    message_ready = true;
-  }
-  message_received_cond.notify_one();
+  broken_links.pop_front();
+
+  throw link_broken(info.first, info.second);
 }
 
 namespace {

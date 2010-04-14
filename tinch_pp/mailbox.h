@@ -68,11 +68,15 @@ public:
 
   /// Blocks until a message is received in this mailbox.
   /// Returns the received messages as a matchable allowing Erlang-style pattern matching.
+  /// In case your mailbox is linked to an Erlang process or another mailbox, broken links 
+  /// are reported in the receive operaion through a tinch_pp::link_broken exception.
   virtual matchable_ptr receive() = 0;
 
   /// Blocks until a message is received in this mailbox or until the given time has passed.
   /// Returns the received messages as a matchable allowing Erlang-style pattern matching.
   /// In case of a time-out, an tinch_pp::receive_tmo_exception is thrown.
+  /// In case your mailbox is linked to an Erlang process or another mailbox, broken links 
+  /// are reported in the receive operaion through a tinch_pp::link_broken exception.
   virtual matchable_ptr receive(time_type_sec tmo) = 0;
 
   /// Closes this mailbox. After this call completes, no more operations are 
