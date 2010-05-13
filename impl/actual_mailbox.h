@@ -68,6 +68,10 @@ public:
 
   virtual void close();
 
+  virtual void link(const pid_t& pid_to_link);
+
+  virtual void unlink(const pid_t& pid_to_unlink);
+
   // The public interface for the implementation (i.e. the owning node):
   //
   void on_incoming(const msg_seq& msg);

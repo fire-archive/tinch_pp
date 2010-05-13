@@ -33,6 +33,7 @@ namespace tinch_pp {
 
 typedef boost::function<void (bool /*success*/)> handshake_success_fn_type;
 
+class control_msg;
 class node_access;
 class node_connection;
 typedef boost::shared_ptr<node_connection> node_connection_ptr;
@@ -61,9 +62,9 @@ public:
   void start_handshake_as_A(const handshake_success_fn_type& handshake_success_fn, challenge_type own_challenge);
   void start_handshake_as_B(const handshake_success_fn_type& handshake_success_fn, challenge_type own_challenge);
 
-  void send(const msg_seq& msg, const pid_t& destination_pid);
-
-  void send(const msg_seq& msg, const std::string& to_name, const pid_t& from_pid);
+  // A control_msg encodes a distributed operation sent to another node.
+  // Examples of such operations are: link, unlink, send, etc.
+  void request(control_msg& distributed_operation);
 
 private:
   // Because we would need shared_from_this in the constructor, which isn't allowed,

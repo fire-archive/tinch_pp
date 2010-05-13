@@ -19,53 +19,31 @@
 // ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#ifndef NODE_ACCESS_H
-#define NODE_ACCESS_H
+#ifndef CONTROL_MSG_H
+#define CONTROL_MSG_H
 
-#include "types.h"
+#include <boost/shared_ptr.hpp>
 
 namespace tinch_pp {
 
-class mailbox;
-typedef boost::shared_ptr<mailbox> mailbox_ptr;
+class connection_state;
+typedef boost::shared_ptr<connection_state> connection_access_ptr;
 
-class node_access
+/// A control_msg encodes a distributed operation sent to another node.
+/// The control_msg gets serialized on Erlangs external format as a tuple, 
+/// where the first element indicates which distributed operation it encodes.
+/// Examples on distributed operations are: link, unlink, send, etc.
+///
+/// This abstraction is an implementation of the design pattern COMMAND.
+/// It allows us to add new operations in an iterative fashion without 
+/// modifying the interface of the node_connection (the open-closed principle).
+class control_msg
 {
 protected:
-  ~node_access() {};
+  inline ~control_msg() {}
+
 public:
-  virtual std::string name() const = 0;
-  
-  virtual void close_mailbox(const pid_t& id, const std::string& name) = 0;
-
-  virtual void link(const pid_t& local_pid, const pid_t& remote_pid) = 0;
-
-  virtual void unlink(const pid_t& local_pid, const pid_t& remote_pid) = 0;
-
-  virtual std::string cookie() const = 0;
-
-  virtual void deliver(const msg_seq& msg, const pid_t& to) = 0;
-
-  virtual void deliver(const msg_seq& msg, const std::string& to) = 0;
-
-  virtual void deliver(const msg_seq& msg, 
-		                     const std::string& to_name, 
-		                     const std::string& on_given_node,
-		                     const pid_t& from_pid) = 0;
-
-  // TODO: Extract a separate interface for the Erlang operations.
-
-  virtual void receive_incoming(const msg_seq& msg, const pid_t& to) = 0;
-
-  virtual void receive_incoming(const msg_seq& msg, const std::string& to) = 0;
-
-  virtual void incoming_link(const pid_t& from, const pid_t& to) = 0;
-
-  virtual void incoming_unlink(const pid_t& from, const pid_t& to) = 0;
-
-  virtual void incoming_exit(const pid_t& from, const pid_t& to, const std::string& reason) = 0;
-
-  virtual void incoming_exit2(const pid_t& from, const pid_t& to, const std::string& reason) = 0;
+  virtual void execute(connection_access_ptr connection_access) = 0;
 };
 
 }

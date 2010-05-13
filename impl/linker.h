@@ -25,12 +25,13 @@
 #include "types.h"
 #include "boost/utility.hpp"
 #include <boost/thread/mutex.hpp>
+#include <boost/function.hpp>
 #include <utility>
 #include <list>
 
 namespace tinch_pp {
 
-struct mailbox_controller_type;
+class mailbox_controller_type;
 
 /// The linker maintains the bidirectional process links.
 /// Any mailbox or remote Erlang process can request a link to another PID.
@@ -56,6 +57,14 @@ private:
   void establish_link_between(const pid_t& pid1, const pid_t& pid2);
 
   void remove_link_between(const pid_t& pid1, const pid_t& pid2);
+
+  typedef std::list<pid_t> linked_pids_type;
+
+  linked_pids_type remove_links_from(const pid_t& dying_process);
+
+  typedef boost::function<void (const pid_t& /* remote pid */)> notification_fn_type;
+
+  void on_broken_links(const notification_fn_type& notification_fn, const pid_t& dying_process);
 
 private:
   mailbox_controller_type& mailbox_controller;

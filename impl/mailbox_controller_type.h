@@ -28,10 +28,19 @@ namespace tinch_pp {
 
 /// An interface used to decouple the requestor of mailbox operations from the 
 /// controller of the mailboxes (typically the node).
-struct mailbox_controller_type
+class mailbox_controller_type
 {
 protected:
   inline ~mailbox_controller_type() {}
+
+public:
+  virtual void request_exit(const pid_t& from_pid,
+                            const pid_t& to_pid, 
+                            const std::string& reason) = 0;
+
+  virtual void request_exit2(const pid_t& from_pid,
+                             const pid_t& to_pid, 
+                             const std::string& reason) = 0;
 };
 
 }

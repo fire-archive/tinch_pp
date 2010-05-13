@@ -23,11 +23,19 @@
 #include "utils.h"
 #include "actual_mailbox.h"
 #include "erl_cpp_exception.h"
+#include "control_msg_send.h"
+#include "control_msg_reg_send.h"
+#include "control_msg_exit.h"
+#include "control_msg_exit2.h"
+#include "control_msg_link.h"
+#include "control_msg_unlink.h"
 #include "ScopeGuard.h"
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 #include <cassert>
+
+// TODO: Consider links between mailboxes on the same distributed node!
 
 using namespace tinch_pp;
 using namespace boost;
@@ -164,7 +172,26 @@ void node::close_mailbox(const pid_t& id, const std::string& name)
 {
   const mutex_guard guard(mailboxes_lock);
 
+  const std::string reason = "normal";
+  mailbox_linker.close_links_for_local(id, reason);
+
   remove(id, name);
+}
+
+void node::link(const pid_t& local_pid, const pid_t& remote_pid)
+{
+  control_msg_link link_msg(local_pid, remote_pid);
+  request(link_msg, remote_pid.node_name);
+
+  mailbox_linker.link(local_pid, remote_pid);
+}
+
+void node::unlink(const pid_t& local_pid, const pid_t& remote_pid)
+{
+  mailbox_linker.unlink(local_pid, remote_pid);
+
+  control_msg_unlink unlink_msg(local_pid, remote_pid);
+  request(unlink_msg, remote_pid.node_name);
 }
 
 std::vector<std::string> node::connected_nodes() const
@@ -187,8 +214,9 @@ void node::remove(const pid_t& id, const std::string& name)
 void node::deliver(const msg_seq& msg, const pid_t& to_pid)
 {
   node_connection_ptr connection = connector.get_connection_to(to_pid.node_name);
+  control_msg_send send_msg(msg, to_pid);
 
-  connection->send(msg, to_pid);
+  connection->request(send_msg);
 }
 
 void node::deliver(const msg_seq& msg, const std::string& to_name)
@@ -197,12 +225,13 @@ void node::deliver(const msg_seq& msg, const std::string& to_name)
 }
 
 void node::deliver(const msg_seq& msg, const std::string& to_name, 
-		   const std::string& given_node, const pid_t& from_pid)
+		                 const std::string& given_node, const pid_t& from_pid)
 {
   
   node_connection_ptr connection = connector.get_connection_to(given_node);
+  control_msg_reg_send reg_send_msg(msg, to_name, from_pid);
 
-  connection->send(msg, to_name, from_pid);
+  connection->request(reg_send_msg);
 }
 
 void node::receive_incoming(const msg_seq& msg, const pid_t& to)
@@ -247,6 +276,27 @@ void node::incoming_exit2(const pid_t& from, const pid_t& to, const std::string&
   // Erlang makes a difference between a termination (exit) and a controlled shutdown (exit2).
   // However, it doesn't really make a difference for us => treat them the same way.
   incoming_exit(from, to, reason);
+}
+
+void node::request(control_msg& distributed_operation, const std::string& destination)
+{
+  node_connection_ptr connection = connector.get_connection_to(destination);
+
+  connection->request(distributed_operation);
+}
+
+void node::request_exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
+{
+  control_msg_exit exit_msg(from_pid, to_pid, reason);
+
+  request(exit_msg, to_pid.node_name);
+}
+
+void node::request_exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
+{
+  control_msg_exit2 exit2_msg(from_pid, to_pid, reason);
+
+  request(exit2_msg, to_pid.node_name);
 }
 
 void node::run_async_io()

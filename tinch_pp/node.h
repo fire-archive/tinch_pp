@@ -40,6 +40,7 @@ namespace tinch_pp {
 class mailbox;
 typedef boost::shared_ptr<mailbox> mailbox_ptr;
 class actual_mailbox;
+class control_msg;
 
 /// A node represents one, distributed C++ node connected to the EPMD.
 /// A node is responsible for establishing connections with other 
@@ -135,12 +136,18 @@ private:
   void remove(mailbox_ptr mailbox);
   void remove(const pid_t& id, const std::string& name);
 
+  void request(control_msg& distributed_operation, const std::string& destination);
+
 private:
   // Implementation of node_access.
   //
   virtual std::string name() const { return node_name_; }
   
   virtual void close_mailbox(const pid_t& id, const std::string& name);
+
+  virtual void link(const pid_t& local_pid, const pid_t& remote_pid);
+
+  virtual void unlink(const pid_t& local_pid, const pid_t& remote_pid);
 
   virtual std::string cookie() const { return cookie_; }
 
@@ -165,6 +172,9 @@ private:
 
   // Implementation of mailbox_controller_type.
   //
+  virtual void request_exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason);
+
+  virtual void request_exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason);
 };
 
 }

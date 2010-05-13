@@ -4,6 +4,7 @@ find_package( Boost 1.42.0 REQUIRED )
 SET(CPP_SOURCE
   actual_mailbox.cpp
   constants.cpp
+  control_msgs_impl.cpp
   ctrl_msg_dispatcher.cpp
   epmd_requestor.cpp
   erlang_value_types.cpp

@@ -68,6 +68,26 @@ struct connected : connection_state
     connection.trigger_write(build_send_msg(payload, destination_pid));
   }
 
+  virtual void exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) 
+  {
+    connection.trigger_write(build_exit_msg(from_pid, to_pid, reason));
+  }
+
+  virtual void exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) 
+  {
+    connection.trigger_write(build_exit2_msg(from_pid, to_pid, reason));
+  }
+
+  virtual void link(const pid_t& from_pid, const pid_t& to_pid)
+  {
+    connection.trigger_write(build_link_msg(from_pid, to_pid));
+  }
+
+  virtual void unlink(const pid_t& from_pid, const pid_t& to_pid)
+  {
+    connection.trigger_write(build_unlink_msg(from_pid, to_pid));
+  }
+
   virtual void handle_io_error(const std::string& error) const
   {
     // Fire an exception and let the higher-level layers deal with it, probably 

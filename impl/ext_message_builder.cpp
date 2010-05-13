@@ -33,13 +33,26 @@ using namespace std;
 
 namespace {
 
-// Design: The different send methods are similiar, just the control message differs.
-// Thus, we parameterize with a generator (basically emulating closures).
-typedef function<void (msg_seq_out_iter&)> add_ctrl_msg_fn;
-   
-void add_ctrl_message_send(msg_seq_out_iter& out, const tinch_pp::pid_t& destination_pid);
+  // Design: The different send methods are similiar, just the control message differs.
+  // Thus, we parameterize with a generator (basically emulating closures).
+  typedef function<void (msg_seq_out_iter&)> add_ctrl_msg_fn;
+     
+  void add_ctrl_message_send(msg_seq_out_iter& out, const tinch_pp::pid_t& destination_pid);
 
-void add_ctrl_message_reg_send(msg_seq_out_iter& out, const tinch_pp::pid_t& self, const string& destination_name);
+  void add_ctrl_message_reg_send(msg_seq_out_iter& out, const tinch_pp::pid_t& self, const string& destination_name);
+
+  void add_ctrl_message_exit(msg_seq_out_iter& out, 
+                               const int request, 
+                               const tinch_pp::pid_t& from, 
+                               const tinch_pp::pid_t& to,
+                               const string& reason);
+
+  void add_ctrl_message_linkage(msg_seq_out_iter& out, 
+                               const int request,
+                               const tinch_pp::pid_t& from, 
+                               const tinch_pp::pid_t& to);
+
+  msg_seq build(const add_ctrl_msg_fn& add_ctrl_msg);
 
   msg_seq build(const msg_seq& payload, const add_ctrl_msg_fn& add_ctrl_msg);
 }
@@ -56,6 +69,26 @@ msg_seq build_reg_send_msg(const msg_seq& payload, const pid_t& self, const stri
   return build(payload, bind(&add_ctrl_message_reg_send, _1, cref(self), cref(destination_name)));
 }
 
+msg_seq build_exit_msg(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
+{
+  return build(bind(&add_ctrl_message_exit, _1, constants::ctrl_msg_exit, cref(from_pid), cref(to_pid), cref(reason)));
+}
+
+msg_seq build_exit2_msg(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
+{
+  return build(bind(&add_ctrl_message_exit, _1, constants::ctrl_msg_exit2, cref(from_pid), cref(to_pid), cref(reason)));
+}
+
+msg_seq build_link_msg(const pid_t& from_pid, const pid_t& to_pid)
+{
+  return build(bind(&add_ctrl_message_linkage, _1, constants::ctrl_msg_link, cref(from_pid), cref(to_pid)));
+}
+
+msg_seq build_unlink_msg(const pid_t& from_pid, const pid_t& to_pid)
+{
+  return build(bind(&add_ctrl_message_linkage, _1, constants::ctrl_msg_unlink, cref(from_pid), cref(to_pid)));
+}
+
 }
 
 namespace {
@@ -66,7 +99,7 @@ namespace {
     *out++ = constants::magic_version;
   }
 
-// Used when sending to a PID.
+  // Used when sending to a PID.
   void add_ctrl_message_send(msg_seq_out_iter& out, const tinch_pp::pid_t& destination_pid)
   {
     add_message_header(out);
@@ -77,7 +110,7 @@ namespace {
     make_tuple(int_(constants::ctrl_msg_send), atom(no_cookie), pid(destination_pid)).serialize(out);
   }
 
-// Used when sending to a registered name on a node.
+  // Used when sending to a registered name on a node.
   void add_ctrl_message_reg_send(msg_seq_out_iter& out, const tinch_pp::pid_t& self, const string& destination_name)
   {
     add_message_header(out);
@@ -86,6 +119,31 @@ namespace {
 
     // REG_SEND: tuple of {6, FromPid, Cookie, ToName} 
     make_tuple(int_(constants::ctrl_msg_reg_send), pid(self), atom(no_cookie), atom(destination_name)).serialize(out);
+  }
+
+  // Used when a linked mailbox dies.
+  void add_ctrl_message_exit(msg_seq_out_iter& out, 
+                             const int request, 
+                             const tinch_pp::pid_t& from, 
+                             const tinch_pp::pid_t& to,
+                             const string& reason)
+  {
+    add_message_header(out);
+
+    // EXIT and EXIT2: tuple of {request, FromPid, ToPid, Reason}
+    make_tuple(int_(request), pid(from), pid(to), atom(reason)).serialize(out);
+  }
+
+  // Reused for both link and unlink messages (same layout).
+  void add_ctrl_message_linkage(msg_seq_out_iter& out, 
+                               const int request,
+                               const tinch_pp::pid_t& from, 
+                               const tinch_pp::pid_t& to)
+  {
+    add_message_header(out);
+
+    // LINK and UNLINK: tuple of {request, FromPid, ToPid}
+    make_tuple(int_(request), pid(from), pid(to)).serialize(out);
   }
 
   const size_t header_size = 4;
@@ -100,11 +158,23 @@ namespace {
 
   void append_payload(msg_seq_out_iter& out, const msg_seq& payload)
   {
-    // Preprend the magic version to the term (as they say in that movie, there can only be;
+    // Preprend the magic version to the term (as they say in that movie, there can only be one);
     // compound types don't include a version for each of their elements.
     *out++ = constants::magic_version;
 
     copy(payload.begin(), payload.end(), out);
+  }
+
+  msg_seq build(const add_ctrl_msg_fn& add_ctrl_msg)
+  {
+    msg_seq msg(header_size);
+    msg_seq_out_iter out(msg);
+
+    add_ctrl_msg(out);
+
+    fill_in_message_size(msg);
+
+    return msg;
   }
 
   msg_seq build(const msg_seq& payload, const add_ctrl_msg_fn& add_ctrl_msg)

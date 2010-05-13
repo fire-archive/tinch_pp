@@ -40,7 +40,7 @@ public:
 
   virtual ~connection_state() = 0;
 
-  // TODO: make all these functions report an error (add a std::string name() method)!!!!!!!!!!!!!!!1
+  // TODO: make all these functions report an error (add a std::string name() method)!!!!!!!!!!!!!!!
   virtual void initiate_handshake(const std::string& node_name) {}
 
   virtual void read_incoming_handshake() {}
@@ -48,6 +48,15 @@ public:
   virtual void send(const msg_seq& msg, const pid_t& destination_pid) {}
 
   virtual void send(const msg_seq& msg, const pid_t& self, const std::string& destination_name) {}
+
+  // TODO: Take care with this one; exit is called by a dying process - do not throw an exception!
+  virtual void exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) {}
+
+  virtual void exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) {}
+
+  virtual void link(const pid_t& from_pid, const pid_t& to_pid) {}
+
+  virtual void unlink(const pid_t& from_pid, const pid_t& to_pid) {}
 
   // The error is delegated to the current state because we want to react differently 
   // depending on if we have established a connection or not.

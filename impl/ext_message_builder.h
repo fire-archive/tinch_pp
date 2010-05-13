@@ -33,6 +33,13 @@ namespace tinch_pp {
 
  msg_seq build_reg_send_msg(const msg_seq& msg, const pid_t& self, const std::string& destination_name);
 
+ msg_seq build_exit_msg(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason);
+
+ msg_seq build_exit2_msg(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason);
+
+ msg_seq build_link_msg(const pid_t& from_pid, const pid_t& to_pid);
+
+ msg_seq build_unlink_msg(const pid_t& from_pid, const pid_t& to_pid);
 }
 
 #endif

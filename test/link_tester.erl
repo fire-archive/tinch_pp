@@ -43,6 +43,7 @@ stop() ->
 %% Description: Initiates the server
 %%--------------------------------------------------------------------
 init([]) ->
+    process_flag(trap_exit, true),
     {ok, []}.
 
 %%--------------------------------------------------------------------
@@ -75,9 +76,19 @@ handle_cast(_Msg, State) ->
 %%                                       {stop, Reason, State}
 %% Description: Handling all non call/cast messages
 %%--------------------------------------------------------------------
-handle_info({pid, Pid}, State) ->
+handle_info({pid, Pid}, _State) ->
     link(Pid),
     Pid ! link_created,
+    {noreply, Pid};
+handle_info({request_pid, Pid}, _State) ->
+    Pid ! {link_pid, self()},
+    {noreply, Pid};
+handle_info({'EXIT', FromPid, Reason}, State) when FromPid =:= State ->
+    unlink(FromPid), % while we're trapping the exit...
+    io:format("Expected EXIT from ~p with reason = ~p~n", [FromPid, Reason]),
+    {noreply, State};
+handle_info({'EXIT', FromPid, Reason}, State) ->
+    io:format("Unexpected EXIT from ~p with reason = ~p - The PID seems wrong: expected ~p...~n", [FromPid, Reason, State]),
     {noreply, State};
 handle_info(_Info, State) ->
     {noreply, State}.

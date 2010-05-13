@@ -22,6 +22,7 @@
 #include "node_connection.h"
 #include "utils.h"
 #include "node_access.h"
+#include "control_msg.h"
 #include "node_connection_state.h"
 
 #include <boost/bind.hpp>
@@ -67,8 +68,8 @@ void node_connection::init()
 }
 
 node_connection::node_connection(asio::io_service& io_service, 
-				 node_access& a_node,
-				 const std::string& a_peer_node)
+				                             node_access& a_node,
+				                             const std::string& a_peer_node)
   : connection(io_service),
     node(a_node),
     async_tcp_ip(connection, bind(&node_connection::handle_io_error, this, ::_1)),
@@ -80,7 +81,7 @@ node_connection::node_connection(asio::io_service& io_service,
 }
 
 node_connection::node_connection(asio::io_service& io_service,
-				 node_access& a_node)
+				                             node_access& a_node)
   : connection(io_service),
     node(a_node),
     async_tcp_ip(connection, bind(&node_connection::handle_io_error, this, ::_1)),
@@ -117,14 +118,9 @@ void node_connection::start_handshake_as_B(const handshake_success_fn_type& hand
   state->read_incoming_handshake();
 }
 
-void node_connection::send(const msg_seq& msg, const pid_t& destination_pid)
+void node_connection::request(control_msg& distributed_operation)
 {
-  state->send(msg, destination_pid);
-}
-
-void node_connection::send(const msg_seq& msg, const std::string& to_name, const pid_t& from_pid)
-{
-  state->send(msg, from_pid, to_name);
+  distributed_operation.execute(state);
 }
 
 void node_connection::handshake_complete()

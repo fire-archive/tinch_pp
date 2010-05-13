@@ -69,19 +69,29 @@ public:
   /// Blocks until a message is received in this mailbox.
   /// Returns the received messages as a matchable allowing Erlang-style pattern matching.
   /// In case your mailbox is linked to an Erlang process or another mailbox, broken links 
-  /// are reported in the receive operaion through a tinch_pp::link_broken exception.
+  /// are reported in the receive operation through a tinch_pp::link_broken exception.
   virtual matchable_ptr receive() = 0;
 
   /// Blocks until a message is received in this mailbox or until the given time has passed.
   /// Returns the received messages as a matchable allowing Erlang-style pattern matching.
   /// In case of a time-out, an tinch_pp::receive_tmo_exception is thrown.
   /// In case your mailbox is linked to an Erlang process or another mailbox, broken links 
-  /// are reported in the receive operaion through a tinch_pp::link_broken exception.
+  /// are reported in the receive operation through a tinch_pp::link_broken exception.
   virtual matchable_ptr receive(time_type_sec tmo) = 0;
 
   /// Closes this mailbox. After this call completes, no more operations are 
   /// allowed on the mailbox.
+  /// If there are links established to other mailboxes or Erlang processes, they will 
+  /// be broken with exit reason 'normal'.
   virtual void close() = 0;
+
+  /// Link to a remote mailbox or Erlang process. 
+  /// If the remote process exits, a receive on this mailbox will throw a tinch_pp::link_broken exception. 
+  /// Similarly, if this mailbox is closed, the linked process will receive an Erlang exit signal.
+  virtual void link(const pid_t& pid_to_link) = 0;
+  
+  /// Remove a link to a remote mailbox or Erlang process.
+  virtual void unlink(const pid_t& pid_to_unlink) = 0;
 };
 
 }

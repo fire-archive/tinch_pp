@@ -74,6 +74,16 @@ void actual_mailbox::close()
   node.close_mailbox(own_pid, own_name);
 }
 
+void actual_mailbox::link(const pid_t& pid_to_link)
+{
+  node.link(self(), pid_to_link);
+}
+
+void actual_mailbox::unlink(const pid_t& pid_to_unlink)
+{
+  node.unlink(self(), pid_to_unlink);
+}
+
 tinch_pp::pid_t actual_mailbox::self() const
 {
   return own_pid;
