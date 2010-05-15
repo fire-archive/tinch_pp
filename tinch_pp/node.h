@@ -133,6 +133,29 @@ private:
 
   linker mailbox_linker;
 
+  // In case a link/unlink/exit is requested, we have to differentiate between 
+  // remote process (= located on another node) and mailboxes located on this node.
+  // We encapsulate those two cases in different dispatchers.
+  struct link_operation_dispatcher_type
+  {
+    virtual ~link_operation_dispatcher_type() {}
+
+    virtual void link(const pid_t& local_pid, const pid_t& remote_pid) = 0;
+  
+    virtual void unlink(const pid_t& local_pid, const pid_t& remote_pid) = 0;
+
+    virtual void request_exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) = 0;
+
+    virtual void request_exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) = 0;
+  };
+
+  typedef boost::shared_ptr<link_operation_dispatcher_type> link_operation_dispatcher_type_ptr;
+  link_operation_dispatcher_type_ptr remote_link_dispatcher;
+  link_operation_dispatcher_type_ptr local_link_dispatcher;
+
+  // Returns the link dispatcher (see comment above) for the given destination.
+  link_operation_dispatcher_type_ptr dispatcher_for(const pid_t& destination);
+
   void remove(mailbox_ptr mailbox);
   void remove(const pid_t& id, const std::string& name);
 

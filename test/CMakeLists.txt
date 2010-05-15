@@ -51,6 +51,9 @@ if(BUILD_TEST)
   
   add_executable(remote_link remote_link.cpp)
   target_link_libraries(remote_link tinch++ ${Boost_LIBRARIES})
+  
+  add_executable(mbox_same_node_links mbox_same_node_links.cpp)
+  target_link_libraries(mbox_same_node_links tinch++ ${Boost_LIBRARIES})
 
   add_test(thread_safe_queue_test thread_safe_queue)
 

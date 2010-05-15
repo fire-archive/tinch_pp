@@ -93,9 +93,15 @@ void linker::remove_link_between(const pid_t& pid1, const pid_t& pid2)
 
 void linker::on_broken_links(const linker::notification_fn_type& notification_fn, const pid_t& dying_process)
 {
-  const mutex_guard guard(links_lock);
+  // Take care => if the broken link is between mailboxes on the same node, 
+  // we'll get back into this context (exactly these situations is why I want Erlang...).
+  linked_pids_type closed_links;
 
-  const linked_pids_type closed_links = remove_links_from(dying_process);
+  {
+    const mutex_guard guard(links_lock);
+
+    closed_links = remove_links_from(dying_process);
+  }
 
   for_each(closed_links.begin(), closed_links.end(), notification_fn);
 }
