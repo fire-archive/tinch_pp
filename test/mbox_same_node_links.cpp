@@ -23,6 +23,7 @@
 #include "tinch_pp/mailbox.h"
 #include "tinch_pp/erlang_types.h"
 #include <iostream>
+#include <stdexcept>
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
@@ -42,6 +43,10 @@ namespace {
   void break_in_other_direction(node& my_node);
 
   void unlink_and_break(node& my_node);
+
+  void break_on_scope_exit(node& my_node);
+
+  void break_on_error(node& my_node);
 }
 
 int main()
@@ -53,11 +58,26 @@ int main()
   break_in_other_direction(my_node);
 
   unlink_and_break(my_node);
+
+  break_on_scope_exit(my_node);
+
+  break_on_error(my_node);
 }
 
 namespace {
 
-const time_type_sec tmo = 2;
+void expect_broken_link(mailbox_ptr mbox,
+                        const std::string& testcase)
+{
+  const time_type_sec tmo = 2;
+
+  try {
+    (void) mbox->receive(tmo);
+    std::cerr << "Failed to report a broken link (" + testcase + ")!" << std::endl;
+  } catch(const link_broken&) {
+    std::cout << "Success - broken link reported (" + testcase + ")." << std::endl;
+  }
+}
 
 void break_link(node& my_node)
 {
@@ -68,12 +88,7 @@ void break_link(node& my_node)
 
   worker_mbox->close();
 
-  try {
-    (void) control_mbox->receive(tmo);
-    std::cerr << "Failed to report a broken link!" << std::endl;
-  } catch(const link_broken&) {
-    std::cout << "Success - broken link reported." << std::endl;
-  }
+  expect_broken_link(control_mbox, "break_link");
 }
 
 void break_in_other_direction(node& my_node)
@@ -85,12 +100,7 @@ void break_in_other_direction(node& my_node)
 
   control_mbox->close();
 
-  try {
-    (void) worker_mbox->receive(tmo);
-    std::cerr << "Failed to report a broken link (reversed direction)!" << std::endl;
-  } catch(const link_broken&) {
-    std::cout << "Success - broken link reported (reversed direction)." << std::endl;
-  }
+  expect_broken_link(worker_mbox, "reversed direction");
 }
 
 void unlink_and_break(node& my_node)
@@ -106,6 +116,37 @@ void unlink_and_break(node& my_node)
   worker_mbox->close();
 
   std::cout << "Successfull unlink." << std::endl;
+}
+
+void break_on_scope_exit(node& my_node)
+{
+  mailbox_ptr worker_mbox = my_node.create_mailbox("worker");
+
+  { // introduce a new scope => the destructor of the mailbox will close it
+    mailbox_ptr control_mbox = my_node.create_mailbox("controller");
+
+    worker_mbox->link(control_mbox->self());
+  }
+
+  expect_broken_link(worker_mbox, "out-of-scope");
+}
+
+void break_on_error(node& my_node)
+{
+  mailbox_ptr worker_mbox = my_node.create_mailbox("worker");
+
+  try {
+    // introduce a new scope and simulate an error that propages above the 
+    // scope of the linked mailbox
+    mailbox_ptr control_mbox = my_node.create_mailbox("controller");
+
+    worker_mbox->link(control_mbox->self());
+
+    throw std::runtime_error("on purpose");
+
+  } catch(const std::runtime_error&) {}
+
+  expect_broken_link(worker_mbox, "closed on exception");
 }
 
 }

@@ -26,6 +26,7 @@
 #include "erl_cpp_exception.h"
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <exception>
 
 using namespace tinch_pp;
 using namespace boost;
@@ -60,18 +61,25 @@ actual_mailbox::actual_mailbox(node_access& a_node,
 
 actual_mailbox::~actual_mailbox()
 {
-  // TODO: Change once linked processes are implemented - in that case,
-  // the mailbox may already be closed.
-  try {
-    node.close_mailbox(own_pid, own_name);
-  } catch(...) {
-    // don't let any exceptions propagate from the destructor.
+  if(!std::uncaught_exception()) {
+    // The mailbox went out of scope => simply remove it and report a closed link.
+    try {
+      node.close_mailbox(self(), own_name);
+    } catch(...) {}// don't let any exceptions propagate from the destructor.
+  } else {
+    // This is the trickiest part => the mailbox is being destructed due to a yet 
+    // uncaught exception. If we trigger another exception we'll terminate.
+    // Thus, we post a request to remove the mailbox (and possibly report a broken 
+    // link). The actual removal is done asynchronously. The solution isn't optimal 
+    // (in theory, there's a riskt the copying of the handler might throw), but I 
+    // couldn't find a better one. Any idea?
+    node.close_mailbox_async(self(), own_name);
   }
 }
 
 void actual_mailbox::close()
 {
-  node.close_mailbox(own_pid, own_name);
+  node.close_mailbox(self(), own_name);
 }
 
 void actual_mailbox::link(const pid_t& pid_to_link)

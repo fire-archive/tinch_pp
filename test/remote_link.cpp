@@ -36,12 +36,15 @@ using namespace tinch_pp::erl;
 // 2. Start the Erlang program link_tester:
 //          (testnode@127.0.0.1)4> link_tester:start_link().
 // 3. Start this program (will communicate its PID to the link_tester).
-//    Once linked, two automatic testcases are performed:
+//    Once linked, three automatic testcases are performed:
 //    1) The local mailbox requests an unlink before closing.
 //       Nothing should be reported on stdout in the Erlang shell.
 //    2) We will break the established link. This should result in 
 //       a report on stdout in the Erlang shell. The testcase continues 
 //       by re-establishing a link from a new mailbox.
+//    3) We break the established link by simulating an error condition. 
+//       This should result in another report on stdout in the Erlang shell. 
+//       The testcase continues by re-establishing a link from a new mailbox.
 // 4. Invoke link_tester:stop(). This request will break the link, which 
 //    shall be reported to this testprogram.
 //
@@ -53,6 +56,8 @@ namespace {
 void local_unlinks(node& my_node);
 
 void local_breaks_link(node& my_node);
+
+void local_breaks_due_to_error(node& my_node);
 
 void remote_breaks_link(node& my_node);
 
@@ -68,6 +73,8 @@ int main()
   local_unlinks(my_node);
 
   local_breaks_link(my_node);
+
+  local_breaks_due_to_error(my_node);
 
   remote_breaks_link(my_node);
 }
@@ -119,6 +126,24 @@ void local_breaks_link(node& my_node)
   mbox->close();
 
   std::cout << "Link broken -check stdout in the Erlang shell." << std::endl;
+}
+
+void local_breaks_due_to_error(node& my_node)
+{
+  try {
+    mailbox_ptr mbox = my_node.create_mailbox();
+
+    mbox->send("link_tester", remote_node_name, erl::make_tuple(atom("pid"), pid(mbox->self())));
+
+    const matchable_ptr m   = mbox->receive(tmo);
+
+    if(!m->match(atom("link_created")))
+      throw std::domain_error("Unexpected response from remote node - check the program versions.");
+
+    throw std::runtime_error("on purpose");
+  } catch(const std::runtime_error&) {}
+
+  std::cout << "Link broken (reason = error) -check stdout in the Erlang shell." << std::endl;
 }
 
 void remote_breaks_link(node& my_node)

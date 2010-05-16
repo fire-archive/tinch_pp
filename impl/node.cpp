@@ -22,20 +22,15 @@
 #include "tinch_pp/node.h"
 #include "utils.h"
 #include "actual_mailbox.h"
+#include "link_policies.h"
 #include "erl_cpp_exception.h"
 #include "control_msg_send.h"
 #include "control_msg_reg_send.h"
-#include "control_msg_exit.h"
-#include "control_msg_exit2.h"
-#include "control_msg_link.h"
-#include "control_msg_unlink.h"
 #include "ScopeGuard.h"
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 #include <cassert>
-
-// TODO: Consider links between mailboxes on the same distributed node!
 
 using namespace tinch_pp;
 using namespace boost;
@@ -86,88 +81,6 @@ shared_ptr<actual_mailbox> fetch_mailbox(const Key& name,
   return destination;
 }
 
-//
-// TODO: Extract the link_operations_* into a link_operations_policies class!!!!!
-//
-
-template<typename base_dispatcher_type>
-struct link_operations_on_same_node : base_dispatcher_type
-{
-  link_operations_on_same_node(node_access& a_node) : node(a_node) {}
-
-  void link(const pid_t& local_pid, const pid_t& remote_pid)
-  {
-    node.incoming_link(local_pid, remote_pid);
-  }
-
-  void unlink(const pid_t& local_pid, const pid_t& remote_pid)
-  {
-    node.incoming_unlink(local_pid, remote_pid);
-  }
-
-  void request_exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
-  {
-    node.incoming_exit(from_pid, to_pid, reason);
-  }
-
-  void request_exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
-  {
-    node.incoming_exit2(from_pid, to_pid, reason);
-  }
-
-private:
-  node_access& node;
-};
-
-template<typename base_dispatcher_type>
-struct link_operations_on_remote_node : base_dispatcher_type
-{
-  typedef boost::function<void (control_msg&, const std::string&)> request_fn;
-
-  link_operations_on_remote_node(node_access& a_node,
-                                 linker& a_mailbox_linker,
-                                 const request_fn& a_requester) 
-   : node(a_node),
-     mailbox_linker(a_mailbox_linker),
-     requester(a_requester)
-  {}
-
-  void link(const pid_t& local_pid, const pid_t& remote_pid)
-  {
-    control_msg_link link_msg(local_pid, remote_pid);
-    requester(link_msg, remote_pid.node_name);
-
-    mailbox_linker.link(local_pid, remote_pid);
-  }
-
-  void unlink(const pid_t& local_pid, const pid_t& remote_pid)
-  {
-    mailbox_linker.unlink(local_pid, remote_pid);
-
-    control_msg_unlink unlink_msg(local_pid, remote_pid);
-    requester(unlink_msg, remote_pid.node_name);
-  }
-
-  void request_exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
-  {
-    control_msg_exit exit_msg(from_pid, to_pid, reason);
-
-    requester(exit_msg, to_pid.node_name);
-  }
-
-  void request_exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
-  {
-    control_msg_exit2 exit2_msg(from_pid, to_pid, reason);
-
-    requester(exit2_msg, to_pid.node_name);
-  }
-
-private:
-  node_access& node;
-  linker& mailbox_linker;
-  request_fn requester;
-};
-
 }
 
 namespace tinch_pp {
@@ -189,10 +102,8 @@ node::node(const std::string& a_node_name, const std::string& a_cookie)
     // variabled used to build pids:
     pid_id(1), serial(0), creation(0),
     mailbox_linker(*this),
-    remote_link_dispatcher(new link_operations_on_remote_node<link_operation_dispatcher_type>(*this, 
-                                                                                              mailbox_linker,
-                                                                                              bind(&node::request, this, _1, _2))),
-    local_link_dispatcher(new link_operations_on_same_node<link_operation_dispatcher_type>(*this))
+    remote_link_dispatcher(make_remote_link_dispatcher(*this, mailbox_linker, bind(&node::request, this, _1, _2))),
+    local_link_dispatcher(make_local_link_dispatcher(*this))
 {
 }
 
@@ -256,9 +167,24 @@ mailbox_ptr node::create_mailbox(const std::string& registered_name)
 
 void node::close_mailbox(const pid_t& id, const std::string& name)
 {
+  const std::string reason = "normal";
+  
+  close_mailbox(id, name, reason);
+}
+
+// This function is invoked as a mailbox gets closed due to an exception.
+// We must take extreme care not to fire another exception, which would terminate the program.
+void node::close_mailbox_async(const pid_t& id, const std::string& name)
+{
+  const std::string reason = "error";
+
+  io_service.post(bind(&node::close_mailbox, this, id, name, reason));
+}
+
+void node::close_mailbox(const pid_t& id, const std::string& name, const std::string& reason)
+{
   // Depending on if the mailbox is linked and, in that case, to whom, this 
   // action might result in a call to self => ensure the mutex isn't locked.
-  const std::string reason = "normal";
   mailbox_linker.close_links_for_local(id, reason);
 
   {
@@ -379,7 +305,7 @@ void node::request_exit2(const pid_t& from_pid, const pid_t& to_pid, const std::
   dispatcher_for(to_pid)->request_exit2(from_pid, to_pid, reason);
 }
 
-node::link_operation_dispatcher_type_ptr node::dispatcher_for(const pid_t& destination)
+link_operation_dispatcher_type_ptr node::dispatcher_for(const pid_t& destination)
 {
   return destination.node_name != node_name_ ? remote_link_dispatcher : local_link_dispatcher;
 }

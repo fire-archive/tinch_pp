@@ -41,6 +41,8 @@ class mailbox;
 typedef boost::shared_ptr<mailbox> mailbox_ptr;
 class actual_mailbox;
 class control_msg;
+class link_operation_dispatcher_type;
+typedef boost::shared_ptr<link_operation_dispatcher_type> link_operation_dispatcher_type_ptr;
 
 /// A node represents one, distributed C++ node connected to the EPMD.
 /// A node is responsible for establishing connections with other 
@@ -87,9 +89,6 @@ public:
   /// Messages can be sent to this mailbox by using its registered name or its pid.
   mailbox_ptr create_mailbox(const std::string& registered_name);
 
-  // TODO: provide an explicit way to close the mailbox once we got linked processes.
-  // Consider reason sent (see Jinterface node::close(mbox).
-
   /// Returns a vector with the names of all nodes connected to this one.
   std::vector<std::string> connected_nodes() const;
 
@@ -133,23 +132,6 @@ private:
 
   linker mailbox_linker;
 
-  // In case a link/unlink/exit is requested, we have to differentiate between 
-  // remote process (= located on another node) and mailboxes located on this node.
-  // We encapsulate those two cases in different dispatchers.
-  struct link_operation_dispatcher_type
-  {
-    virtual ~link_operation_dispatcher_type() {}
-
-    virtual void link(const pid_t& local_pid, const pid_t& remote_pid) = 0;
-  
-    virtual void unlink(const pid_t& local_pid, const pid_t& remote_pid) = 0;
-
-    virtual void request_exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) = 0;
-
-    virtual void request_exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) = 0;
-  };
-
-  typedef boost::shared_ptr<link_operation_dispatcher_type> link_operation_dispatcher_type_ptr;
   link_operation_dispatcher_type_ptr remote_link_dispatcher;
   link_operation_dispatcher_type_ptr local_link_dispatcher;
 
@@ -161,12 +143,16 @@ private:
 
   void request(control_msg& distributed_operation, const std::string& destination);
 
+  void close_mailbox(const pid_t& id, const std::string& name, const std::string& reason);
+
 private:
   // Implementation of node_access.
   //
   virtual std::string name() const { return node_name_; }
   
   virtual void close_mailbox(const pid_t& id, const std::string& name);
+
+  virtual void close_mailbox_async(const pid_t& id, const std::string& name);
 
   virtual void link(const pid_t& local_pid, const pid_t& remote_pid);
 
