@@ -31,6 +31,8 @@ using namespace tinch_pp;
 
 namespace {
 
+using tinch_pp::pid_t;
+
 struct link_operations_on_same_node : link_operation_dispatcher_type
 {
   link_operations_on_same_node(node_access& a_node) : node(a_node) {}

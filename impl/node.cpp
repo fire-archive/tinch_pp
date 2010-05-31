@@ -37,6 +37,7 @@ using namespace boost;
 
 namespace {
 
+using tinch_pp::pid_t;
 typedef boost::lock_guard<boost::mutex> mutex_guard;
 
 std::string valid_node_name(const std::string& user_provided)
@@ -66,7 +67,7 @@ template<typename Key, typename T>
 shared_ptr<actual_mailbox> fetch_mailbox(const Key& name,
                                          T& registered_mboxes)
 {
-  T::iterator mbox = registered_mboxes.find(name);
+  typename T::iterator mbox = registered_mboxes.find(name);
 
   if(mbox == registered_mboxes.end())
     throw erl_cpp_exception("Failed to deliver message - mailbox not known. Name = " + key_to_name(name));
