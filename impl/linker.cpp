@@ -39,7 +39,7 @@ namespace tinch_pp {
 }
 
 linker::linker(mailbox_controller_type& a_mailbox_controller)
-  : mailbox_controller(a_mailbox_controller) 
+  : mailbox_controller(a_mailbox_controller)
 {
 }
 
@@ -62,8 +62,8 @@ void linker::unlink(const pid_t& from, const pid_t& to)
 void linker::break_links_for_local(const pid_t& dying_process)
 {
   const string exit_reason = "error";
-  const notification_fn_type exit_request = bind(&mailbox_controller_type::request_exit, 
-                                                  ref(mailbox_controller), 
+  const notification_fn_type exit_request = bind(&mailbox_controller_type::request_exit,
+                                                  ref(mailbox_controller),
                                                   cref(dying_process),
                                                   _1,
                                                   cref(exit_reason));
@@ -72,8 +72,8 @@ void linker::break_links_for_local(const pid_t& dying_process)
 
 void linker::close_links_for_local(const pid_t& dying_process, const string& reason)
 {
-  const notification_fn_type exit2_request = bind(&mailbox_controller_type::request_exit2, 
-                                                   ref(mailbox_controller), 
+  const notification_fn_type exit2_request = bind(&mailbox_controller_type::request_exit2,
+                                                   ref(mailbox_controller),
                                                    cref(dying_process),
                                                    _1,
                                                    cref(reason));
@@ -109,8 +109,8 @@ void linker::on_broken_links(const linker::notification_fn_type& notification_fn
 linker::linked_pids_type linker::remove_links_from(const pid_t& dying_process)
 {
   linked_pids_type removed_links;
-  links_type::const_iterator end = established_links.end();
-  links_type::const_iterator i = established_links.begin();
+  links_type::iterator end = established_links.end();
+  links_type::iterator i = established_links.begin();
 
   while(i != end) {
     if(dying_process == i->first) {
@@ -128,7 +128,7 @@ linker::linked_pids_type linker::remove_links_from(const pid_t& dying_process)
 }
 
 namespace tinch_pp {
- 
+
 bool operator==(const std::pair<pid_t, pid_t>& v1,
                 const std::pair<pid_t, pid_t>& v2)
 {

@@ -89,7 +89,7 @@ void local_unlinks(node& my_node)
 
   mbox->send("link_tester", remote_node_name, erl::make_tuple(atom("request_pid"), pid(mbox->self())));
 
-  pid_t remote_pid;
+  tinch_pp::pid_t remote_pid;
   const matchable_ptr pid_respone = mbox->receive(tmo);
 
   if(!pid_respone->match(erl::make_tuple(atom("link_pid"), pid(&remote_pid))))

@@ -35,7 +35,7 @@ using namespace tinch_pp::erl;
 // 2. Start the Erlang program link_tester:
 //          (testnode@127.0.0.1)4> link_tester:start_link().
 // 3. Start this program (will request the PID of the link tester).
-//    As the link_tester communicates its PID, we link to it and ensure 
+//    As the link_tester communicates its PID, we link to it and ensure
 //    that the link was successfully created. We then purposely break it.
 // 4. Ensure that the link_tester reports a broken link (stdout in the Erlang shell).
 
@@ -47,7 +47,7 @@ namespace {
 int main()
 {
   const std::string own_node_name("link_test_node@127.0.0.1");
-  
+
   node my_node(own_node_name, "abcdef");
 
   test_break_link(my_node);
@@ -65,7 +65,7 @@ void test_break_link(node& my_node)
 
   mbox->send("link_tester", remote_node_name, erl::make_tuple(atom("request_pid"), pid(mbox->self())));
 
-  pid_t remote_pid;
+  tinch_pp::pid_t remote_pid;
   const matchable_ptr pid_respone = mbox->receive(tmo);
 
   if(!pid_respone->match(erl::make_tuple(atom("link_pid"), pid(&remote_pid))))

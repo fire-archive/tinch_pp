@@ -34,10 +34,10 @@ using namespace boost;
 
 // Implementation of the different states of a node_connection.
 //
-// The state objects are granted access to their connection through an access-inteface 
-// provided upon construction. The states use their access to trigger read and write 
-// operations. The node_connection performs the actual operations, ensuring that errors 
-// are properly handled and, upon read-operations, that at least one complete message 
+// The state objects are granted access to their connection through an access-inteface
+// provided upon construction. The states use their access to trigger read and write
+// operations. The node_connection performs the actual operations, ensuring that errors
+// are properly handled and, upon read-operations, that at least one complete message
 // has been received before the invoker (i.e. a state-object) is notified.
 namespace {
 
@@ -68,29 +68,29 @@ struct connected : connection_state
     connection.trigger_write(build_send_msg(payload, destination_pid));
   }
 
-  virtual void exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) 
+  virtual void exit(const tinch_pp::pid_t& from_pid, const tinch_pp::pid_t& to_pid, const std::string& reason)
   {
     connection.trigger_write(build_exit_msg(from_pid, to_pid, reason));
   }
 
-  virtual void exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) 
+  virtual void exit2(const tinch_pp::pid_t& from_pid, const tinch_pp::pid_t& to_pid, const std::string& reason)
   {
     connection.trigger_write(build_exit2_msg(from_pid, to_pid, reason));
   }
 
-  virtual void link(const pid_t& from_pid, const pid_t& to_pid)
+  virtual void link(const tinch_pp::pid_t& from_pid, const tinch_pp::pid_t& to_pid)
   {
     connection.trigger_write(build_link_msg(from_pid, to_pid));
   }
 
-  virtual void unlink(const pid_t& from_pid, const pid_t& to_pid)
+  virtual void unlink(const tinch_pp::pid_t& from_pid, const tinch_pp::pid_t& to_pid)
   {
     connection.trigger_write(build_unlink_msg(from_pid, to_pid));
   }
 
   virtual void handle_io_error(const std::string& error) const
   {
-    // Fire an exception and let the higher-level layers deal with it, probably 
+    // Fire an exception and let the higher-level layers deal with it, probably
     // by dropping the connection.
      throw connection_io_error(error, access->peer_node_name());
   }
@@ -107,7 +107,7 @@ struct connected : connection_state
   {
     const size_t header_size = 4;
     const msg_seq tock(header_size, 0);
-    
+
     connection.trigger_write(tock);
   }
 
@@ -131,7 +131,7 @@ struct connected : connection_state
 };
 
 // Take care: the transition to the connected state will dealloc our world right below our feets.
-// Because we're running asynchronously, we must ensure things are done in the right order while 
+// Because we're running asynchronously, we must ensure things are done in the right order while
 // still maintaining valid objects. The trick is to make a copy of the access smart-pointer.
 void make_transition_to_connected(access_ptr access)
 {
@@ -170,7 +170,7 @@ private:
   bool is_correct(const msg_seq& digest)
   {
     const msg_seq expected_digest = utils::calculate_digest(access->own_challenge(), access->cookie());
-    
+
     return expected_digest == digest;
   }
 };
@@ -199,14 +199,14 @@ struct sending_challenge_ack : connection_state
   {
     make_transition_to_connected(access);
   }
- 
+
 };
 
 struct sending_challenge_reply : connection_state
 {
   msg_seq reply;
   networker<sending_challenge_reply> connection;
- 
+
   sending_challenge_reply(access_ptr access)
     : connection_state(access),
       connection(access, this)
@@ -215,7 +215,7 @@ struct sending_challenge_reply : connection_state
 
   void send(boost::uint32_t challenge_from_B, access_ptr access)
   {
-    challenge_reply_attributes attributes(access->own_challenge(), 
+    challenge_reply_attributes attributes(access->own_challenge(),
                                           utils::calculate_digest(challenge_from_B, access->cookie()));
     challenge_reply reply_g;
     utils::generate(reply, reply_g, attributes);
@@ -257,7 +257,7 @@ private:
   bool is_correct_digest(const challenge_reply_attributes& reply_attr)
   {
     const msg_seq expected_digest = utils::calculate_digest(access->own_challenge(), access->cookie());
-    
+
     return expected_digest == reply_attr.digest;
   }
 };
@@ -339,7 +339,7 @@ struct sending_status : connection_state
   }
 
 private:
-  void send_status() 
+  void send_status()
   {
     receive_status_g status_g;
     const serializable_string status("ok"); // TODO: handle other alternatives in the next version...
@@ -403,18 +403,18 @@ private:
     sent_name_type sent_name;
     send_name_p name_p;
     msg_seq msg = *read_msgs.next_message();
-    
+
     utils::parse(msg, name_p, sent_name);
 
     if(supported_version(sent_name)) {
       access->got_peer_name(sent_name.name);
       access->change_state_to<sending_status>();
     } else {
-      const std::string erroneous_version = "The connecting node " + sent_name.name + 
+      const std::string erroneous_version = "The connecting node " + sent_name.name +
 	                                    " uses an unsupported version. We support version = " +
-	                                    lexical_cast<std::string>(constants::supported_version) + 
+	                                    lexical_cast<std::string>(constants::supported_version) +
 	                                    ", but the node has " +
-	                                    lexical_cast<std::string>(sent_name.version0) + " -> " + 
+	                                    lexical_cast<std::string>(sent_name.version0) + " -> " +
                                             lexical_cast<std::string>(sent_name.version1);
       access->report_failure(erroneous_version);
     }
@@ -422,7 +422,7 @@ private:
 
   bool supported_version(const sent_name_type& received) const
   {
-    return (constants::supported_version >= received.version0) && 
+    return (constants::supported_version >= received.version0) &&
            (constants::supported_version <= received.version1);
   }
 };
