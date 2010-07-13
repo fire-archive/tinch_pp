@@ -111,16 +111,16 @@ bool int_::match_string_element(msg_seq_iter& f, const msg_seq_iter& l) const
 
 namespace {
 
-bool match_value(msg_seq_iter& f, const msg_seq_iter& l, const tinch_pp::pid_t& val)
+bool match_value(msg_seq_iter& f, const msg_seq_iter& l, const tinch_pp::e_pid& val)
 {
-  tinch_pp::pid_t res;
+  tinch_pp::e_pid res;
   
   const bool success = binary_to_term<pid_ext>(f, l, res);
 
   return success && (val == res);
 }
 
- bool assign_matched(msg_seq_iter& f, const msg_seq_iter& l, tinch_pp::pid_t* to_assign)
+ bool assign_matched(msg_seq_iter& f, const msg_seq_iter& l, tinch_pp::e_pid* to_assign)
 {
   assert(to_assign != 0);
   return binary_to_term<pid_ext>(f, l, *to_assign);
@@ -128,7 +128,7 @@ bool match_value(msg_seq_iter& f, const msg_seq_iter& l, const tinch_pp::pid_t& 
 
 bool match_any_pid(msg_seq_iter& f, const msg_seq_iter& l, const any& match_any)
 {
-  tinch_pp::pid_t ignore;
+  tinch_pp::e_pid ignore;
   msg_seq_iter start = f;
 
   return binary_to_term<pid_ext>(f, l, ignore) ? match_any.save_matched_bytes(msg_seq(start, f)) : false;
@@ -233,25 +233,25 @@ bool match_any_ref(msg_seq_iter& f, const msg_seq_iter& l, const any& match_any)
 
 }
 
-pid::pid(const pid_t& a_val)
+pid::pid(const e_pid& a_val)
   : val(a_val),
-    pid_to_assign(0),
+    e_pido_assign(0),
     match_fn(bind(match_value, ::_1, ::_2, cref(val)))
 {}
 
-pid::pid(pid_t* a_pid_to_assign)
-  : pid_to_assign(a_pid_to_assign),
-    match_fn(bind(assign_matched, ::_1, ::_2, pid_to_assign))
+pid::pid(e_pid* a_e_pido_assign)
+  : e_pido_assign(a_e_pido_assign),
+    match_fn(bind(assign_matched, ::_1, ::_2, e_pido_assign))
 {}
 
 pid::pid(const any& match_any)
-   : pid_to_assign(0),
+   : e_pido_assign(0),
      match_fn(bind(match_any_pid, ::_1, ::_2, cref(match_any)))
 {}
 
 void pid::serialize(msg_seq_out_iter& out) const
 {
-  const serializable_pid_t p(val);
+  const serializable_e_pid p(val);
 
   term_to_binary<pid_ext_g>(out, p);
 }

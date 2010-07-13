@@ -87,15 +87,15 @@ void local_unlinks(node& my_node)
 {
   mailbox_ptr mbox = my_node.create_mailbox();
 
-  mbox->send("link_tester", remote_node_name, erl::make_tuple(atom("request_pid"), pid(mbox->self())));
+  mbox->send("link_tester", remote_node_name, make_e_tuple(atom("request_pid"), pid(mbox->self())));
 
-  tinch_pp::pid_t remote_pid;
+  tinch_pp::e_pid remote_pid;
   const matchable_ptr pid_respone = mbox->receive(tmo);
 
-  if(!pid_respone->match(erl::make_tuple(atom("link_pid"), pid(&remote_pid))))
+  if(!pid_respone->match(make_e_tuple(atom("link_pid"), pid(&remote_pid))))
     throw std::domain_error("Unexpected response from remote node - check the program versions.");
 
-  mbox->send("link_tester", remote_node_name, erl::make_tuple(atom("pid"), pid(mbox->self())));
+  mbox->send("link_tester", remote_node_name, make_e_tuple(atom("pid"), pid(mbox->self())));
 
   const matchable_ptr m = mbox->receive(tmo);
 
@@ -116,7 +116,7 @@ void local_breaks_link(node& my_node)
 {
   mailbox_ptr mbox = my_node.create_mailbox();
 
-  mbox->send("link_tester", remote_node_name, erl::make_tuple(atom("pid"), pid(mbox->self())));
+  mbox->send("link_tester", remote_node_name, make_e_tuple(atom("pid"), pid(mbox->self())));
 
   const matchable_ptr m   = mbox->receive(tmo);
 
@@ -133,7 +133,7 @@ void local_breaks_due_to_error(node& my_node)
   try {
     mailbox_ptr mbox = my_node.create_mailbox();
 
-    mbox->send("link_tester", remote_node_name, erl::make_tuple(atom("pid"), pid(mbox->self())));
+    mbox->send("link_tester", remote_node_name, make_e_tuple(atom("pid"), pid(mbox->self())));
 
     const matchable_ptr m   = mbox->receive(tmo);
 
@@ -150,7 +150,7 @@ void remote_breaks_link(node& my_node)
 {
   mailbox_ptr mbox = my_node.create_mailbox();
 
-  mbox->send("link_tester", remote_node_name, erl::make_tuple(atom("pid"), pid(mbox->self())));
+  mbox->send("link_tester", remote_node_name, make_e_tuple(atom("pid"), pid(mbox->self())));
 
   const matchable_ptr m   = mbox->receive(tmo);
 

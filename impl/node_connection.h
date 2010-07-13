@@ -96,17 +96,17 @@ private:
 
   virtual void trigger_checked_write(const msg_seq& msg, const message_written_fn& callback);
 
-  virtual void deliver_received(const msg_seq& msg, const pid_t& to);
+  virtual void deliver_received(const msg_seq& msg, const e_pid& to);
 
   virtual void deliver_received(const msg_seq& msg, const std::string& to);
 
-  virtual void request_link(const pid_t& from, const pid_t& to);
+  virtual void request_link(const e_pid& from, const e_pid& to);
 
-  virtual void request_unlink(const pid_t& from, const pid_t& to);
+  virtual void request_unlink(const e_pid& from, const e_pid& to);
 
-  virtual void request_exit(const pid_t& from, const pid_t& to, const std::string& reason);
+  virtual void request_exit(const e_pid& from, const e_pid& to, const std::string& reason);
 
-  virtual void request_exit2(const pid_t& from, const pid_t& to, const std::string& reason);
+  virtual void request_exit2(const e_pid& from, const e_pid& to, const std::string& reason);
 
   void handle_io_error(const boost::system::error_code& error);
   

@@ -62,7 +62,7 @@ mailbox_receive_tmo::~mailbox_receive_tmo() throw()
 {
 }
 
-link_broken::link_broken(const std::string& reason, const pid_t& pid)
+link_broken::link_broken(const std::string& reason, const e_pid& pid)
   : erl_cpp_exception("Link to remote process broken."),
     reason_(reason),
     pid_(pid)

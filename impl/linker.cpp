@@ -34,8 +34,8 @@ typedef boost::lock_guard<boost::mutex> mutex_guard;
 }
 
 namespace tinch_pp {
-  bool operator==(const pair<pid_t, pid_t>& v1,
-                  const pair<pid_t, pid_t>& v2);
+  bool operator==(const pair<e_pid, e_pid>& v1,
+                  const pair<e_pid, e_pid>& v2);
 }
 
 linker::linker(mailbox_controller_type& a_mailbox_controller)
@@ -43,7 +43,7 @@ linker::linker(mailbox_controller_type& a_mailbox_controller)
 {
 }
 
-void linker::link(const pid_t& from, const pid_t& to)
+void linker::link(const e_pid& from, const e_pid& to)
 {
   const mutex_guard guard(links_lock);
 
@@ -52,14 +52,14 @@ void linker::link(const pid_t& from, const pid_t& to)
   establish_link_between(from, to);
 }
 
-void linker::unlink(const pid_t& from, const pid_t& to)
+void linker::unlink(const e_pid& from, const e_pid& to)
 {
   const mutex_guard guard(links_lock);
 
   remove_link_between(from, to);
 }
 
-void linker::break_links_for_local(const pid_t& dying_process)
+void linker::break_links_for_local(const e_pid& dying_process)
 {
   const string exit_reason = "error";
   const notification_fn_type exit_request = bind(&mailbox_controller_type::request_exit,
@@ -70,7 +70,7 @@ void linker::break_links_for_local(const pid_t& dying_process)
   on_broken_links(exit_request, dying_process);
 }
 
-void linker::close_links_for_local(const pid_t& dying_process, const string& reason)
+void linker::close_links_for_local(const e_pid& dying_process, const string& reason)
 {
   const notification_fn_type exit2_request = bind(&mailbox_controller_type::request_exit2,
                                                    ref(mailbox_controller),
@@ -80,18 +80,18 @@ void linker::close_links_for_local(const pid_t& dying_process, const string& rea
   on_broken_links(exit2_request, dying_process);
 }
 
-void linker::establish_link_between(const pid_t& pid1, const pid_t& pid2)
+void linker::establish_link_between(const e_pid& pid1, const e_pid& pid2)
 {
   established_links.push_back(std::make_pair(pid1, pid2));
 }
 
-void linker::remove_link_between(const pid_t& pid1, const pid_t& pid2)
+void linker::remove_link_between(const e_pid& pid1, const e_pid& pid2)
 {
   established_links.remove(make_pair(pid1, pid2));
   established_links.remove(make_pair(pid2, pid1));
 }
 
-void linker::on_broken_links(const linker::notification_fn_type& notification_fn, const pid_t& dying_process)
+void linker::on_broken_links(const linker::notification_fn_type& notification_fn, const e_pid& dying_process)
 {
   // Take care => if the broken link is between mailboxes on the same node, 
   // we'll get back into this context (exactly these situations is why I want Erlang...).
@@ -106,7 +106,7 @@ void linker::on_broken_links(const linker::notification_fn_type& notification_fn
   for_each(closed_links.begin(), closed_links.end(), notification_fn);
 }
 
-linker::linked_pids_type linker::remove_links_from(const pid_t& dying_process)
+linker::linked_pids_type linker::remove_links_from(const e_pid& dying_process)
 {
   linked_pids_type removed_links;
   links_type::iterator end = established_links.end();
@@ -129,8 +129,8 @@ linker::linked_pids_type linker::remove_links_from(const pid_t& dying_process)
 
 namespace tinch_pp {
 
-bool operator==(const std::pair<pid_t, pid_t>& v1,
-                const std::pair<pid_t, pid_t>& v2)
+bool operator==(const std::pair<e_pid, e_pid>& v1,
+                const std::pair<e_pid, e_pid>& v2)
 {
   return (v1.first == v2.first) && (v1.second == v2.second);
 }

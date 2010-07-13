@@ -116,13 +116,13 @@ private:
   boost::uint32_t serial; // calculated
   int creation;           // default 0 (zero), obtained from EPMD when registered.
 
-  pid_t make_pid();
+  e_pid make_pid();
   void update_pid_fields();
 
   // Use a weak-pointer to break the cyclic ownership => now, the 
   // client owns the mailbox.
   typedef boost::weak_ptr<actual_mailbox> actual_mailbox_ptr;
-  typedef std::map<pid_t, actual_mailbox_ptr> mailboxes_type;
+  typedef std::map<e_pid, actual_mailbox_ptr> mailboxes_type;
   mailboxes_type mailboxes;
 
   typedef std::map<std::string, actual_mailbox_ptr> registered_mailboxes_type;
@@ -136,54 +136,54 @@ private:
   link_operation_dispatcher_type_ptr local_link_dispatcher;
 
   // Returns the link dispatcher (see comment above) for the given destination.
-  link_operation_dispatcher_type_ptr dispatcher_for(const pid_t& destination);
+  link_operation_dispatcher_type_ptr dispatcher_for(const e_pid& destination);
 
   void remove(mailbox_ptr mailbox);
-  void remove(const pid_t& id, const std::string& name);
+  void remove(const e_pid& id, const std::string& name);
 
   void request(control_msg& distributed_operation, const std::string& destination);
 
-  void close_mailbox(const pid_t& id, const std::string& name, const std::string& reason);
+  void close_mailbox(const e_pid& id, const std::string& name, const std::string& reason);
 
 private:
   // Implementation of node_access.
   //
   virtual std::string name() const { return node_name_; }
   
-  virtual void close_mailbox(const pid_t& id, const std::string& name);
+  virtual void close_mailbox(const e_pid& id, const std::string& name);
 
-  virtual void close_mailbox_async(const pid_t& id, const std::string& name);
+  virtual void close_mailbox_async(const e_pid& id, const std::string& name);
 
-  virtual void link(const pid_t& local_pid, const pid_t& remote_pid);
+  virtual void link(const e_pid& local_pid, const e_pid& remote_pid);
 
-  virtual void unlink(const pid_t& local_pid, const pid_t& remote_pid);
+  virtual void unlink(const e_pid& local_pid, const e_pid& remote_pid);
 
   virtual std::string cookie() const { return cookie_; }
 
-  virtual void deliver(const msg_seq& msg, const pid_t& to);
+  virtual void deliver(const msg_seq& msg, const e_pid& to);
 
   virtual void deliver(const msg_seq& msg, const std::string& to);
 
   virtual void deliver(const msg_seq& msg, const std::string& to_name, 
-		                     const std::string& on_given_node, const pid_t& from_pid);
+		                     const std::string& on_given_node, const e_pid& from_pid);
 
-  virtual void receive_incoming(const msg_seq& msg, const pid_t& to);
+  virtual void receive_incoming(const msg_seq& msg, const e_pid& to);
 
   virtual void receive_incoming(const msg_seq& msg, const std::string& to);
 
-  virtual void incoming_link(const pid_t& from, const pid_t& to);
+  virtual void incoming_link(const e_pid& from, const e_pid& to);
 
-  virtual void incoming_unlink(const pid_t& from, const pid_t& to);
+  virtual void incoming_unlink(const e_pid& from, const e_pid& to);
 
-  virtual void incoming_exit(const pid_t& from, const pid_t& to, const std::string& reason);
+  virtual void incoming_exit(const e_pid& from, const e_pid& to, const std::string& reason);
 
-  virtual void incoming_exit2(const pid_t& from, const pid_t& to, const std::string& reason);
+  virtual void incoming_exit2(const e_pid& from, const e_pid& to, const std::string& reason);
 
   // Implementation of mailbox_controller_type.
   //
-  virtual void request_exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason);
+  virtual void request_exit(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason);
 
-  virtual void request_exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason);
+  virtual void request_exit2(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason);
 };
 
 }

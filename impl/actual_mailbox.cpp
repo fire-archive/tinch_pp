@@ -38,7 +38,7 @@ namespace {
 }
 
 actual_mailbox::actual_mailbox(node_access& a_node,
-			                            const pid_t& a_own_pid,
+			                            const e_pid& a_own_pid,
                                asio::io_service& a_service)
   : node(a_node),
     own_pid(a_own_pid),
@@ -48,7 +48,7 @@ actual_mailbox::actual_mailbox(node_access& a_node,
 }
 
 actual_mailbox::actual_mailbox(node_access& a_node,
-			                            const pid_t& a_own_pid,
+			                            const e_pid& a_own_pid,
                                asio::io_service& a_service,
 			                            const std::string& a_own_name)
   : node(a_node),
@@ -82,17 +82,17 @@ void actual_mailbox::close()
   node.close_mailbox(self(), own_name);
 }
 
-void actual_mailbox::link(const pid_t& pid_to_link)
+void actual_mailbox::link(const e_pid& e_pido_link)
 {
-  node.link(self(), pid_to_link);
+  node.link(self(), e_pido_link);
 }
 
-void actual_mailbox::unlink(const pid_t& pid_to_unlink)
+void actual_mailbox::unlink(const e_pid& e_pido_unlink)
 {
-  node.unlink(self(), pid_to_unlink);
+  node.unlink(self(), e_pido_unlink);
 }
 
-tinch_pp::pid_t actual_mailbox::self() const
+tinch_pp::e_pid actual_mailbox::self() const
 {
   return own_pid;
 }
@@ -102,7 +102,7 @@ std::string actual_mailbox::name() const
   return own_name;
 }
 
-void actual_mailbox::send(const pid_t& to_pid, const erl::object& message)
+void actual_mailbox::send(const e_pid& to_pid, const erl::object& message)
 {
   node.deliver(serialized(message), to_pid);
 }
@@ -173,7 +173,7 @@ void actual_mailbox::on_incoming(const msg_seq& msg)
   notify_receive(bind(&received_msgs_type::push_front, ref(received_msgs), cref(msg)));
 }
 
-void actual_mailbox::on_link_broken(const std::string& reason, const pid_t& pid)
+void actual_mailbox::on_link_broken(const std::string& reason, const e_pid& pid)
 {
   const broken_links_type::value_type info(reason, pid);
 

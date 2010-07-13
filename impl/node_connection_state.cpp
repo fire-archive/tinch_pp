@@ -58,32 +58,32 @@ struct connected : connection_state
     connection.trigger_read(&connected::msg_received);
   }
 
-  virtual void send(const msg_seq& payload, const tinch_pp::pid_t& self, const std::string& destination_name)
+  virtual void send(const msg_seq& payload, const tinch_pp::e_pid& self, const std::string& destination_name)
   {
     connection.trigger_write(build_reg_send_msg(payload, self, destination_name));
   }
 
-  virtual void send(const msg_seq& payload, const tinch_pp::pid_t& destination_pid)
+  virtual void send(const msg_seq& payload, const tinch_pp::e_pid& destination_pid)
   {
     connection.trigger_write(build_send_msg(payload, destination_pid));
   }
 
-  virtual void exit(const tinch_pp::pid_t& from_pid, const tinch_pp::pid_t& to_pid, const std::string& reason)
+  virtual void exit(const tinch_pp::e_pid& from_pid, const tinch_pp::e_pid& to_pid, const std::string& reason)
   {
     connection.trigger_write(build_exit_msg(from_pid, to_pid, reason));
   }
 
-  virtual void exit2(const tinch_pp::pid_t& from_pid, const tinch_pp::pid_t& to_pid, const std::string& reason)
+  virtual void exit2(const tinch_pp::e_pid& from_pid, const tinch_pp::e_pid& to_pid, const std::string& reason)
   {
     connection.trigger_write(build_exit2_msg(from_pid, to_pid, reason));
   }
 
-  virtual void link(const tinch_pp::pid_t& from_pid, const tinch_pp::pid_t& to_pid)
+  virtual void link(const tinch_pp::e_pid& from_pid, const tinch_pp::e_pid& to_pid)
   {
     connection.trigger_write(build_link_msg(from_pid, to_pid));
   }
 
-  virtual void unlink(const tinch_pp::pid_t& from_pid, const tinch_pp::pid_t& to_pid)
+  virtual void unlink(const tinch_pp::e_pid& from_pid, const tinch_pp::e_pid& to_pid)
   {
     connection.trigger_write(build_unlink_msg(from_pid, to_pid));
   }

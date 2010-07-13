@@ -35,7 +35,7 @@ namespace erl {
 class matchable;
 typedef boost::shared_ptr<matchable> matchable_ptr;
 
-struct pid_t;
+struct e_pid;
 
 /// A mailbox is the distributed equivalence to an Erlang process.
 /// Each mailbox is associated with its own PID.
@@ -52,12 +52,12 @@ class mailbox : boost::noncopyable
 public:
   virtual ~mailbox() {}
 
-  virtual pid_t self() const = 0;
+  virtual e_pid self() const = 0;
 
   virtual std::string name() const = 0;
 
   /// Sends the message to a remote pid.
-  virtual void send(const pid_t& to, const erl::object& message) = 0;
+  virtual void send(const e_pid& to, const erl::object& message) = 0;
 
   /// Sends the message to the named mailbox created on the same tinch++ node as this mailbox.
   /// This functionality can be seen as a thread-safe queue for the application.
@@ -88,10 +88,10 @@ public:
   /// Link to a remote mailbox or Erlang process. 
   /// If the remote process exits, a receive on this mailbox will throw a tinch_pp::link_broken exception. 
   /// Similarly, if this mailbox is closed, the linked process will receive an Erlang exit signal.
-  virtual void link(const pid_t& pid_to_link) = 0;
+  virtual void link(const e_pid& e_pido_link) = 0;
   
   /// Remove a link to a remote mailbox or Erlang process.
-  virtual void unlink(const pid_t& pid_to_unlink) = 0;
+  virtual void unlink(const e_pid& e_pido_unlink) = 0;
 };
 
 }

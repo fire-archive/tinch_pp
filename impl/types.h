@@ -55,9 +55,9 @@ struct serializable_string
 
 bool operator ==(const serializable_string& s1, const serializable_string& s2);
 
-struct pid_t
+struct e_pid
 {
-  pid_t(const std::string& a_node_name,
+  e_pid(const std::string& a_node_name,
         boost::uint32_t a_id,
         boost::uint32_t a_serial,
         boost::uint32_t a_creation)
@@ -66,7 +66,7 @@ struct pid_t
 
   // Creates an invalid pid (not that nice, but necessary(?)
   // when matching received messages).
-  pid_t()
+  e_pid()
     : node_name(""), id(0), serial(0), creation(0) {}
 
   std::string node_name;
@@ -75,11 +75,11 @@ struct pid_t
   boost::uint32_t creation;
 };
 
-bool operator ==(const pid_t& p1, const pid_t& p2);
+bool operator ==(const e_pid& p1, const e_pid& p2);
 
-struct serializable_pid_t
+struct serializable_e_pid
 {
-  explicit serializable_pid_t(const pid_t& p)
+  explicit serializable_e_pid(const e_pid& p)
   : node_name(p.node_name),
     id(p.id), serial(p.serial), creation(p.creation) {}
 
@@ -134,14 +134,14 @@ BOOST_FUSION_ADAPT_STRUCT(
    (std::string, val))
 
 BOOST_FUSION_ADAPT_STRUCT(
-   tinch_pp::pid_t,
+   tinch_pp::e_pid,
    (std::string, node_name)
    (boost::uint32_t, id)
    (boost::uint32_t, serial)
    (boost::uint32_t, creation))
 
 BOOST_FUSION_ADAPT_STRUCT(
-   tinch_pp::serializable_pid_t,
+   tinch_pp::serializable_e_pid,
    (tinch_pp::serializable_string, node_name)
    (boost::uint32_t, id)
    (boost::uint32_t, serial)

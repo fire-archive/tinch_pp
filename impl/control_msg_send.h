@@ -31,13 +31,13 @@ class control_msg_send : public control_msg
 {
 public:
   control_msg_send(const msg_seq& msg, 
-                   const pid_t& destination_pid);
+                   const e_pid& destination_pid);
 
   virtual void execute(connection_access_ptr connection_access);
 
 private:
   msg_seq msg;
-  pid_t destination_pid;
+  e_pid destination_pid;
 };
 
 }

@@ -86,14 +86,14 @@ void net_adm_emulator(mailbox_ptr mbox)
     // Sample msg = {$gen_call, {pid, ref}, { is_auth, anode@zarathustra }}
     std::string node;
     new_reference_type monitor_ref;
-    tinch_pp::pid_t sender;
+    tinch_pp::e_pid sender;
 
-    if(rec_msg->match(erl::make_tuple(atom("$gen_call"), 
-							                               make_tuple(pid(&sender), ref(&monitor_ref)),
-							                               make_tuple(atom("is_auth"), atom(&node))))) {
+    if(rec_msg->match(make_e_tuple(atom("$gen_call"), 
+							                            make_e_tuple(pid(&sender), ref(&monitor_ref)),
+							                            make_e_tuple(atom("is_auth"), atom(&node))))) {
       std::cout << "net_adm: Received ping from " << node << std::endl;
       // Reply: {Mref, Reply} where Reply = yes
-      mbox->send(sender, make_tuple(ref(monitor_ref), atom("yes")));
+      mbox->send(sender, make_e_tuple(ref(monitor_ref), atom("yes")));
     } else if(rec_msg->match(atom("stop"))) {
       std::cout << "net_adm: terminating upon request." << std::endl;
       is_running = false;

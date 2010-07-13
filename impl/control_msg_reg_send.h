@@ -32,14 +32,14 @@ class control_msg_reg_send : public control_msg
 public:
   control_msg_reg_send(const msg_seq& msg, 
                        const std::string& to_name, 
-                       const pid_t& from_pid);
+                       const e_pid& from_pid);
 
   virtual void execute(connection_access_ptr connection_access);
 
 private:
   msg_seq msg;
   std::string to_name;
-  pid_t from_pid;
+  e_pid from_pid;
 };
 
 }

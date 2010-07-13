@@ -116,7 +116,7 @@ matchable_ptr receive_any(mailbox_ptr mbox)
 
 void match_any_atom(mailbox_ptr mbox)
 {
-  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), atom("hello")));
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), atom("hello")));
 
   const matchable_ptr reply = receive_any(mbox);
 
@@ -128,7 +128,7 @@ void match_any_atom(mailbox_ptr mbox)
 
 void match_any_negative_int(mailbox_ptr mbox)
 {
-  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), int_(-1)));
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), int_(-1)));
 
   const matchable_ptr reply = receive_any(mbox);
 
@@ -140,7 +140,7 @@ void match_any_negative_int(mailbox_ptr mbox)
 
 void match_any_small_int(mailbox_ptr mbox)
 {
-  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), int_(2)));
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), int_(2)));
 
   const matchable_ptr reply = receive_any(mbox);
 
@@ -153,7 +153,7 @@ void match_any_small_int(mailbox_ptr mbox)
 // NOTE: Erlang supports big ints too, but I haven't implemented them yet.
 void match_any_medium_int(mailbox_ptr mbox)
 {
-  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), int_(10000)));
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), int_(10000)));
 
   const matchable_ptr reply = receive_any(mbox);
 
@@ -165,12 +165,12 @@ void match_any_medium_int(mailbox_ptr mbox)
 
 void match_any_nested_tuples(mailbox_ptr mbox)
 {
-  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), 
-                                                        erl::make_tuple(atom("next"), 
-                                                        erl::make_tuple(atom("nested"), int_(42)))));
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), 
+                                                     make_e_tuple(atom("next"), 
+                                                     make_e_tuple(atom("nested"), int_(42)))));
   const matchable_ptr reply = receive_any(mbox);
 
-  if(reply->match(erl::make_tuple(atom("next"), erl::make_tuple(atom("nested"), int_(42)))))
+  if(reply->match(make_e_tuple(atom("next"), make_e_tuple(atom("nested"), int_(42)))))
     std::cout << "Matched any {next, {nested, 42}}" << std::endl;
   else
     std::cerr << "match_any_nested_tuples: No match - unexpected message!" << std::endl;
@@ -178,11 +178,10 @@ void match_any_nested_tuples(mailbox_ptr mbox)
 
 void match_any_empty_tuple(mailbox_ptr mbox)
 {
-  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), 
-                                                        erl::make_tuple()));
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), make_e_tuple()));
   const matchable_ptr reply = receive_any(mbox);
 
-  if(reply->match(erl::make_tuple()))
+  if(reply->match(make_e_tuple()))
     std::cout << "Matched any empty tuple {}" << std::endl;
   else
     std::cerr << "match_any_empty_tuple: No match - unexpected message!" << std::endl;
@@ -192,12 +191,12 @@ void match_any_string(mailbox_ptr mbox)
 {
   const std::string value_to_match = "my string";
 
-  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), 
-                                                        erl::make_tuple(atom("next"), estring(value_to_match))));
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), 
+                                                     make_e_tuple(atom("next"), e_string(value_to_match))));
 
   const matchable_ptr reply = receive_any(mbox);
 
-  if(reply->match(erl::make_tuple(atom("next"), estring(value_to_match))))
+  if(reply->match(make_e_tuple(atom("next"), e_string(value_to_match))))
     std::cout << "Matched any string {start, " << value_to_match << "}" << std::endl;
   else
     std::cerr << "match_any_string: No match - unexpected message!" << std::endl;
@@ -206,12 +205,12 @@ void match_any_string(mailbox_ptr mbox)
 void match_any_float(mailbox_ptr mbox)
 {
   const double value = 1234567.98765;
-  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), 
-                                                        erl::make_tuple(atom("next"), float_(value))));
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), 
+                                                     make_e_tuple(atom("next"), float_(value))));
 
   const matchable_ptr reply = receive_any(mbox);
 
-  if(reply->match(erl::make_tuple(atom("next"), float_(value))))
+  if(reply->match(make_e_tuple(atom("next"), float_(value))))
     std::cout << "Matched float {start, " << value << "}" << std::endl;
   else
     std::cerr << "match_any_float: No match - unexpected message!" << std::endl;
@@ -221,12 +220,12 @@ void match_any_list(mailbox_ptr mbox)
 {
   const std::list<erl::object_ptr> send_numbers = list_of(make_int(1))(make_int(2))(make_int(1000));
 
-  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), 
-                                                        erl::make_tuple(atom("numbers"), make_list(send_numbers))));
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), 
+                                                     make_e_tuple(atom("numbers"), make_list(send_numbers))));
 
   const matchable_ptr reply = receive_any(mbox);
 
-  if(reply->match(erl::make_tuple(atom("numbers"), make_list(send_numbers))))
+  if(reply->match(make_e_tuple(atom("numbers"), make_list(send_numbers))))
     std::cout << "Matched any {numbers, List} with List size = " << send_numbers.size() << std::endl;
   else
     std::cerr << "match_any_list: No match - unexpected message!" << std::endl;
@@ -236,12 +235,12 @@ void match_any_small_list(mailbox_ptr mbox)
 {
   const std::list<int_> send_numbers = list_of(int_(1))(int_(2))(int_(3));
 
-  mbox->send(to_name, remote_node_name, erl::make_tuple(atom("echo"), pid(mbox->self()), 
-                                                        erl::make_tuple(atom("small_list"), make_list(send_numbers))));
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), 
+                                                     make_e_tuple(atom("small_list"), make_list(send_numbers))));
 
   const matchable_ptr reply = receive_any(mbox);
 
-  if(reply->match(erl::make_tuple(atom("small_list"), make_list(send_numbers))))
+  if(reply->match(make_e_tuple(atom("small_list"), make_list(send_numbers))))
     std::cout << "Matched any {small_list, List} with List size = " << send_numbers.size() << std::endl;
   else
     std::cerr << "match_any_small_list: No match - unexpected message!" << std::endl;

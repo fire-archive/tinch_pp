@@ -66,12 +66,12 @@ private:
 class pid : public object
 {
 public:
-  typedef pid_t value_type;
+  typedef e_pid value_type;
 
-  explicit pid(const pid_t& val);
+  explicit pid(const e_pid& val);
 
   // Used for assigning a match during pattern matching.
-  explicit pid(pid_t* pid_to_assign);
+  explicit pid(e_pid* e_pido_assign);
 
   explicit pid(const any& match_any);
 
@@ -79,11 +79,11 @@ public:
 
   virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const;
 
-  pid_t value() const { return val; }
+  e_pid value() const { return val; }
 
 private:
-  pid_t val;
-  pid_t* pid_to_assign;
+  e_pid val;
+  e_pid* e_pido_assign;
 
   match_fn_type match_fn;
 };
@@ -146,7 +146,7 @@ public:
   explicit ref(const new_reference_type& val);
 
   // Used for assigning a match during pattern matching.
-  explicit ref(new_reference_type* pid_to_assign);
+  explicit ref(new_reference_type* e_pido_assign);
 
   explicit ref(const any& match_any);
 

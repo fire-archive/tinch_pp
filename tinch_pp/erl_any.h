@@ -37,17 +37,17 @@ namespace erl {
 ///
 /// Example:
 ///
-/// msg->match(make_tuple(atom("hello"), any()))
+/// msg->match(make_e_tuple(atom("hello"), any()))
 ///
 /// Succeeds for all tuples of two elements where the first is the atom 'hello'.
 ///
 /// matchable_ptr hello_msg;
-/// msg->match(make_tuple(atom("hello"), any(&hello_msg)))
+/// msg->match(make_e_tuple(atom("hello"), any(&hello_msg)))
 ///
 /// Succeeds for all tuples of two elements where the first is the atom 'hello'.
 /// Upon a successful match, the hello_msg is assigned and may be matched further:
-/// pid_t reply_pid;
-/// hello_msg->match(make_tuple(atom("some_details"), pid_t(&reply_pid)))
+/// e_pid reply_pid;
+/// hello_msg->match(make_e_tuple(atom("some_details"), e_pid(&reply_pid)))
 
 class any : public object
 {

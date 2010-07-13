@@ -39,14 +39,14 @@ typedef boost::function<bool (msg_seq_iter&, const msg_seq_iter&)> match_fn_type
 /// String does NOT have a corresponding Erlang representation, but is an 
 /// optimization for sending lists of bytes (integer in the range 0-255) 
 /// more efficiently over the distribution.
-class estring : public object
+class e_string : public object
 {
 public:
-  explicit estring(const std::string& val);
+  explicit e_string(const std::string& val);
 
-  explicit estring(std::string* to_assign);
+  explicit e_string(std::string* to_assign);
 
-  explicit estring(const any& match_any);
+  explicit e_string(const any& match_any);
 
   virtual void serialize(msg_seq_out_iter& out) const;
 

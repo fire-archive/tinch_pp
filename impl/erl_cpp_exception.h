@@ -75,17 +75,17 @@ public:
 class link_broken : public erl_cpp_exception
 {
 public:
-  link_broken(const std::string& reason, const pid_t& pid);
+  link_broken(const std::string& reason, const e_pid& pid);
 
   virtual ~link_broken() throw();
 
   std::string reason() const { return reason_; }
 
-  pid_t broken_pid() const { return pid_; }
+  e_pid broken_pid() const { return pid_; }
 
 private:
   std::string reason_;
-  pid_t pid_;
+  e_pid pid_;
 }; 
 
 }

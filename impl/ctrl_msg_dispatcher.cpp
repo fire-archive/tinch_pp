@@ -108,9 +108,9 @@ public:
   virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
   {
     bool handled = false;
-    pid_t to_pid;
+    e_pid to_pid;
      
-    if(matchable_range(f, l).match(make_tuple(int_(constants::ctrl_msg_send), atom(any()), pid(&to_pid)))) {
+    if(matchable_range(f, l).match(make_e_tuple(int_(constants::ctrl_msg_send), atom(any()), pid(&to_pid)))) {
       check_term_version(f, l);
       
       const msg_seq payload(f, l);
@@ -138,10 +138,9 @@ public:
   {
     bool handled = false;
     std::string to_name;
-    pid_t from_pid; // what should I do with this one?
+    e_pid from_pid; // what should I do with this one?
      
-    if(matchable_range(f, l).match(make_tuple(int_(constants::ctrl_msg_reg_send), pid(&from_pid),
-					                                         atom(any()), atom(&to_name)))) {
+    if(matchable_range(f, l).match(make_e_tuple(int_(constants::ctrl_msg_reg_send), pid(&from_pid), atom(any()), atom(&to_name)))) {
       check_term_version(f, l);
       
       const msg_seq payload(f, l);
@@ -169,10 +168,10 @@ public:
   virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
   {
     bool handled = false;
-    pid_t from_pid;
-    pid_t to_pid;
+    e_pid from_pid;
+    e_pid to_pid;
      
-    if(matchable_range(f, l).match(make_tuple(int_(constants::ctrl_msg_link), pid(&from_pid), pid(&to_pid)))) {
+    if(matchable_range(f, l).match(make_e_tuple(int_(constants::ctrl_msg_link), pid(&from_pid), pid(&to_pid)))) {
       access->request_link(from_pid, to_pid);
       handled = true;
     }
@@ -195,10 +194,10 @@ public:
   virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
   {
     bool handled = false;
-    pid_t from_pid;
-    pid_t to_pid;
+    e_pid from_pid;
+    e_pid to_pid;
      
-    if(matchable_range(f, l).match(make_tuple(int_(constants::ctrl_msg_unlink), pid(&from_pid), pid(&to_pid)))) {
+    if(matchable_range(f, l).match(make_e_tuple(int_(constants::ctrl_msg_unlink), pid(&from_pid), pid(&to_pid)))) {
       access->request_unlink(from_pid, to_pid);
       handled = true;
     }
@@ -222,11 +221,11 @@ public:
   virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
   {
     bool handled = false;
-    pid_t from_pid;
-    pid_t to_pid;
+    e_pid from_pid;
+    e_pid to_pid;
     std::string reason;
      
-    if(matchable_range(f, l).match(make_tuple(int_(constants::ctrl_msg_exit), pid(&from_pid), pid(&to_pid), atom(&reason)))) {
+    if(matchable_range(f, l).match(make_e_tuple(int_(constants::ctrl_msg_exit), pid(&from_pid), pid(&to_pid), atom(&reason)))) {
       access->request_exit(from_pid, to_pid, reason);
       handled = true;
     }
@@ -251,11 +250,11 @@ public:
   virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
   {
     bool handled = false;
-    pid_t from_pid;
-    pid_t to_pid;
+    e_pid from_pid;
+    e_pid to_pid;
     std::string reason;
      
-    if(matchable_range(f, l).match(make_tuple(int_(constants::ctrl_msg_exit2), pid(&from_pid), pid(&to_pid), atom(&reason)))) {
+    if(matchable_range(f, l).match(make_e_tuple(int_(constants::ctrl_msg_exit2), pid(&from_pid), pid(&to_pid), atom(&reason)))) {
       access->request_exit2(from_pid, to_pid, reason);
       handled = true;
     }

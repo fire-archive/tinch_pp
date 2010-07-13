@@ -29,7 +29,7 @@
 
 namespace tinch_pp {
 
-struct pid_t;
+struct e_pid;
 namespace erl {
   class object;
   typedef boost::shared_ptr<object> object_ptr;
@@ -39,7 +39,7 @@ namespace erl {
 
 object_ptr make_atom(const std::string& s);
 
-object_ptr make_pid(const tinch_pp::pid_t& p);
+object_ptr make_pid(const tinch_pp::e_pid& p);
 
 object_ptr make_int(boost::int32_t i);
 

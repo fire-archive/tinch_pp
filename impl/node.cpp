@@ -37,7 +37,7 @@ using namespace boost;
 
 namespace {
 
-using tinch_pp::pid_t;
+using tinch_pp::e_pid;
 typedef boost::lock_guard<boost::mutex> mutex_guard;
 
 std::string valid_node_name(const std::string& user_provided)
@@ -55,7 +55,7 @@ void remove_expired(const Key& key, T& mboxes)
 
 std::string key_to_name(const std::string& name) { return name; }
 
-std::string key_to_name(const pid_t& p)
+std::string key_to_name(const e_pid& p)
 {
   const std::string name = "<" + p.node_name + ":" + lexical_cast<std::string>(p.id) + ":" +
                            lexical_cast<std::string>(p.serial) + ":" + 
@@ -86,7 +86,7 @@ shared_ptr<actual_mailbox> fetch_mailbox(const Key& name,
 
 namespace tinch_pp {
 
-  bool operator <(const pid_t& p1, const pid_t& p2);
+  bool operator <(const e_pid& p1, const e_pid& p2);
 
 }
 
@@ -166,7 +166,7 @@ mailbox_ptr node::create_mailbox(const std::string& registered_name)
   return mbox;
 }
 
-void node::close_mailbox(const pid_t& id, const std::string& name)
+void node::close_mailbox(const e_pid& id, const std::string& name)
 {
   const std::string reason = "normal";
   
@@ -175,14 +175,14 @@ void node::close_mailbox(const pid_t& id, const std::string& name)
 
 // This function is invoked as a mailbox gets closed due to an exception.
 // We must take extreme care not to fire another exception, which would terminate the program.
-void node::close_mailbox_async(const pid_t& id, const std::string& name)
+void node::close_mailbox_async(const e_pid& id, const std::string& name)
 {
   const std::string reason = "error";
 
   io_service.post(bind(&node::close_mailbox, this, id, name, reason));
 }
 
-void node::close_mailbox(const pid_t& id, const std::string& name, const std::string& reason)
+void node::close_mailbox(const e_pid& id, const std::string& name, const std::string& reason)
 {
   // Depending on if the mailbox is linked and, in that case, to whom, this 
   // action might result in a call to self => ensure the mutex isn't locked.
@@ -195,12 +195,12 @@ void node::close_mailbox(const pid_t& id, const std::string& name, const std::st
   }
 }
 
-void node::link(const pid_t& local_pid, const pid_t& remote_pid)
+void node::link(const e_pid& local_pid, const e_pid& remote_pid)
 {
   dispatcher_for(remote_pid)->link(local_pid, remote_pid);
 }
 
-void node::unlink(const pid_t& local_pid, const pid_t& remote_pid)
+void node::unlink(const e_pid& local_pid, const e_pid& remote_pid)
 {
   dispatcher_for(remote_pid)->unlink(local_pid, remote_pid);
 }
@@ -215,14 +215,14 @@ void node::remove(mailbox_ptr mailbox)
   remove(mailbox->self(), mailbox->name());
 }
 
-void node::remove(const pid_t& id, const std::string& name)
+void node::remove(const e_pid& id, const std::string& name)
 {
    mailboxes.erase(id);
   // Not all mailboxes have an registered name, but erase is fine anyway (no throw).
   registered_mailboxes.erase(name);
 }
 
-void node::deliver(const msg_seq& msg, const pid_t& to_pid)
+void node::deliver(const msg_seq& msg, const e_pid& to_pid)
 {
   node_connection_ptr connection = connector.get_connection_to(to_pid.node_name);
   control_msg_send send_msg(msg, to_pid);
@@ -236,7 +236,7 @@ void node::deliver(const msg_seq& msg, const std::string& to_name)
 }
 
 void node::deliver(const msg_seq& msg, const std::string& to_name, 
-		                 const std::string& given_node, const pid_t& from_pid)
+		                 const std::string& given_node, const e_pid& from_pid)
 {
   
   node_connection_ptr connection = connector.get_connection_to(given_node);
@@ -245,7 +245,7 @@ void node::deliver(const msg_seq& msg, const std::string& to_name,
   connection->request(reg_send_msg);
 }
 
-void node::receive_incoming(const msg_seq& msg, const pid_t& to)
+void node::receive_incoming(const msg_seq& msg, const e_pid& to)
 {
   const mutex_guard guard(mailboxes_lock);
 
@@ -261,17 +261,17 @@ void node::receive_incoming(const msg_seq& msg, const std::string& to)
   destination->on_incoming(msg);
 }
 
-void node::incoming_link(const pid_t& from, const pid_t& to)
+void node::incoming_link(const e_pid& from, const e_pid& to)
 {
   mailbox_linker.link(from, to);
 }
 
-void node::incoming_unlink(const pid_t& from, const pid_t& to)
+void node::incoming_unlink(const e_pid& from, const e_pid& to)
 {
   mailbox_linker.unlink(from, to);
 }
 
-void node::incoming_exit(const pid_t& from, const pid_t& to, const std::string& reason)
+void node::incoming_exit(const e_pid& from, const e_pid& to, const std::string& reason)
 {
   const mutex_guard guard(mailboxes_lock);
 
@@ -282,7 +282,7 @@ void node::incoming_exit(const pid_t& from, const pid_t& to, const std::string& 
   mailbox_linker.unlink(from, to);
 }
 
-void node::incoming_exit2(const pid_t& from, const pid_t& to, const std::string& reason)
+void node::incoming_exit2(const e_pid& from, const e_pid& to, const std::string& reason)
 {
   // Erlang makes a difference between a termination (exit) and a controlled shutdown (exit2).
   // However, it doesn't really make a difference for us => treat them the same way.
@@ -296,17 +296,17 @@ void node::request(control_msg& distributed_operation, const std::string& destin
   connection->request(distributed_operation);
 }
 
-void node::request_exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
+void node::request_exit(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason)
 {
   dispatcher_for(to_pid)->request_exit(from_pid, to_pid, reason);
 }
 
-void node::request_exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
+void node::request_exit2(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason)
 {
   dispatcher_for(to_pid)->request_exit2(from_pid, to_pid, reason);
 }
 
-link_operation_dispatcher_type_ptr node::dispatcher_for(const pid_t& destination)
+link_operation_dispatcher_type_ptr node::dispatcher_for(const e_pid& destination)
 {
   return destination.node_name != node_name_ ? remote_link_dispatcher : local_link_dispatcher;
 }
@@ -330,9 +330,9 @@ void node::run_async_io()
   }
 }
 
-tinch_pp::pid_t node::make_pid()
+tinch_pp::e_pid node::make_pid()
 {
-  const pid_t new_pid(node_name_, pid_id, serial, creation);
+  const e_pid new_pid(node_name_, pid_id, serial, creation);
 
   update_pid_fields();
   
@@ -357,7 +357,7 @@ void node::update_pid_fields()
 
 namespace tinch_pp {
 
-bool operator <(const pid_t& p1, const pid_t& p2)
+bool operator <(const e_pid& p1, const e_pid& p2)
 {
   // Don't care about the name => it's always identical on the receiving node.
   return (p1.id < p2.id) || (p1.serial < p2.serial);

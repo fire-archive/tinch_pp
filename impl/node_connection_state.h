@@ -45,18 +45,18 @@ public:
 
   virtual void read_incoming_handshake() {}
 
-  virtual void send(const msg_seq& msg, const pid_t& destination_pid) {}
+  virtual void send(const msg_seq& msg, const e_pid& destination_pid) {}
 
-  virtual void send(const msg_seq& msg, const pid_t& self, const std::string& destination_name) {}
+  virtual void send(const msg_seq& msg, const e_pid& self, const std::string& destination_name) {}
 
   // TODO: Take care with this one; exit is called by a dying process - do not throw an exception!
-  virtual void exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) {}
+  virtual void exit(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason) {}
 
-  virtual void exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) {}
+  virtual void exit2(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason) {}
 
-  virtual void link(const pid_t& from_pid, const pid_t& to_pid) {}
+  virtual void link(const e_pid& from_pid, const e_pid& to_pid) {}
 
-  virtual void unlink(const pid_t& from_pid, const pid_t& to_pid) {}
+  virtual void unlink(const e_pid& from_pid, const e_pid& to_pid) {}
 
   // The error is delegated to the current state because we want to react differently 
   // depending on if we have established a connection or not.

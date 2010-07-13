@@ -34,12 +34,12 @@ protected:
   inline ~mailbox_controller_type() {}
 
 public:
-  virtual void request_exit(const pid_t& from_pid,
-                            const pid_t& to_pid, 
+  virtual void request_exit(const e_pid& from_pid,
+                            const e_pid& to_pid, 
                             const std::string& reason) = 0;
 
-  virtual void request_exit2(const pid_t& from_pid,
-                             const pid_t& to_pid, 
+  virtual void request_exit2(const e_pid& from_pid,
+                             const e_pid& to_pid, 
                              const std::string& reason) = 0;
 };
 

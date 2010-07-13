@@ -36,38 +36,38 @@ protected:
 public:
   virtual std::string name() const = 0;
   
-  virtual void close_mailbox(const pid_t& id, const std::string& name) = 0;
+  virtual void close_mailbox(const e_pid& id, const std::string& name) = 0;
 
-  virtual void close_mailbox_async(const pid_t& id, const std::string& name) = 0;
+  virtual void close_mailbox_async(const e_pid& id, const std::string& name) = 0;
 
-  virtual void link(const pid_t& local_pid, const pid_t& remote_pid) = 0;
+  virtual void link(const e_pid& local_pid, const e_pid& remote_pid) = 0;
 
-  virtual void unlink(const pid_t& local_pid, const pid_t& remote_pid) = 0;
+  virtual void unlink(const e_pid& local_pid, const e_pid& remote_pid) = 0;
 
   virtual std::string cookie() const = 0;
 
-  virtual void deliver(const msg_seq& msg, const pid_t& to) = 0;
+  virtual void deliver(const msg_seq& msg, const e_pid& to) = 0;
 
   virtual void deliver(const msg_seq& msg, const std::string& to) = 0;
 
   virtual void deliver(const msg_seq& msg, 
 		                     const std::string& to_name, 
 		                     const std::string& on_given_node,
-		                     const pid_t& from_pid) = 0;
+		                     const e_pid& from_pid) = 0;
 
   // TODO: Extract a separate interface for the Erlang operations.
 
-  virtual void receive_incoming(const msg_seq& msg, const pid_t& to) = 0;
+  virtual void receive_incoming(const msg_seq& msg, const e_pid& to) = 0;
 
   virtual void receive_incoming(const msg_seq& msg, const std::string& to) = 0;
 
-  virtual void incoming_link(const pid_t& from, const pid_t& to) = 0;
+  virtual void incoming_link(const e_pid& from, const e_pid& to) = 0;
 
-  virtual void incoming_unlink(const pid_t& from, const pid_t& to) = 0;
+  virtual void incoming_unlink(const e_pid& from, const e_pid& to) = 0;
 
-  virtual void incoming_exit(const pid_t& from, const pid_t& to, const std::string& reason) = 0;
+  virtual void incoming_exit(const e_pid& from, const e_pid& to, const std::string& reason) = 0;
 
-  virtual void incoming_exit2(const pid_t& from, const pid_t& to, const std::string& reason) = 0;
+  virtual void incoming_exit2(const e_pid& from, const e_pid& to, const std::string& reason) = 0;
 };
 
 }

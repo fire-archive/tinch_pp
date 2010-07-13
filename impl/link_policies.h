@@ -36,13 +36,13 @@ class link_operation_dispatcher_type
 public:
   virtual ~link_operation_dispatcher_type();
 
-  virtual void link(const pid_t& local_pid, const pid_t& remote_pid) = 0;
+  virtual void link(const e_pid& local_pid, const e_pid& remote_pid) = 0;
 
-  virtual void unlink(const pid_t& local_pid, const pid_t& remote_pid) = 0;
+  virtual void unlink(const e_pid& local_pid, const e_pid& remote_pid) = 0;
 
-  virtual void request_exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) = 0;
+  virtual void request_exit(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason) = 0;
 
-  virtual void request_exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason) = 0;
+  virtual void request_exit2(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason) = 0;
 };
 
 class node_access;

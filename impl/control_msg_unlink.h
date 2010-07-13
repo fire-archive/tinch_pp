@@ -31,14 +31,14 @@ namespace tinch_pp {
 class control_msg_unlink : public control_msg
 {
 public:
-  control_msg_unlink(const pid_t& from_pid,
-                     const pid_t& to_pid);
+  control_msg_unlink(const e_pid& from_pid,
+                     const e_pid& to_pid);
 
   virtual void execute(connection_access_ptr connection_access);
 
 private:
-  pid_t from_pid;
-  pid_t to_pid;
+  e_pid from_pid;
+  e_pid to_pid;
 };
 
 }

@@ -71,19 +71,19 @@ class node_connection_access : public boost::enable_shared_from_this<node_connec
 
   //
   // Interface for incoming message send operations:
-  virtual void deliver_received(const msg_seq& msg, const pid_t& to) = 0;
+  virtual void deliver_received(const msg_seq& msg, const e_pid& to) = 0;
 
   virtual void deliver_received(const msg_seq& msg, const std::string& to) = 0;
 
   //
   // Interface for interprocess links:
-  virtual void request_link(const pid_t& from, const pid_t& to) = 0;
+  virtual void request_link(const e_pid& from, const e_pid& to) = 0;
 
-  virtual void request_unlink(const pid_t& from, const pid_t& to) = 0;
+  virtual void request_unlink(const e_pid& from, const e_pid& to) = 0;
 
-  virtual void request_exit(const pid_t& from, const pid_t& to, const std::string& reason) = 0;
+  virtual void request_exit(const e_pid& from, const e_pid& to, const std::string& reason) = 0;
 
-  virtual void request_exit2(const pid_t& from, const pid_t& to, const std::string& reason) = 0;
+  virtual void request_exit2(const e_pid& from, const e_pid& to, const std::string& reason) = 0;
 
   template<typename new_state>
   boost::shared_ptr<new_state> change_state_to() 

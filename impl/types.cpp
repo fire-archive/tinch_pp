@@ -28,7 +28,7 @@ bool operator ==(const serializable_string& s1, const serializable_string& s2)
    return s1.val == s2.val;
 }
 
-bool operator ==(const pid_t& p1, const pid_t& p2)
+bool operator ==(const e_pid& p1, const e_pid& p2)
 {
   return (p1.node_name == p2.node_name) && 
          (p1.id == p2.id) && 

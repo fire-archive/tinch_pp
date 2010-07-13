@@ -33,7 +33,7 @@ namespace {
 
 // {self, { call, Mod, Fun, Args, user}}
 typedef fusion::tuple<atom, atom, atom, rpc_argument_type, atom> call_type;
-typedef fusion::tuple<pid, tuple<call_type> > rpc_call_type;
+typedef fusion::tuple<pid, e_tuple<call_type> > rpc_call_type;
 
 matchable_ptr receive_rpc_reply(mailbox_ptr mbox,
                                 const std::string& remote_node,
@@ -51,9 +51,9 @@ matchable_ptr rpc::blocking_rpc(const std::string& remote_node,
 {
    const call_type call(atom("call"), atom(remote_fn.first), atom(remote_fn.second), arguments, atom("user"));
 
-   const rpc_call_type rpc_call(pid(mbox->self()), tuple<call_type>(call));
+   const rpc_call_type rpc_call(pid(mbox->self()), e_tuple<call_type>(call));
 
-   mbox->send("rex", remote_node, tuple<rpc_call_type>(rpc_call));
+   mbox->send("rex", remote_node, e_tuple<rpc_call_type>(rpc_call));
 
    return receive_rpc_reply(mbox, remote_node, remote_fn);
 }
@@ -69,7 +69,7 @@ matchable_ptr receive_rpc_reply(mailbox_ptr mbox,
 
    matchable_ptr reply_part;
 
-   if(!result->match(make_tuple(atom("rex"), any(&reply_part)))) {
+   if(!result->match(make_e_tuple(atom("rex"), any(&reply_part)))) {
       const std::string reason = "RPC: Unexpected result from call to " + remote_node + 
                                  ", function " + remote_fn.first + ":" + remote_fn.second;
       throw erl_cpp_exception(reason);

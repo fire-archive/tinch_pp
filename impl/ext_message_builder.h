@@ -29,17 +29,17 @@ namespace tinch_pp {
 // Sending a message to a node involves several, low-level steps.
 // These functions encapsulate them.
  
- msg_seq build_send_msg(const msg_seq& msg, const pid_t& destination_pid);
+ msg_seq build_send_msg(const msg_seq& msg, const e_pid& destination_pid);
 
- msg_seq build_reg_send_msg(const msg_seq& msg, const pid_t& self, const std::string& destination_name);
+ msg_seq build_reg_send_msg(const msg_seq& msg, const e_pid& self, const std::string& destination_name);
 
- msg_seq build_exit_msg(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason);
+ msg_seq build_exit_msg(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason);
 
- msg_seq build_exit2_msg(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason);
+ msg_seq build_exit2_msg(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason);
 
- msg_seq build_link_msg(const pid_t& from_pid, const pid_t& to_pid);
+ msg_seq build_link_msg(const e_pid& from_pid, const e_pid& to_pid);
 
- msg_seq build_unlink_msg(const pid_t& from_pid, const pid_t& to_pid);
+ msg_seq build_unlink_msg(const e_pid& from_pid, const e_pid& to_pid);
 }
 
 #endif

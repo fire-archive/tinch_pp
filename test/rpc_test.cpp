@@ -53,7 +53,7 @@ int main()
                                                  module_and_function_type("reflect_msg", "echo"), 
                                                  make_list(msg_to_echo));
 
-  if(reply->match(make_tuple(atom("ok"), atom("hello"))))
+  if(reply->match(make_e_tuple(atom("ok"), atom("hello"))))
     std::cout << "RPC reply correct!" << std::endl;
   else
     std::cerr << "Unexpected RPC reply!" << std::endl;

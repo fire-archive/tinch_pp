@@ -57,7 +57,7 @@ void receive_published_msg(mailbox_ptr mbox)
     std::string publisher;
     std::string message;
 
-    if(msg->match(erl::make_tuple(atom("chat_msg"), estring(&publisher), estring(&message))))
+    if(msg->match(make_e_tuple(atom("chat_msg"), e_string(&publisher), e_string(&message))))
       std::cout << publisher << " says: " << message << std::endl;
     else
       std::cerr << "Received something I couldn't interpret - a possible error!" << std::endl;

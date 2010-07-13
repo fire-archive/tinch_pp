@@ -31,15 +31,15 @@ namespace tinch_pp {
 class control_msg_exit : public control_msg
 {
 public:
-  control_msg_exit(const pid_t& from_pid,
-                   const pid_t& to_pid,
+  control_msg_exit(const e_pid& from_pid,
+                   const e_pid& to_pid,
                    const std::string& reason);
 
   virtual void execute(connection_access_ptr connection_access);
 
 private:
-  pid_t from_pid;
-  pid_t to_pid;
+  e_pid from_pid;
+  e_pid to_pid;
   std::string reason;
 };
 

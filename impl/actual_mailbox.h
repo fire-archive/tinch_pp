@@ -37,9 +37,9 @@ class node_access;
 class actual_mailbox : public mailbox
 {
 public:
-  actual_mailbox(node_access& node, const pid_t& own_pid, boost::asio::io_service& service);
+  actual_mailbox(node_access& node, const e_pid& own_pid, boost::asio::io_service& service);
 
-  actual_mailbox(node_access& node, const pid_t& own_pid, 
+  actual_mailbox(node_access& node, const e_pid& own_pid, 
                  boost::asio::io_service& service, 
                  const std::string& own_name);
 
@@ -47,11 +47,11 @@ public:
 
   // Implementation of the mailbox-interface:
   //
-  virtual pid_t self() const;
+  virtual e_pid self() const;
 
   virtual std::string name() const;
 
-  virtual void send(const pid_t& to, const erl::object& message);
+  virtual void send(const e_pid& to, const erl::object& message);
 
   virtual void send(const std::string& to_name, const erl::object& message);
 
@@ -68,16 +68,16 @@ public:
 
   virtual void close();
 
-  virtual void link(const pid_t& pid_to_link);
+  virtual void link(const e_pid& e_pido_link);
 
-  virtual void unlink(const pid_t& pid_to_unlink);
+  virtual void unlink(const e_pid& e_pido_unlink);
 
   // The public interface for the implementation (i.e. the owning node):
   //
   void on_incoming(const msg_seq& msg);
 
   // Invoked as a linked (remote) process exits.
-  void on_link_broken(const std::string& reason, const pid_t& pid);
+  void on_link_broken(const std::string& reason, const e_pid& pid);
 
 private:
   // Used to abstract away the common pattern of lock-and-notify as a process 
@@ -94,7 +94,7 @@ private:
 
 private:
   node_access& node;
-  pid_t own_pid;
+  e_pid own_pid;
   boost::asio::io_service& service;
   std::string own_name;
 
@@ -110,7 +110,7 @@ private:
   // A mailbox may be linked to multiple Erlang processes and/or other mailboxes.
   // Thus, we need to handle the case where multiple links break. Each broken link 
   // is reported as an exception in the next receive.
-  typedef std::list<std::pair<std::string, pid_t> > broken_links_type;
+  typedef std::list<std::pair<std::string, e_pid> > broken_links_type;
   broken_links_type broken_links;
 };
 

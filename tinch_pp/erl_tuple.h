@@ -36,13 +36,13 @@ namespace erl {
 
 /// A wrapper around boost::fusion::tuple (basically a TR1 representation). 
 /// For you as a client, simply work with the full boost::fusion::tuple API and just 
-/// wrap it in an instance of this class (using make_tuple below) in the call
+/// wrap it in an instance of this class (using make_e_tuple below) in the call
 /// to mailbox::send.
 template<typename Tuple>
-class tuple : public object
+class e_tuple : public object
 {
 public:
-  tuple(const Tuple& t)
+  e_tuple(const Tuple& t)
     : contained(t),
       tuple_length(boost::fusion::tuple_size<Tuple>::value)
   {

@@ -31,28 +31,28 @@ using namespace tinch_pp;
 
 namespace {
 
-using tinch_pp::pid_t;
+using tinch_pp::e_pid;
 
 struct link_operations_on_same_node : link_operation_dispatcher_type
 {
   link_operations_on_same_node(node_access& a_node) : node(a_node) {}
 
-  void link(const pid_t& local_pid, const pid_t& remote_pid)
+  void link(const e_pid& local_pid, const e_pid& remote_pid)
   {
     node.incoming_link(local_pid, remote_pid);
   }
 
-  void unlink(const pid_t& local_pid, const pid_t& remote_pid)
+  void unlink(const e_pid& local_pid, const e_pid& remote_pid)
   {
     node.incoming_unlink(local_pid, remote_pid);
   }
 
-  void request_exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
+  void request_exit(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason)
   {
     node.incoming_exit(from_pid, to_pid, reason);
   }
 
-  void request_exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
+  void request_exit2(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason)
   {
     node.incoming_exit2(from_pid, to_pid, reason);
   }
@@ -73,7 +73,7 @@ struct link_operations_on_remote_node : link_operation_dispatcher_type
      requester(a_requester)
   {}
 
-  void link(const pid_t& local_pid, const pid_t& remote_pid)
+  void link(const e_pid& local_pid, const e_pid& remote_pid)
   {
     control_msg_link link_msg(local_pid, remote_pid);
     requester(link_msg, remote_pid.node_name);
@@ -81,7 +81,7 @@ struct link_operations_on_remote_node : link_operation_dispatcher_type
     mailbox_linker.link(local_pid, remote_pid);
   }
 
-  void unlink(const pid_t& local_pid, const pid_t& remote_pid)
+  void unlink(const e_pid& local_pid, const e_pid& remote_pid)
   {
     mailbox_linker.unlink(local_pid, remote_pid);
 
@@ -89,14 +89,14 @@ struct link_operations_on_remote_node : link_operation_dispatcher_type
     requester(unlink_msg, remote_pid.node_name);
   }
 
-  void request_exit(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
+  void request_exit(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason)
   {
     control_msg_exit exit_msg(from_pid, to_pid, reason);
 
     requester(exit_msg, to_pid.node_name);
   }
 
-  void request_exit2(const pid_t& from_pid, const pid_t& to_pid, const std::string& reason)
+  void request_exit2(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason)
   {
     control_msg_exit2 exit2_msg(from_pid, to_pid, reason);
 

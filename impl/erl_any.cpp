@@ -49,7 +49,7 @@ bool match_atom(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
 
 bool match_string(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
 {
-   return estring(instance).match(f, l);
+   return e_string(instance).match(f, l);
 }
 
 bool match_float(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)

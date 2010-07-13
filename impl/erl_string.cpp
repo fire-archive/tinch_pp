@@ -81,27 +81,27 @@ bool match_any_string(msg_seq_iter& f, const msg_seq_iter& l, const any& match_a
 
 }
 
-estring::estring(const std::string& a_val)
+e_string::e_string(const std::string& a_val)
   : val(a_val),
     to_assign(0),
     match_fn(bind(match_string_value, ::_1, ::_2, cref(val))) {}
 
-estring::estring(std::string* a_to_assign)
+e_string::e_string(std::string* a_to_assign)
  : to_assign(a_to_assign),
    match_fn(bind(assign_matched_string, ::_1, ::_2, to_assign)) {}
 
-estring::estring(const any& match_any)
+e_string::e_string(const any& match_any)
   : to_assign(0),
     match_fn(bind(match_any_string, ::_1, ::_2, cref(match_any))) {}
 
 
-void estring::serialize(msg_seq_out_iter& out) const
+void e_string::serialize(msg_seq_out_iter& out) const
 {
   const serializable_string s(val);
   term_to_binary<string_ext_g>(out, s);
 }
 
-bool estring::match(msg_seq_iter& f, const msg_seq_iter& l) const
+bool e_string::match(msg_seq_iter& f, const msg_seq_iter& l) const
 {
   return match_fn(f, l);
 }

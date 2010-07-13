@@ -30,7 +30,7 @@
 using namespace tinch_pp;
 
 control_msg_send::control_msg_send(const msg_seq& a_msg, 
-                                   const pid_t& a_destination_pid)
+                                   const e_pid& a_destination_pid)
   : msg(a_msg),
     destination_pid(a_destination_pid)
 {
@@ -43,7 +43,7 @@ void control_msg_send::execute(connection_access_ptr connection)
 
 control_msg_reg_send::control_msg_reg_send(const msg_seq& a_msg, 
                                            const std::string& a_to_name, 
-                                           const pid_t& a_from_pid)
+                                           const e_pid& a_from_pid)
   : msg(a_msg),
     to_name(a_to_name),
     from_pid(a_from_pid)
@@ -55,8 +55,8 @@ void control_msg_reg_send::execute(connection_access_ptr connection)
   connection->send(msg, from_pid, to_name);
 }
 
-control_msg_exit::control_msg_exit(const pid_t& a_from_pid,
-                                   const pid_t& a_to_pid,
+control_msg_exit::control_msg_exit(const e_pid& a_from_pid,
+                                   const e_pid& a_to_pid,
                                    const std::string& a_reason)
   : from_pid(a_from_pid),
     to_pid(a_to_pid),
@@ -69,8 +69,8 @@ void control_msg_exit::execute(connection_access_ptr connection)
   connection->exit(from_pid, to_pid, reason);
 }
 
-control_msg_exit2::control_msg_exit2(const pid_t& a_from_pid,
-                                     const pid_t& a_to_pid,
+control_msg_exit2::control_msg_exit2(const e_pid& a_from_pid,
+                                     const e_pid& a_to_pid,
                                      const std::string& a_reason)
   : from_pid(a_from_pid),
     to_pid(a_to_pid),
@@ -83,8 +83,8 @@ void control_msg_exit2::execute(connection_access_ptr connection)
   connection->exit2(from_pid, to_pid, reason);
 }
 
-control_msg_link::control_msg_link(const pid_t& a_from_pid,
-                                   const pid_t& a_to_pid)
+control_msg_link::control_msg_link(const e_pid& a_from_pid,
+                                   const e_pid& a_to_pid)
   : from_pid(a_from_pid),
     to_pid(a_to_pid)
 {
@@ -95,8 +95,8 @@ void control_msg_link::execute(connection_access_ptr connection)
   connection->link(from_pid, to_pid);
 }
 
-control_msg_unlink::control_msg_unlink(const pid_t& a_from_pid,
-                                       const pid_t& a_to_pid)
+control_msg_unlink::control_msg_unlink(const e_pid& a_from_pid,
+                                       const e_pid& a_to_pid)
   : from_pid(a_from_pid),
     to_pid(a_to_pid)
 {

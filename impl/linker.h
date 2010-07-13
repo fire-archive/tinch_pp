@@ -41,30 +41,30 @@ class linker : boost::noncopyable
 public:
   linker(mailbox_controller_type& mailbox_controller);
 
-  void link(const pid_t& from, const pid_t& to);
+  void link(const e_pid& from, const e_pid& to);
 
-  void unlink(const pid_t& from, const pid_t& to);
+  void unlink(const e_pid& from, const e_pid& to);
 
   // Erlang differs between a controlled shutdown and a violent death.
   // This is an uncontrolled termination (distributed operation = EXIT).
-  void break_links_for_local(const pid_t& dying_process);
+  void break_links_for_local(const e_pid& dying_process);
 
   // Erlang differs between a controlled shutdown and a violent death.
   // This is an controlled shutdown, explicitly requested by the user (distributed operation = EXIT2).
-  void close_links_for_local(const pid_t& dying_process, const std::string& reason);
+  void close_links_for_local(const e_pid& dying_process, const std::string& reason);
 
 private:
-  void establish_link_between(const pid_t& pid1, const pid_t& pid2);
+  void establish_link_between(const e_pid& pid1, const e_pid& pid2);
 
-  void remove_link_between(const pid_t& pid1, const pid_t& pid2);
+  void remove_link_between(const e_pid& pid1, const e_pid& pid2);
 
-  typedef std::list<pid_t> linked_pids_type;
+  typedef std::list<e_pid> linked_pids_type;
 
-  linked_pids_type remove_links_from(const pid_t& dying_process);
+  linked_pids_type remove_links_from(const e_pid& dying_process);
 
-  typedef boost::function<void (const pid_t& /* remote pid */)> notification_fn_type;
+  typedef boost::function<void (const e_pid& /* remote pid */)> notification_fn_type;
 
-  void on_broken_links(const notification_fn_type& notification_fn, const pid_t& dying_process);
+  void on_broken_links(const notification_fn_type& notification_fn, const e_pid& dying_process);
 
 private:
   mailbox_controller_type& mailbox_controller;
@@ -73,7 +73,7 @@ private:
   // the I/O thread. We always lock on API level before delegating to worker functions.
   boost::mutex links_lock;
 
-  typedef std::pair<pid_t, pid_t> link_type;
+  typedef std::pair<e_pid, e_pid> link_type;
   typedef std::list<link_type> links_type;
 
   links_type established_links;

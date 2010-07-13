@@ -193,7 +193,7 @@ struct atom_ext_g : karma::grammar<msg_seq_out_iter, serializable_string()>
   karma::rule<msg_seq_out_iter, serializable_string()> start;
 };
 
-struct pid_ext : qi::grammar<msg_seq_iter, pid_t()>
+struct pid_ext : qi::grammar<msg_seq_iter, e_pid()>
 {
   pid_ext() : base_type(start)
   {
@@ -203,10 +203,10 @@ struct pid_ext : qi::grammar<msg_seq_iter, pid_t()>
   }
 
   atom_ext atom_p;
-  qi::rule<msg_seq_iter, pid_t()> start;
+  qi::rule<msg_seq_iter, e_pid()> start;
 };
 
-struct pid_ext_g : karma::grammar<msg_seq_out_iter, serializable_pid_t()>
+struct pid_ext_g : karma::grammar<msg_seq_out_iter, serializable_e_pid()>
 {
   pid_ext_g() : base_type(start)
   {
@@ -216,7 +216,7 @@ struct pid_ext_g : karma::grammar<msg_seq_out_iter, serializable_pid_t()>
   }
 
   atom_ext_g atom_g;
-  karma::rule<msg_seq_out_iter, serializable_pid_t()> start;
+  karma::rule<msg_seq_out_iter, serializable_e_pid()> start;
 };
 
 struct new_reference_ext_p : qi::grammar<msg_seq_iter, new_reference_type()>
