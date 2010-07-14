@@ -47,15 +47,15 @@ void worker_thread(mailbox_ptr mbox);
 
 int main()
 {
-  node my_node("queue_test@127.0.0.1", "qwerty");
+  node_ptr my_node = node::create("queue_test@127.0.0.1", "qwerty");
 
   // The worker won't leave until all orders are done.
   const size_t number_of_orders = 10;
 
-  mailbox_ptr worker_mbox = my_node.create_mailbox("worker");
+  mailbox_ptr worker_mbox = my_node->create_mailbox("worker");
   boost::thread worker(boost::bind(&worker_thread, worker_mbox));
 
-  mailbox_ptr control_mbox = my_node.create_mailbox("controller");
+  mailbox_ptr control_mbox = my_node->create_mailbox("controller");
   boost::thread controller(boost::bind(&control_thread, control_mbox, number_of_orders));
   
   controller.join();

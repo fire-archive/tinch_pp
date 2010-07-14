@@ -20,7 +20,7 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrl_msg_dispatcher.h"
-#include "erl_cpp_exception.h"
+#include "tinch_pp/exceptions.h"
 #include "tinch_pp/erlang_types.h"
 #include "constants.h"
 #include "matchable_range.h"
@@ -42,7 +42,7 @@ void check_term_version(msg_seq_iter& first, const msg_seq_iter& last)
     const std::string reason = "Erroneous term version received. Got = " + 
                                  boost::lexical_cast<std::string>(term_version) +
                                  ", expected = " + boost::lexical_cast<std::string>(constants::magic_version);
-    throw erl_cpp_exception(reason);
+    throw tinch_pp_exception(reason);
   }
 }
 
@@ -51,7 +51,7 @@ void parse_header(msg_seq_iter& first, const msg_seq_iter& last)
   using namespace qi;
 
   if(!parse(first, last, omit[big_dword] >>  byte_(constants::pass_through)))
-    throw erl_cpp_exception("Invalid header in ctrl-message: " + utils::to_printable_string(first, last));
+    throw tinch_pp_exception("Invalid header in ctrl-message: " + utils::to_printable_string(first, last));
   
   check_term_version(first, last);
 }
@@ -84,7 +84,7 @@ private:
   void try_next_in_chain(msg_seq_iter& first, const msg_seq_iter& last) const
   {
     if(!next)
-      throw erl_cpp_exception("Unsupported distributed operation. Action = operation ignored. Msg = " + 
+      throw tinch_pp_exception("Unsupported distributed operation. Action = operation ignored. Msg = " + 
                               utils::to_printable_string(first, last));
 
     next->dispatch(first, last);

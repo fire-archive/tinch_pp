@@ -19,24 +19,22 @@
 // ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#ifndef ERL_CPP_EXCEPTION_H
-#define ERL_CPP_EXCEPTION_H
+#ifndef TINCH_PP_EXCEPTION_H
+#define TINCH_PP_EXCEPTION_H
 
-#include "types.h"
+#include "impl/types.h"
 #include <exception>
 #include <string>
-
-// TODO: Rename the file and move it to the public API!
 
 // All exceptions thrown by tinch_pp are of this type.
 namespace tinch_pp {
 
-class erl_cpp_exception : public std::exception
+class tinch_pp_exception : public std::exception
 {
 public:
-  erl_cpp_exception(const std::string& reason);
+  tinch_pp_exception(const std::string& reason);
 
-  virtual ~erl_cpp_exception() throw();
+  virtual ~tinch_pp_exception() throw();
 
   virtual const char *what() const throw();
 
@@ -44,7 +42,7 @@ private:
   std::string reason;
 };
 
-class connection_io_error : public erl_cpp_exception
+class connection_io_error : public tinch_pp_exception
 {
 public:
   connection_io_error(const std::string& reason, 
@@ -58,7 +56,7 @@ private:
   std::string node_name;
 };
 
-class mailbox_receive_tmo : public erl_cpp_exception
+class mailbox_receive_tmo : public tinch_pp_exception
 {
 public:
   mailbox_receive_tmo();
@@ -72,7 +70,7 @@ public:
 //  - An error in network communication.
 //  - The remote process sends an exit signal.
 //  - The remote process terminates.
-class link_broken : public erl_cpp_exception
+class link_broken : public tinch_pp_exception
 {
 public:
   link_broken(const std::string& reason, const e_pid& pid);

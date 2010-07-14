@@ -23,7 +23,7 @@
 #include "tinch_pp/node.h"
 #include "tinch_pp/mailbox.h"
 #include "tinch_pp/erlang_types.h"
-#include "erl_cpp_exception.h"
+#include "tinch_pp/exceptions.h"
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
@@ -40,8 +40,8 @@ matchable_ptr receive_rpc_reply(mailbox_ptr mbox,
                                 const module_and_function_type& remote_fn);
 }
 
-rpc::rpc(node& own_node)
-   : mbox(own_node.create_mailbox())
+rpc::rpc(node_ptr own_node)
+   : mbox(own_node->create_mailbox())
 {
 }
 
@@ -72,7 +72,7 @@ matchable_ptr receive_rpc_reply(mailbox_ptr mbox,
    if(!result->match(make_e_tuple(atom("rex"), any(&reply_part)))) {
       const std::string reason = "RPC: Unexpected result from call to " + remote_node + 
                                  ", function " + remote_fn.first + ":" + remote_fn.second;
-      throw erl_cpp_exception(reason);
+      throw tinch_pp_exception(reason);
    }
 
    return reply_part;

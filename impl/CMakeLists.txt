@@ -3,15 +3,15 @@ find_package( Boost 1.42.0 REQUIRED )
 
 SET(CPP_SOURCE
   actual_mailbox.cpp
+  actual_node.cpp
   constants.cpp
   control_msgs_impl.cpp
   ctrl_msg_dispatcher.cpp
   epmd_requestor.cpp
   erlang_value_types.cpp
   erl_any.cpp
-  erl_cpp_exception.cpp
-  erl_cpp_exception.h
   erl_string.cpp
+  exceptions.cpp
   ext_message_builder.cpp
   link_policies.cpp
   linker.cpp

@@ -75,9 +75,9 @@ typedef boost::function<void (mailbox_ptr)> sender_fn_type;
 
 int main()
 {
-  node my_node("net_adm_test_node@127.0.0.1", "abcdef");
+  node_ptr my_node = node::create("net_adm_test_node@127.0.0.1", "abcdef");
 
-  mailbox_ptr mbox = my_node.create_mailbox();
+  mailbox_ptr mbox = my_node->create_mailbox();
 
   const sender_fn_type senders[] = {bind(match_any_atom, ::_1),
                                     bind(match_any_negative_int, ::_1),

@@ -22,6 +22,7 @@
 #include "tinch_pp/node.h"
 #include "tinch_pp/mailbox.h"
 #include "tinch_pp/erlang_types.h"
+#include "tinch_pp/exceptions.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -38,20 +39,20 @@ using namespace tinch_pp::erl;
 
 namespace {
 
-  void break_link(node& my_node);
+  void break_link(node_ptr my_node);
 
-  void break_in_other_direction(node& my_node);
+  void break_in_other_direction(node_ptr my_node);
 
-  void unlink_and_break(node& my_node);
+  void unlink_and_break(node_ptr my_node);
 
-  void break_on_scope_exit(node& my_node);
+  void break_on_scope_exit(node_ptr my_node);
 
-  void break_on_error(node& my_node);
+  void break_on_error(node_ptr my_node);
 }
 
 int main()
 {
-  node my_node("queue_test@127.0.0.1", "qwerty");
+  node_ptr my_node = node::create("queue_test@127.0.0.1", "qwerty");
 
   break_link(my_node);
 
@@ -79,10 +80,10 @@ void expect_broken_link(mailbox_ptr mbox,
   }
 }
 
-void break_link(node& my_node)
+void break_link(node_ptr my_node)
 {
-  mailbox_ptr worker_mbox = my_node.create_mailbox("worker");
-  mailbox_ptr control_mbox = my_node.create_mailbox("controller");
+  mailbox_ptr worker_mbox = my_node->create_mailbox("worker");
+  mailbox_ptr control_mbox = my_node->create_mailbox("controller");
 
   worker_mbox->link(control_mbox->self());
 
@@ -91,10 +92,10 @@ void break_link(node& my_node)
   expect_broken_link(control_mbox, "break_link");
 }
 
-void break_in_other_direction(node& my_node)
+void break_in_other_direction(node_ptr my_node)
 {
-  mailbox_ptr worker_mbox = my_node.create_mailbox("worker");
-  mailbox_ptr control_mbox = my_node.create_mailbox("controller");
+  mailbox_ptr worker_mbox = my_node->create_mailbox("worker");
+  mailbox_ptr control_mbox = my_node->create_mailbox("controller");
 
   worker_mbox->link(control_mbox->self());
 
@@ -103,10 +104,10 @@ void break_in_other_direction(node& my_node)
   expect_broken_link(worker_mbox, "reversed direction");
 }
 
-void unlink_and_break(node& my_node)
+void unlink_and_break(node_ptr my_node)
 {
-  mailbox_ptr worker_mbox = my_node.create_mailbox("worker");
-  mailbox_ptr control_mbox = my_node.create_mailbox("controller");
+  mailbox_ptr worker_mbox = my_node->create_mailbox("worker");
+  mailbox_ptr control_mbox = my_node->create_mailbox("controller");
 
   worker_mbox->link(control_mbox->self());
 
@@ -118,12 +119,12 @@ void unlink_and_break(node& my_node)
   std::cout << "Successfull unlink." << std::endl;
 }
 
-void break_on_scope_exit(node& my_node)
+void break_on_scope_exit(node_ptr my_node)
 {
-  mailbox_ptr worker_mbox = my_node.create_mailbox("worker");
+  mailbox_ptr worker_mbox = my_node->create_mailbox("worker");
 
   { // introduce a new scope => the destructor of the mailbox will close it
-    mailbox_ptr control_mbox = my_node.create_mailbox("controller");
+    mailbox_ptr control_mbox = my_node->create_mailbox("controller");
 
     worker_mbox->link(control_mbox->self());
   }
@@ -131,14 +132,14 @@ void break_on_scope_exit(node& my_node)
   expect_broken_link(worker_mbox, "out-of-scope");
 }
 
-void break_on_error(node& my_node)
+void break_on_error(node_ptr my_node)
 {
-  mailbox_ptr worker_mbox = my_node.create_mailbox("worker");
+  mailbox_ptr worker_mbox = my_node->create_mailbox("worker");
 
   try {
     // introduce a new scope and simulate an error that propages above the 
     // scope of the linked mailbox
-    mailbox_ptr control_mbox = my_node.create_mailbox("controller");
+    mailbox_ptr control_mbox = my_node->create_mailbox("controller");
 
     worker_mbox->link(control_mbox->self());
 

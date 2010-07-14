@@ -44,7 +44,7 @@ name_host_pair split_node_name(const std::string& node)
 
   if(!boost::regex_match(node, m, pattern)) {
     const std::string reason = "The given node = " + node + " is invalid. Check the Erlang docs for a valid format.";
-    throw erl_cpp_exception(reason);
+    throw tinch_pp_exception(reason);
   }
 
   return make_pair(m[1].str(), m[2].str());
@@ -99,7 +99,7 @@ tcp::socket& connect_socket(asio::io_service& io_service,
   if (error) {
     const std::string reason = "Failed to connect to host = " + host + 
       ", port = " + boost::lexical_cast<std::string>(port);
-    throw erl_cpp_exception(reason);
+    throw tinch_pp_exception(reason);
   }
 
   return socket;

@@ -19,27 +19,27 @@
 // ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#include "erl_cpp_exception.h"
+#include "tinch_pp/exceptions.h"
 
 using namespace tinch_pp;
 
-erl_cpp_exception::erl_cpp_exception(const std::string& a_reason)
-  : reason("erl_cpp exception: " + a_reason)
+tinch_pp_exception::tinch_pp_exception(const std::string& a_reason)
+  : reason("tinch++ exception: " + a_reason)
 {
 }
 
-erl_cpp_exception::~erl_cpp_exception() throw()
+tinch_pp_exception::~tinch_pp_exception() throw()
 {
 }
 
-const char* erl_cpp_exception::what() const throw()
+const char* tinch_pp_exception::what() const throw()
 {
   return reason.c_str();
 }
 
 connection_io_error::connection_io_error(const std::string& reason, 
 					 const std::string& a_node_name)
-  : erl_cpp_exception(reason),
+  : tinch_pp_exception(reason),
     node_name(a_node_name)
 {
 }
@@ -54,7 +54,7 @@ std::string connection_io_error::node() const
 }
 
 mailbox_receive_tmo::mailbox_receive_tmo()
-  : erl_cpp_exception("Timed out (user requested) while waiting for a message to arrive.")
+  : tinch_pp_exception("Timed out (user requested) while waiting for a message to arrive.")
 {
 }
 
@@ -63,7 +63,7 @@ mailbox_receive_tmo::~mailbox_receive_tmo() throw()
 }
 
 link_broken::link_broken(const std::string& reason, const e_pid& pid)
-  : erl_cpp_exception("Link to remote process broken."),
+  : tinch_pp_exception("Link to remote process broken."),
     reason_(reason),
     pid_(pid)
 {

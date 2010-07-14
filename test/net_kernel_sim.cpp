@@ -64,11 +64,11 @@ namespace {
 
 void run_emulation(const std::string& node_name, const std::string& cookie)
 {
-  node my_node(node_name.c_str(), cookie.c_str());
+  node_ptr my_node = node::create(node_name, cookie);
 
-  my_node.publish_port(0xACDC);
+  my_node->publish_port(0xACDC);
 
-  mailbox_ptr net_adm_mailbox = my_node.create_mailbox("net_kernel");
+  mailbox_ptr net_adm_mailbox = my_node->create_mailbox("net_kernel");
   boost::thread net_adm(boost::bind(&net_adm_emulator, net_adm_mailbox));
 
   net_adm.join();

@@ -23,7 +23,7 @@
 #include "tinch_pp/erl_object.h"
 #include "node_access.h"
 #include "matchable_seq.h"
-#include "erl_cpp_exception.h"
+#include "tinch_pp/exceptions.h"
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <exception>

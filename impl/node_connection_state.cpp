@@ -122,7 +122,7 @@ struct connected : connection_state
          msg_dispatcher.dispatch(msg);
 
        connection.trigger_read(&connected::msg_received);
-    } catch(const erl_cpp_exception& e) {
+    } catch(const tinch_pp_exception& e) {
        // We want to ensure that the next read is triggered - perhaps we can fix the problem and continue.
        connection.trigger_read(&connected::msg_received);
        // throw e; TODO: How do I propagate this without destroying the ongoing write? Put the error in the mailboxes for this node?
@@ -161,7 +161,7 @@ struct receiving_challenge_ack : connection_state
     utils::parse(ack_msg, ack_p, digest);
 
     if(!is_correct(digest))
-      throw erl_cpp_exception("Handshake failure with remote node - check your cookies!");
+      throw tinch_pp_exception("Handshake failure with remote node - check your cookies!");
 
     make_transition_to_connected(access);
   }

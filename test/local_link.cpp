@@ -41,14 +41,14 @@ using namespace tinch_pp::erl;
 
 namespace {
 
-  void test_break_link(node& my_node);
+  void test_break_link(node_ptr my_node);
 }
 
 int main()
 {
   const std::string own_node_name("link_test_node@127.0.0.1");
 
-  node my_node(own_node_name, "abcdef");
+  node_ptr my_node = node::create(own_node_name, "abcdef");
 
   test_break_link(my_node);
 }
@@ -59,9 +59,9 @@ const std::string remote_node_name("testnode@127.0.0.1");
 
 const time_type_sec tmo = 5;
 
-void test_break_link(node& my_node)
+void test_break_link(node_ptr my_node)
 {
-  mailbox_ptr mbox = my_node.create_mailbox();
+  mailbox_ptr mbox = my_node->create_mailbox();
 
   mbox->send("link_tester", remote_node_name, make_e_tuple(atom("request_pid"), pid(mbox->self())));
 

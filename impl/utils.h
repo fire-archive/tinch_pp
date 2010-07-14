@@ -23,7 +23,7 @@
 #define ERL_UTILS_H
 
 #include "types.h"
-#include "erl_cpp_exception.h"
+#include "tinch_pp/exceptions.h"
 #include <boost/asio.hpp>
 #include <boost/spirit/include/qi_parse.hpp>
 #include <boost/spirit/include/karma_generate.hpp>
@@ -56,7 +56,7 @@ void parse(S& stream, P& p, T& attr)
     typename S::iterator l = stream.end();
 
     if(!boost::spirit::qi::parse(f, l, p, attr)) {
-      throw erl_cpp_exception("Parse failure!"); // TODO: more info - let qi throw!
+      throw tinch_pp_exception("Parse failure!"); // TODO: more info - let qi throw!
     }
 }
 
@@ -66,7 +66,7 @@ void generate(S& stream, G& g, const T& param)
   std::back_insert_iterator<S> out(stream);
 
   if(!boost::spirit::karma::generate(out, g, param)) {
-    throw erl_cpp_exception("Generate failed!"); // TODO: more info - let karma throw!
+    throw tinch_pp_exception("Generate failed!"); // TODO: more info - let karma throw!
   }
 }
 

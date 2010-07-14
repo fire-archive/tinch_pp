@@ -20,7 +20,7 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "node_connector.h"
-#include "erl_cpp_exception.h"
+#include "tinch_pp/exceptions.h"
 #include "node_access.h"
 #include "epmd_requestor.h"
 #include <boost/bind.hpp>
@@ -109,7 +109,7 @@ node_connection_ptr node_connector::make_new_connection(const std::string& peer_
   const bool success = wait_for_handshake_result(lock);
 
   if(!success)
-    throw erl_cpp_exception("Failed to connect to the node = " + peer_node_name);
+    throw tinch_pp_exception("Failed to connect to the node = " + peer_node_name);
 
   node_connections.insert(node_connections_type::value_type(peer_node_name, new_connection));
 

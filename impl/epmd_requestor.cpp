@@ -21,7 +21,7 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "epmd_requestor.h"
 #include "epmd_protocol.h"
-#include "erl_cpp_exception.h"
+#include "tinch_pp/exceptions.h"
 #include "utils.h"
 
 using namespace tinch_pp;
@@ -84,7 +84,7 @@ void send_to_epmd(tcp::socket& epmd_socket, const msg_seq& epmd_msg)
   asio::write(epmd_socket, asio::buffer(epmd_msg), asio::transfer_all(), error);
 
   if(error) {
-    throw erl_cpp_exception("Write failure to EPMD: "); // TODO: add error!
+    throw tinch_pp_exception("Write failure to EPMD: "); // TODO: add error!
   }
 }
 
@@ -107,7 +107,7 @@ creation_number_type receive_alive_response(tcp::socket& epmd_socket)
   epmd_socket.read_some(asio::buffer(msg), error); // TODO: encapsule: read length, read until.
 
   if(error)
-    throw erl_cpp_exception("Failed to read ALIVE2_RESP from EPMD");
+    throw tinch_pp_exception("Failed to read ALIVE2_RESP from EPMD");
 
   epmd::alive2_resp_result response;
   epmd::alive2_resp alive2_resp;
@@ -115,7 +115,7 @@ creation_number_type receive_alive_response(tcp::socket& epmd_socket)
   utils::parse(msg, alive2_resp, response);
 
   if(response.result != 0)
-    throw erl_cpp_exception("Failed to register node at EPMD, result = " + 
+    throw tinch_pp_exception("Failed to register node at EPMD, result = " + 
 			    boost::lexical_cast<std::string>(response.result));
 
   return response.creation;
@@ -139,7 +139,7 @@ port_number_type receive_port_resp(tcp::socket& one_shot, const std::string& pee
   one_shot.read_some(asio::buffer(msg), error); // TODO: encapsule: read length, read until.
 
   if(error)
-    throw erl_cpp_exception("Failed to read PORT2_RESP from EPMD");
+    throw tinch_pp_exception("Failed to read PORT2_RESP from EPMD");
 
   // Parse in two steps; in case we failed, nothing more than a result code is returned.
   int result = 1; // failure
@@ -148,7 +148,7 @@ port_number_type receive_port_resp(tcp::socket& one_shot, const std::string& pee
   utils::parse(msg, port2_resp_result, result);
 
   if(result != 0) 
-    throw erl_cpp_exception("EPMD denies the port number for the node = " + peer_node + ". Connection aborted.");
+    throw tinch_pp_exception("EPMD denies the port number for the node = " + peer_node + ". Connection aborted.");
 
   // In the second parse step we only parse until the port number. There's more information, but we 
   // ignore it for now (TODO: perhaps it's a good idea to verify versions?).

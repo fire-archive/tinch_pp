@@ -40,8 +40,11 @@ typedef std::pair<std::string, std::string> module_and_function_type;
 typedef erl::list<erl::object_ptr> rpc_argument_type;
 
 class node;
+typedef boost::shared_ptr<node> node_ptr;
+
 class mailbox;
 typedef boost::shared_ptr<mailbox> mailbox_ptr;
+
 class matchable;
 typedef boost::shared_ptr<matchable> matchable_ptr;
 
@@ -53,7 +56,7 @@ typedef boost::shared_ptr<matchable> matchable_ptr;
 class rpc : boost::noncopyable
 {
 public:
-   rpc(node& own_node);
+   rpc(node_ptr own_node);
 
    /// Invokes the given remote function on the remote node.
    /// This call blocks until a reply is received.

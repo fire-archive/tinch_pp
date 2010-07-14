@@ -72,9 +72,9 @@ public:
   chat_client(const std::string& client_name,
               const std::string& own_node_name,
               const std::string& chat_server_node)
-    : own_node(client_name + "@" + own_node_name, "abcdef"), // hardcoded cookie
+              : own_node(node::create(client_name + "@" + own_node_name, "abcdef")), // hardcoded cookie
       rpc_invoker(own_node),
-      mbox(own_node.create_mailbox()),
+      mbox(own_node->create_mailbox()),
       chat_server(chat_server_node),
       msg_receiver(receive_published_msg, mbox)
   {
@@ -124,7 +124,7 @@ private:
 
 private:
 
-  node own_node;
+  node_ptr own_node;
   rpc rpc_invoker;
 
   mailbox_ptr mbox;

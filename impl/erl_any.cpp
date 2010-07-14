@@ -21,7 +21,7 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tinch_pp/erl_any.h"
 #include "tinch_pp/erlang_types.h"
-#include "erl_cpp_exception.h"
+#include "tinch_pp/exceptions.h"
 #include "term_conversions.h"
 #include "ext_term_grammar.h"
 #include "matchable_seq.h"

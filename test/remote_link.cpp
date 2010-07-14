@@ -21,6 +21,7 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tinch_pp/node.h"
 #include "tinch_pp/mailbox.h"
+#include "tinch_pp/exceptions.h"
 #include "tinch_pp/erlang_types.h"
 #include <iostream>
 #include <stdexcept>
@@ -53,13 +54,13 @@ using namespace tinch_pp::erl;
 
 namespace {
 
-void local_unlinks(node& my_node);
+void local_unlinks(node_ptr my_node);
 
-void local_breaks_link(node& my_node);
+void local_breaks_link(node_ptr my_node);
 
-void local_breaks_due_to_error(node& my_node);
+void local_breaks_due_to_error(node_ptr my_node);
 
-void remote_breaks_link(node& my_node);
+void remote_breaks_link(node_ptr my_node);
 
 const std::string remote_node_name("testnode@127.0.0.1");
 }
@@ -68,7 +69,7 @@ int main()
 {
   const std::string own_node_name("link_test_node@127.0.0.1");
 
-  node my_node(own_node_name, "abcdef");
+  node_ptr my_node = node::create(own_node_name, "abcdef");
 
   local_unlinks(my_node);
 
@@ -83,9 +84,9 @@ namespace {
 
 const time_type_sec tmo = 5;
 
-void local_unlinks(node& my_node)
+void local_unlinks(node_ptr my_node)
 {
-  mailbox_ptr mbox = my_node.create_mailbox();
+  mailbox_ptr mbox = my_node->create_mailbox();
 
   mbox->send("link_tester", remote_node_name, make_e_tuple(atom("request_pid"), pid(mbox->self())));
 
@@ -112,9 +113,9 @@ void local_unlinks(node& my_node)
   std::getline(std::cin, msg);
 }
 
-void local_breaks_link(node& my_node)
+void local_breaks_link(node_ptr my_node)
 {
-  mailbox_ptr mbox = my_node.create_mailbox();
+  mailbox_ptr mbox = my_node->create_mailbox();
 
   mbox->send("link_tester", remote_node_name, make_e_tuple(atom("pid"), pid(mbox->self())));
 
@@ -128,10 +129,10 @@ void local_breaks_link(node& my_node)
   std::cout << "Link broken -check stdout in the Erlang shell." << std::endl;
 }
 
-void local_breaks_due_to_error(node& my_node)
+void local_breaks_due_to_error(node_ptr my_node)
 {
   try {
-    mailbox_ptr mbox = my_node.create_mailbox();
+    mailbox_ptr mbox = my_node->create_mailbox();
 
     mbox->send("link_tester", remote_node_name, make_e_tuple(atom("pid"), pid(mbox->self())));
 
@@ -146,9 +147,9 @@ void local_breaks_due_to_error(node& my_node)
   std::cout << "Link broken (reason = error) -check stdout in the Erlang shell." << std::endl;
 }
 
-void remote_breaks_link(node& my_node)
+void remote_breaks_link(node_ptr my_node)
 {
-  mailbox_ptr mbox = my_node.create_mailbox();
+  mailbox_ptr mbox = my_node->create_mailbox();
 
   mbox->send("link_tester", remote_node_name, make_e_tuple(atom("pid"), pid(mbox->self())));
 

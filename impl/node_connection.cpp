@@ -197,7 +197,7 @@ void node_connection::handle_io_error(const boost::system::error_code& error)
 std::string node_connection::peer_node_name() const
 {
   if(!peer_name)
-    throw erl_cpp_exception("Unknown peer node for " + node_name);
+    throw tinch_pp_exception("Unknown peer node for " + node_name);
 
   return *peer_name;
 }

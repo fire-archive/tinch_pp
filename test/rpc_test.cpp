@@ -43,7 +43,7 @@ int main()
   const std::string own_node_name("net_adm_test_node@127.0.0.1");
   const std::string remote_node_name("testnode@127.0.0.1");
 
-  node my_node(own_node_name, "abcdef");
+  node_ptr my_node = node::create(own_node_name, "abcdef");
 
   rpc rpc_invoker(my_node);
 

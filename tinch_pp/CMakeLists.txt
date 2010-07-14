@@ -6,6 +6,7 @@ install(FILES
     erl_object.h
     erl_string.h  
     erl_tuple.h
+    exceptions.h
     mailbox.h
     make_erl_tuple.h 
     matchable.h

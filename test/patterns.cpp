@@ -63,9 +63,9 @@ typedef boost::function<void (mailbox_ptr)> sender_fn_type;
 
 int main()
 {
-  node my_node("my_test_node@127.0.0.1", "abcdef");
+  node_ptr my_node = node::create("my_test_node@127.0.0.1", "abcdef");
 
-  mailbox_ptr mbox = my_node.create_mailbox();
+  mailbox_ptr mbox = my_node->create_mailbox();
 
   const sender_fn_type senders[] = {bind(echo_atom, ::_1), bind(echo_atom, ::_1),
                                     bind(echo_nested_tuples, ::_1, "start"), bind(echo_nested_tuples, ::_1, "next"),
@@ -121,7 +121,7 @@ void echo_nested_tuples(mailbox_ptr mbox, const std::string& name)
 
 void echo_empty_tuple(mailbox_ptr mbox)
 {
-  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), :make_e_tuple()));
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), make_e_tuple()));
   const matchable_ptr reply = mbox->receive();
 
   if(reply->match(make_e_tuple()))
