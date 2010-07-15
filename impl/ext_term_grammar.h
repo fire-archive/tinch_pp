@@ -44,16 +44,17 @@ namespace tinch_pp {
 // The format is parsed with Boost Sprit QI and genereated through Karma.
 
 namespace type_tag {
-  const int atom_cache_ref = 82;
-  const int small_integer = 97;
-  const int integer = 98;
-  const int float_ext = 99;
-  const int atom_ext = 100;
-  const int pid = 103;
-  const int small_tuple = 104;
-  const int nil_ext = 106;
-  const int string_ext = 107;
-  const int list = 108;
+  const int atom_cache_ref    = 82;
+  const int small_integer     = 97;
+  const int integer           = 98;
+  const int float_ext         = 99;
+  const int atom_ext          = 100;
+  const int pid               = 103;
+  const int small_tuple       = 104;
+  const int nil_ext           = 106;
+  const int string_ext        = 107;
+  const int list              = 108;
+  const int binary_ext        = 109;
   const int new_reference_ext = 114;
 }
 
@@ -176,10 +177,6 @@ struct atom_ext : qi::grammar<msg_seq_iter, std::string()>
   qi::rule<msg_seq_iter, qi::unused_type> header;
   qi::rule<msg_seq_iter, std::string()> start;
 };
-
-}
-
-namespace tinch_pp {
 
 struct atom_ext_g : karma::grammar<msg_seq_out_iter, serializable_string()>
 {
@@ -326,6 +323,38 @@ struct string_ext_g : karma::grammar<msg_seq_out_iter, serializable_string()>
   }
 
   karma::rule<msg_seq_out_iter, serializable_string()> start;
+};
+
+struct binary_ext : qi::grammar<msg_seq_iter, msg_seq()>
+{
+  binary_ext() : base_type(start)
+  {
+    using qi::big_dword;
+    using qi::byte_;
+    using boost::phoenix::ref;
+
+    // EBNF forces the repeat directive to be a constant. However, with this spirit hack, 
+    // we make it variable at runtime by assigning it in a semantic action.
+    header = byte_(type_tag::binary_ext) >> big_dword[ref(binary_length) = qi::_1];
+    start = header >> qi::repeat(ref(binary_length))[byte_];
+  }
+
+  boost::uint32_t binary_length;
+ 
+  qi::rule<msg_seq_iter, qi::unused_type> header;
+  qi::rule<msg_seq_iter, msg_seq()> start;
+};
+
+struct binary_ext_g : karma::grammar<msg_seq_out_iter, serializable_seq()>
+{
+  binary_ext_g() : base_type(start)
+  {
+    using namespace karma;
+
+    start %= byte_(type_tag::binary_ext) << big_dword << *byte_;
+  }
+
+  karma::rule<msg_seq_out_iter, serializable_seq()> start;
 };
 
 }

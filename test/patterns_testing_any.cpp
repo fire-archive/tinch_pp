@@ -51,6 +51,8 @@ namespace {
 
 void match_any_atom(mailbox_ptr mbox);
 
+void match_any_binary(mailbox_ptr mbox);
+
 void match_any_negative_int(mailbox_ptr mbox);
 
 void match_any_small_int(mailbox_ptr mbox);
@@ -69,6 +71,8 @@ void match_any_string(mailbox_ptr mbox);
 
 void match_any_float(mailbox_ptr mbox);
 
+void match_any_binary(mailbox_ptr mbox);
+
 typedef boost::function<void (mailbox_ptr)> sender_fn_type;
 
 }
@@ -80,6 +84,7 @@ int main()
   mailbox_ptr mbox = my_node->create_mailbox();
 
   const sender_fn_type senders[] = {bind(match_any_atom, ::_1),
+                                    bind(match_any_binary, ::_1),
                                     bind(match_any_negative_int, ::_1),
                                     bind(match_any_small_int, ::_1),
                                     bind(match_any_medium_int, ::_1),
@@ -88,7 +93,8 @@ int main()
                                     bind(match_any_list, ::_1),
                                     bind(match_any_small_list, ::_1),
                                     bind(match_any_string, ::_1),
-                                    bind(match_any_float, ::_1)};
+                                    bind(match_any_float, ::_1),
+                                    bind(match_any_binary, ::_1)};
   const size_t number_of_senders = sizeof senders / sizeof senders[0];
 
   for(size_t i = 0; i < number_of_senders; ++i)
@@ -124,6 +130,19 @@ void match_any_atom(mailbox_ptr mbox)
     std::cout << "Matched any atom(hello)" << std::endl;
   else
     std::cerr << "match_any_atom: No match - unexpected message!" << std::endl;
+}
+
+void match_any_binary(mailbox_ptr mbox)
+{
+  const binary::value_type data = list_of(1)(2)(3)(42);
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), binary(data)));
+
+  const matchable_ptr reply = receive_any(mbox);
+
+  if(reply->match(binary(data)))
+    std::cout << "Matched any binary <<1,2,3,42>>" << std::endl;
+  else
+    std::cerr << "match_any_binary: No match - unexpected message!" << std::endl;
 }
 
 void match_any_negative_int(mailbox_ptr mbox)

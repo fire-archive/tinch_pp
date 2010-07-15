@@ -41,16 +41,25 @@ typedef int port_number_type;
 
 typedef boost::uint32_t time_type_sec;
 
-// This is me giving up - I can't the binary generators to work with attributes transformations :-(
+// This is me giving up - I can't get the binary generators to work with attributes transformations :-(
 struct serializable_string
 {
   explicit serializable_string(const std::string& a_val)
     : size(a_val.size()),
-      val(a_val)
-  {}
+      val(a_val) {}
 
   size_t size;
   std::string val;
+};
+
+struct serializable_seq
+{
+  explicit serializable_seq(const msg_seq& a_val)
+    : size(a_val.size()),
+    val(a_val)  {}
+
+  size_t size;
+  msg_seq val;
 };
 
 bool operator ==(const serializable_string& s1, const serializable_string& s2);
@@ -132,6 +141,11 @@ BOOST_FUSION_ADAPT_STRUCT(
    tinch_pp::serializable_string,
    (size_t, size)
    (std::string, val))
+
+BOOST_FUSION_ADAPT_STRUCT(
+   tinch_pp::serializable_seq,
+   (size_t, size)
+   (tinch_pp::msg_seq, val))
 
 BOOST_FUSION_ADAPT_STRUCT(
    tinch_pp::e_pid,

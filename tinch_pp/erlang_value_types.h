@@ -163,6 +163,30 @@ private:
   match_fn_type match_fn;
 };
 
+class binary : public object
+{
+public:
+  typedef std::vector<char> value_type;
+
+  explicit binary(const value_type& val);
+
+  explicit binary(value_type* to_assign);
+
+  explicit binary(const any& match_any);
+
+  virtual void serialize(msg_seq_out_iter& out) const;
+
+  virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const;
+
+  value_type value() const { return val; }
+
+private:
+  value_type val;
+  value_type* to_assign;
+
+  match_fn_type match_fn;
+};
+
 }
 }
 

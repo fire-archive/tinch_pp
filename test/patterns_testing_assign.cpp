@@ -49,6 +49,8 @@ namespace {
 
 void assign_atom(mailbox_ptr mbox);
 
+void assign_binary(mailbox_ptr mbox);
+
 void assign_nested_tuples(mailbox_ptr mbox);
 
 void assign_list(mailbox_ptr mbox);
@@ -66,11 +68,12 @@ typedef boost::function<void (mailbox_ptr)> sender_fn_type;
 
 int main()
 {
-  node_ptr my_node = node::create("net_adm_test_node@127.0.0.1", "abcdef");
+  node_ptr my_node = node::create("patterns@127.0.0.1", "abcdef");
 
   mailbox_ptr mbox = my_node->create_mailbox();
 
   const sender_fn_type senders[] = {bind(assign_atom, ::_1),
+                                    bind(assign_binary, ::_1),
                                     bind(assign_nested_tuples, ::_1),
                                     bind(assign_list, ::_1),
                                     bind(assign_string, ::_1),
@@ -100,6 +103,22 @@ void assign_atom(mailbox_ptr mbox)
     std::cout << "Matched atom(" << name << ")" << std::endl;
   else
     std::cerr << "No match - unexpected message!" << std::endl;
+}
+
+void assign_binary(mailbox_ptr mbox)
+{
+  const binary::value_type data = list_of(0)(0)(0)(42);
+
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), binary(data)));
+
+  const matchable_ptr reply = mbox->receive();
+
+  binary::value_type assigned_data;
+
+  if(reply->match(binary(&assigned_data)) && (data == assigned_data))
+    std::cout << "Assigned binary data." << std::endl;
+  else
+    std::cerr << "No match for binary data - unexpected message!" << std::endl;
 }
 
 void assign_nested_tuples(mailbox_ptr mbox)

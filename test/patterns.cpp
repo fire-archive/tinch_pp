@@ -44,6 +44,8 @@ namespace {
 
 void echo_atom(mailbox_ptr mbox);
 
+void echo_binary(mailbox_ptr mbox);
+
 void echo_nested_tuples(mailbox_ptr mbox, const std::string& name);
 
 void echo_list(mailbox_ptr mbox);
@@ -68,6 +70,7 @@ int main()
   mailbox_ptr mbox = my_node->create_mailbox();
 
   const sender_fn_type senders[] = {bind(echo_atom, ::_1), bind(echo_atom, ::_1),
+                                    bind(echo_binary, ::_1), bind(echo_binary, ::_1),
                                     bind(echo_nested_tuples, ::_1, "start"), bind(echo_nested_tuples, ::_1, "next"),
                                     bind(echo_empty_tuple, ::_1),
                                     bind(echo_list, ::_1), bind(echo_list, ::_1),
@@ -102,6 +105,21 @@ void echo_atom(mailbox_ptr mbox)
     std::cout << "Matched atom(" << name << ")" << std::endl;
   else
     std::cerr << "No match - unexpected message!" << std::endl;
+}
+
+void echo_binary(mailbox_ptr mbox)
+{
+  const binary::value_type data = list_of(1)(2)(3)(42);
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), binary(data)));
+
+  const matchable_ptr reply = mbox->receive();
+
+  std::string name;
+
+  if(reply->match(binary(data)))
+    std::cout << "Matched binary([1, 2, 3, 42])" << std::endl;
+  else
+    std::cerr << "No match for binary - unexpected message!" << std::endl;
 }
 
 void echo_nested_tuples(mailbox_ptr mbox, const std::string& name)

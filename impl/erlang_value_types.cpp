@@ -209,6 +209,28 @@ bool match_any_atom(msg_seq_iter& f, const msg_seq_iter& l, const any& match_any
   return binary_to_term<atom_ext>(f, l, ignore) ? match_any.save_matched_bytes(msg_seq(start, f)) : false;
 }
 
+bool match_binary_value(msg_seq_iter& f, const msg_seq_iter& l, const msg_seq& val)
+{
+  msg_seq res;
+  const bool success = binary_to_term<binary_ext>(f, l, res);
+
+  return success && (val == res);
+}
+
+bool assign_matched_binary(msg_seq_iter& f, const msg_seq_iter& l, msg_seq* to_assign)
+{
+  assert(to_assign != 0);
+  return binary_to_term<binary_ext>(f, l, *to_assign);
+}
+
+bool match_any_binary(msg_seq_iter& f, const msg_seq_iter& l, const any& match_any)
+{
+  msg_seq ignore;
+  msg_seq_iter start = f;
+
+  return binary_to_term<binary_ext>(f, l, ignore) ? match_any.save_matched_bytes(msg_seq(start, f)) : false;
+}
+
 bool match_ref_value(msg_seq_iter& f, const msg_seq_iter& l, const new_reference_type& val)
 {
   new_reference_type res;
@@ -305,6 +327,32 @@ void atom::serialize(msg_seq_out_iter& out) const
 }
 
 bool atom::match(msg_seq_iter& f, const msg_seq_iter& l) const
+{
+  return match_fn(f, l);
+}
+
+// Binary
+//
+binary::binary(const msg_seq& a_val)
+  : val(a_val),
+    to_assign(0),
+    match_fn(bind(match_binary_value, ::_1, ::_2, cref(val))) {}
+
+binary::binary(msg_seq* a_to_assign)
+  : to_assign(a_to_assign),
+    match_fn(bind(assign_matched_binary, ::_1, ::_2, to_assign)) {}
+
+binary::binary(const any& match_any)
+   : to_assign(0),
+     match_fn(bind(match_any_binary, ::_1, ::_2, cref(match_any))) {}
+
+void binary::serialize(msg_seq_out_iter& out) const
+{
+  const serializable_seq s(val);
+  term_to_binary<binary_ext_g>(out, s);
+}
+
+bool binary::match(msg_seq_iter& f, const msg_seq_iter& l) const
 {
   return match_fn(f, l);
 }

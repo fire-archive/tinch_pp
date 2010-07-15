@@ -67,6 +67,11 @@ bool match_pid(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
    return pid(instance).match(f, l);
 }
 
+bool match_binary(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
+{
+   return binary(instance).match(f, l);
+}
+
 bool match_tuple(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
 {
    msg_seq_iter start = f;
@@ -114,15 +119,16 @@ optional<int> extract_type_tag(msg_seq_iter& f, const msg_seq_iter& l)
 const any::dynamic_element_matcher_type any::dynamic_element_matcher = 
    map_list_of
       //    Type                    Match function
-      (type_tag::small_integer,     bind(match_int, ::_1, ::_2, ::_3))
-      (type_tag::integer,           bind(match_int, ::_1, ::_2, ::_3))
-      (type_tag::atom_ext,          bind(match_atom, ::_1, ::_2, ::_3))
-      (type_tag::small_tuple,       bind(match_tuple, ::_1, ::_2, ::_3))
-      (type_tag::list,              bind(match_list, ::_1, ::_2, ::_3))
-      (type_tag::string_ext,        bind(match_string, ::_1, ::_2, ::_3))
-      (type_tag::pid,               bind(match_pid, ::_1, ::_2, ::_3))
+      (type_tag::small_integer,     bind(match_int,       ::_1, ::_2, ::_3))
+      (type_tag::integer,           bind(match_int,       ::_1, ::_2, ::_3))
+      (type_tag::atom_ext,          bind(match_atom,      ::_1, ::_2, ::_3))
+      (type_tag::small_tuple,       bind(match_tuple,     ::_1, ::_2, ::_3))
+      (type_tag::list,              bind(match_list,      ::_1, ::_2, ::_3))
+      (type_tag::string_ext,        bind(match_string,    ::_1, ::_2, ::_3))
+      (type_tag::pid,               bind(match_pid,       ::_1, ::_2, ::_3))
       (type_tag::new_reference_ext, bind(match_reference, ::_1, ::_2, ::_3))
-      (type_tag::float_ext,         bind(match_float, ::_1, ::_2, ::_3));
+      (type_tag::float_ext,         bind(match_float,     ::_1, ::_2, ::_3))
+      (type_tag::binary_ext,        bind(match_binary,    ::_1, ::_2, ::_3));
 
 bool any::match_dynamically(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
 {
