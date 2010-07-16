@@ -24,6 +24,8 @@
 
 #include "erlang_value_types.h"
 #include "erl_list.h"
+#include "impl/types.h"
+
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
 #include <utility>
@@ -63,12 +65,16 @@ public:
    matchable_ptr blocking_rpc(const std::string& remote_node,
                               const module_and_function_type& remote_fn,
                               const rpc_argument_type& arguments);
-   // TODO: implement on a rainy day...
 
-   //matchable_ptr blocking_rpc(const std::string& remote_node,
-                              //const module_and_function_type& remote_fn,
-                              //const rpc_argument_type& arguments,
-                              //time_type tmo);
+   /// Invokes the given remote function on the remote node.
+   /// This call blocks until a reply is received or until the given time has passed.
+   /// In case of a time-out, an tinch_pp::receive_tmo_exception is thrown.
+   matchable_ptr blocking_rpc(const std::string& remote_node,
+                              const module_and_function_type& remote_fn,
+                              const rpc_argument_type& arguments,
+                              time_type_sec tmo);
+
+   // TODO: implement on a rainy day...may be a bit like agents in Clojure?
 
    //matchable_ptr async_rpc(const std::string& remote_node,
                               //const module_and_function_type& remote_fn,
