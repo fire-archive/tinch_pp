@@ -46,6 +46,8 @@ void echo_atom(mailbox_ptr mbox);
 
 void echo_binary(mailbox_ptr mbox);
 
+void echo_bit_string(mailbox_ptr mbox);
+
 void echo_nested_tuples(mailbox_ptr mbox, const std::string& name);
 
 void echo_list(mailbox_ptr mbox);
@@ -71,6 +73,7 @@ int main()
 
   const sender_fn_type senders[] = {bind(echo_atom, ::_1), bind(echo_atom, ::_1),
                                     bind(echo_binary, ::_1), bind(echo_binary, ::_1),
+                                    bind(echo_bit_string, ::_1),
                                     bind(echo_nested_tuples, ::_1, "start"), bind(echo_nested_tuples, ::_1, "next"),
                                     bind(echo_empty_tuple, ::_1),
                                     bind(echo_list, ::_1), bind(echo_list, ::_1),
@@ -109,17 +112,33 @@ void echo_atom(mailbox_ptr mbox)
 
 void echo_binary(mailbox_ptr mbox)
 {
-  const binary::value_type data = list_of(1)(2)(3)(42);
+  const msg_seq byte_stream = list_of(1)(2)(3)(42);
+  const binary_value_type data(byte_stream);
+
   mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), binary(data)));
 
   const matchable_ptr reply = mbox->receive();
-
-  std::string name;
 
   if(reply->match(binary(data)))
     std::cout << "Matched binary([1, 2, 3, 42])" << std::endl;
   else
     std::cerr << "No match for binary - unexpected message!" << std::endl;
+}
+
+void echo_bit_string(mailbox_ptr mbox)
+{
+  const msg_seq byte_stream = list_of(1)(2)(3)(0xF0);
+  const int padding_bits    = 4;
+  const binary_value_type data(byte_stream, padding_bits);
+
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), binary(data)));
+
+  const matchable_ptr reply = mbox->receive();
+
+  if(reply->match(binary(data)))
+    std::cout << "Matched binary with padding ([1, 2, 3, 0xF0:4] )" << std::endl;
+  else
+    std::cerr << "No match for binary bit-string - unexpected message!" << std::endl;
 }
 
 void echo_nested_tuples(mailbox_ptr mbox, const std::string& name)

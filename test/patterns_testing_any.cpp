@@ -53,6 +53,8 @@ void match_any_atom(mailbox_ptr mbox);
 
 void match_any_binary(mailbox_ptr mbox);
 
+void match_any_bitstring(mailbox_ptr mbox);
+
 void match_any_negative_int(mailbox_ptr mbox);
 
 void match_any_small_int(mailbox_ptr mbox);
@@ -85,6 +87,7 @@ int main()
 
   const sender_fn_type senders[] = {bind(match_any_atom, ::_1),
                                     bind(match_any_binary, ::_1),
+                                    bind(match_any_bitstring, ::_1),
                                     bind(match_any_negative_int, ::_1),
                                     bind(match_any_small_int, ::_1),
                                     bind(match_any_medium_int, ::_1),
@@ -134,7 +137,9 @@ void match_any_atom(mailbox_ptr mbox)
 
 void match_any_binary(mailbox_ptr mbox)
 {
-  const binary::value_type data = list_of(1)(2)(3)(42);
+  const msg_seq byte_stream = list_of(1)(2)(3)(42);
+  const binary_value_type data(byte_stream);
+  
   mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), binary(data)));
 
   const matchable_ptr reply = receive_any(mbox);
@@ -143,6 +148,22 @@ void match_any_binary(mailbox_ptr mbox)
     std::cout << "Matched any binary <<1,2,3,42>>" << std::endl;
   else
     std::cerr << "match_any_binary: No match - unexpected message!" << std::endl;
+}
+
+void match_any_bitstring(mailbox_ptr mbox)
+{
+  const msg_seq byte_stream = list_of(1)(2)(3)(32);
+  const int padding_bits    = 5;
+  const binary_value_type data(byte_stream, padding_bits);
+
+  mbox->send(to_name, remote_node_name, make_e_tuple(atom("echo"), pid(mbox->self()), binary(data)));
+
+  const matchable_ptr reply = receive_any(mbox);
+
+  if(reply->match(binary(data)))
+    std::cout << "Matched any binary bitstring <<1,2,3,32:5>>" << std::endl;
+  else
+    std::cerr << "match_any_bintstring: No match - unexpected message!" << std::endl;
 }
 
 void match_any_negative_int(mailbox_ptr mbox)

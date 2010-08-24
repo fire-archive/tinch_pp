@@ -44,6 +44,7 @@ namespace tinch_pp {
 // The format is parsed with Boost Sprit QI and genereated through Karma.
 
 namespace type_tag {
+  const int bit_binary_ext    = 77;
   const int atom_cache_ref    = 82;
   const int small_integer     = 97;
   const int integer           = 98;
@@ -356,6 +357,42 @@ struct binary_ext_g : karma::grammar<msg_seq_out_iter, serializable_seq()>
 
   karma::rule<msg_seq_out_iter, serializable_seq()> start;
 };
+
+//
+
+struct bit_binary_ext : qi::grammar<msg_seq_iter, binary_value_type()>
+{
+  bit_binary_ext() : base_type(start)
+  {
+    using qi::big_dword;
+    using qi::byte_;
+    using boost::phoenix::ref;
+
+    // EBNF forces the repeat directive to be a constant. However, with this spirit hack, 
+    // we make it variable at runtime by assigning it in a semantic action.
+    header = byte_(type_tag::bit_binary_ext) >> big_dword[ref(binary_length) = qi::_1];
+    start = header >> byte_ >> qi::repeat(ref(binary_length))[byte_];
+  }
+
+  boost::uint32_t binary_length;
+ 
+  qi::rule<msg_seq_iter, qi::unused_type> header;
+  qi::rule<msg_seq_iter, binary_value_type()> start;
+};
+
+struct bit_binary_ext_g : karma::grammar<msg_seq_out_iter, serializable_bit_seq()>
+{
+  bit_binary_ext_g() : base_type(start)
+  {
+    using namespace karma;
+
+    start %= byte_(type_tag::bit_binary_ext) << big_dword << byte_ << *byte_;
+  }
+
+  karma::rule<msg_seq_out_iter, serializable_bit_seq()> start;
+};
+
+//
 
 }
 

@@ -20,6 +20,9 @@
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "types.h"
+#include "tinch_pp/exceptions.h"
+
+#include <boost/lexical_cast.hpp>
 
 namespace tinch_pp {
 
@@ -41,6 +44,38 @@ bool operator ==(const new_reference_type& r1, const new_reference_type& r2)
   return (r1.node_name == r2.node_name) &&
          (r1.creation == r2.creation) &&
          (r1.id == r2.id);
+}
+
+// TODO: Separate the value types into private and public. Expose the public in the API.
+binary_value_type::binary_value_type()
+ : padding_bits(0) {}
+
+binary_value_type::binary_value_type(const value_type& binary_data)
+: padding_bits(0),
+  value(binary_data) {}
+
+// Specifies a bit-string. The given number of unused bits are counted 
+// from the lowest significant bits in the last byte. Must be within the range [1..7].
+binary_value_type::binary_value_type(const value_type& binary_data,
+                                     int unused_bits_in_last_byte)
+: padding_bits(unused_bits_in_last_byte),
+  value(binary_data) 
+{
+  if(padding_bits < 0 || 7 < padding_bits)
+    throw encoding_error("bitstring", "The padding must be in range 0..7, you provided " + boost::lexical_cast<std::string>(padding_bits));
+	
+	if(padding_bits != 0 && value.empty())
+    throw encoding_error("bitstring", "Padding on a zero length bitstring isn't allowed");
+
+ // Ensure that we pad with zeroes (thank you, Jinterface for this tip!).
+ if(!value.empty())
+   value[value.size() - 1] &= ~((1 << padding_bits) - 1);
+}
+
+bool operator==(const binary_value_type& left, const binary_value_type& right)
+{
+  return (left.padding_bits == right.padding_bits) &&
+          (left.value == right.value);
 }
 
 }

@@ -56,11 +56,47 @@ struct serializable_seq
 {
   explicit serializable_seq(const msg_seq& a_val)
     : size(a_val.size()),
-    val(a_val)  {}
+    val(a_val) {}
 
   size_t size;
   msg_seq val;
 };
+
+struct binary_value_type
+{
+  typedef std::vector<char> value_type;
+
+  /// Specifies an empty binary, typically used to assign to in a pattern match.
+  binary_value_type();
+
+  /// Specifies a "normal" binary consisting of a complete number of bytes.
+  binary_value_type(const value_type& binary_data);
+
+  /// Specifies a bit-string. The given number of unused bits are counted 
+  /// from the lowest significant bits in the last byte. Must be within the range [1..7].
+  binary_value_type(const value_type& binary_data,
+                    int unused_bits_in_last_byte);
+
+  int padding_bits;
+  value_type value;
+};
+
+bool operator==(const binary_value_type& left, const binary_value_type& right);
+
+struct serializable_bit_seq
+{
+  // used to represent bit_binary_ext
+  serializable_bit_seq(const msg_seq& a_val,
+                       int a_unused_bits)
+   : size(a_val.size()),
+      val(a_val),
+      unused_bits(a_unused_bits) {}
+
+  size_t size;
+  int unused_bits;
+  msg_seq val;
+};
+
 
 bool operator ==(const serializable_string& s1, const serializable_string& s2);
 
@@ -145,6 +181,17 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
    tinch_pp::serializable_seq,
    (size_t, size)
+   (tinch_pp::msg_seq, val))
+
+BOOST_FUSION_ADAPT_STRUCT(
+   tinch_pp::binary_value_type,
+   (int, padding_bits)
+   (tinch_pp::msg_seq, value))
+
+BOOST_FUSION_ADAPT_STRUCT(
+   tinch_pp::serializable_bit_seq,
+   (size_t, size)
+   (int, unused_bits)
    (tinch_pp::msg_seq, val))
 
 BOOST_FUSION_ADAPT_STRUCT(

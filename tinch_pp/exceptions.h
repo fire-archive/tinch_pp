@@ -26,9 +26,9 @@
 #include <exception>
 #include <string>
 
-// All exceptions thrown by tinch_pp are of this type.
 namespace tinch_pp {
 
+/// All exceptions thrown by tinch_pp are of this type.
 class tinch_pp_exception : public std::exception
 {
 public:
@@ -64,12 +64,12 @@ public:
   virtual ~mailbox_receive_tmo() throw();
 };
 
-// A mailbox or Erlang process may set-up links to each other.
-// In case a link breaks, the exception below is raised immediately in the next receive operation.
-// Links get broken for different reasons, but typically:
-//  - An error in network communication.
-//  - The remote process sends an exit signal.
-//  - The remote process terminates.
+/// A mailbox or Erlang process may set-up links to each other.
+/// In case a link breaks, the exception below is raised immediately in the next receive operation.
+/// Links get broken for different reasons, but typically:
+///  - An error in network communication.
+///  - The remote process sends an exit signal.
+///  - The remote process terminates.
 class link_broken : public tinch_pp_exception
 {
 public:
@@ -85,6 +85,22 @@ private:
   std::string reason_;
   e_pid pid_;
 }; 
+
+/// A term used in a call to send() contains illegal values.
+/// tinch++ tries to detect such things at compile-time, so these exceptions should be rare.
+class encoding_error : public tinch_pp_exception
+{
+public:
+  encoding_error(const std::string& term, const std::string& details);
+
+  virtual ~encoding_error() throw();
+
+  /// The name of the term we failed to encode.
+  std::string term() const { return term_; }
+
+private:
+  std::string term_;
+};
 
 }
 

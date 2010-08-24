@@ -73,3 +73,13 @@ link_broken::~link_broken() throw()
 {
 }
 
+encoding_error::encoding_error(const std::string& failed_term, const std::string& details)
+  : tinch_pp_exception("Failed to encode the term " + failed_term + ". Reason: " + details),
+    term_(failed_term)
+{
+}
+
+encoding_error::~encoding_error() throw()
+{
+}
+

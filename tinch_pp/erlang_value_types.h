@@ -163,14 +163,15 @@ private:
   match_fn_type match_fn;
 };
 
+/// Since R12B Erlang allows binaries that consist of bits that don't make up 
+/// to an even number of bytes (bit-strings). A binary in tinch++ will be able 
+/// to handle both cases.
 class binary : public object
 {
 public:
-  typedef std::vector<char> value_type;
+  explicit binary(const binary_value_type& val);
 
-  explicit binary(const value_type& val);
-
-  explicit binary(value_type* to_assign);
+  explicit binary(binary_value_type* to_assign);
 
   explicit binary(const any& match_any);
 
@@ -178,11 +179,11 @@ public:
 
   virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const;
 
-  value_type value() const { return val; }
+  binary_value_type value() const { return val; }
 
 private:
-  value_type val;
-  value_type* to_assign;
+  binary_value_type val;
+  binary_value_type* to_assign;
 
   match_fn_type match_fn;
 };
