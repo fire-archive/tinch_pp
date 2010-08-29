@@ -31,13 +31,12 @@
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
 using namespace boost;
-namespace fusion = boost::fusion;
 
 namespace {
 
 // {self, { call, Mod, Fun, Args, user}}
-typedef fusion::tuple<atom, atom, atom, rpc_argument_type, atom> call_type;
-typedef fusion::tuple<pid, e_tuple<call_type> > rpc_call_type;
+typedef boost::fusion::tuple<atom, atom, atom, rpc_argument_type, atom> call_type;
+typedef boost::fusion::tuple<pid, e_tuple<call_type> > rpc_call_type;
 
 // The difference between a blocking RPC and an RPC with timeout is in the receive function-
 // We abstract away the differences here.

@@ -74,7 +74,7 @@ if(BUILD_TEST)
   endif(VALGRIND_EXE)
 
   if(INSTALL_TEST)
-    install(TARGETS net_kernel_sim patterns rpc_test thread_safe_queue chat_client
+    install(TARGETS net_kernel_sim patterns rpc_test thread_safe_queue chat_client patterns_testing_any patterns_testing_assign local_link remote_link mbox_same_node_links
       DESTINATION ${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION}/test )
 
     if(ERLANG_OUTPUT_FILES)
