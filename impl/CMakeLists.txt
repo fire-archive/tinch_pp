@@ -1,4 +1,4 @@
-SET(Boost_ADDITIONAL_VERSIONS "1.42" "1.42.0")
+SET(Boost_ADDITIONAL_VERSIONS "1.42" "1.42.0" "1.43" "1.43.0" "1.44" "1.45" "1.46" "1.46.1" )
 find_package( Boost 1.42.0 REQUIRED )
 
 SET(CPP_SOURCE
