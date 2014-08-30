@@ -1,4 +1,4 @@
-# tinchpp
+# tinch_pp
 
 Distributed Erlang nodes in C++.
 
