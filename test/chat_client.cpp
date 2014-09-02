@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
   while(chat_some_more) {
     const std::string msg = prompt_user(client_name);
 
-    if(chat_some_more = !msg.empty())
+    if((chat_some_more = !msg.empty()))
       client.publish(msg);
   }
 }
