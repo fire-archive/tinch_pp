@@ -29,7 +29,6 @@
 #include <functional>
 
 using namespace tinch_pp;
-using namespace boost;
 
 namespace {
 
@@ -39,7 +38,7 @@ namespace {
 
 actual_mailbox::actual_mailbox(node_access& a_node,
 			                            const e_pid& a_own_pid,
-                               asio::io_service& a_service)
+                               boost::asio::io_service& a_service)
   : node(a_node),
     own_pid(a_own_pid),
     service(a_service),
@@ -49,7 +48,7 @@ actual_mailbox::actual_mailbox(node_access& a_node,
 
 actual_mailbox::actual_mailbox(node_access& a_node,
 			                            const e_pid& a_own_pid,
-                               asio::io_service& a_service,
+                               boost::asio::io_service& a_service,
 			                            const std::string& a_own_name)
   : node(a_node),
     own_pid(a_own_pid),
@@ -119,7 +118,7 @@ void actual_mailbox::send(const std::string& to_name, const std::string& on_give
 
 matchable_ptr actual_mailbox::receive()
 {
-  unique_lock<mutex> lock(received_msgs_mutex);
+  boost::unique_lock<boost::mutex> lock(received_msgs_mutex);
 
   wait_for_at_least_one_message(lock);
 
@@ -130,9 +129,9 @@ matchable_ptr actual_mailbox::receive()
 
 matchable_ptr actual_mailbox::receive(time_type_sec tmo)
 {
-  asio::deadline_timer timer(service, posix_time::seconds(tmo));
+  boost::asio::deadline_timer timer(service, boost::posix_time::seconds(tmo));
 
-  timer.async_wait(bind(&actual_mailbox::receive_tmo, this, asio::placeholders::error));
+  timer.async_wait(bind(&actual_mailbox::receive_tmo, this, boost::asio::placeholders::error));
   
   matchable_ptr msg = receive();
 
@@ -142,7 +141,7 @@ matchable_ptr actual_mailbox::receive(time_type_sec tmo)
 }
 
 // Always invoked with the mutex locked.
-void actual_mailbox::wait_for_at_least_one_message(unique_lock<mutex>& lock)
+void actual_mailbox::wait_for_at_least_one_message(boost::unique_lock<boost::mutex>& lock)
 {
   if(!received_msgs.empty())
     return;
@@ -184,7 +183,7 @@ void actual_mailbox::on_link_broken(const std::string& reason, const e_pid& pid)
 void actual_mailbox::notify_receive(const std::function<void ()>& receive_action)
 {
   {
-    lock_guard<mutex> lock(received_msgs_mutex);
+    boost::lock_guard<boost::mutex> lock(received_msgs_mutex);
 
     receive_action();
 
