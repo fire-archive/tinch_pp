@@ -69,7 +69,7 @@ void node_connector::trigger_accept()
 
 node_connection_ptr node_connector::get_connection_to(const std::string& peer_node_name)
 {
-  unique_lock<mutex> lock(node_connections_mutex);
+  boost::unique_lock<boost::mutex> lock(node_connections_mutex);
 
   node_connections_type::iterator existing = node_connections.find(peer_node_name);
 
@@ -81,14 +81,14 @@ node_connection_ptr node_connector::get_connection_to(const std::string& peer_no
 
 void node_connector::drop_connection_to(const std::string& node_name)
 {
-  unique_lock<mutex> lock(node_connections_mutex);
+  boost::unique_lock<boost::mutex> lock(node_connections_mutex);
 
   node_connections.erase(node_name);
 }
 
 vector<string> node_connector::connected_nodes() const
 {
-  unique_lock<mutex> lock(node_connections_mutex);
+  boost::unique_lock<boost::mutex> lock(node_connections_mutex);
 
   vector<string> connected;
 
@@ -100,7 +100,7 @@ vector<string> node_connector::connected_nodes() const
 
 // Always invoked with the mutex locked.
 node_connection_ptr node_connector::make_new_connection(const std::string& peer_node_name,
-							unique_lock<mutex>& lock)
+                            boost::unique_lock<boost::mutex>& lock)
 {
   node_connection_ptr new_connection = request_node_connection(io_service, peer_node_name, node);
   new_connection->start_handshake_as_A(bind(&node_connector::handshake_success, this, ::_1), 
@@ -117,7 +117,7 @@ node_connection_ptr node_connector::make_new_connection(const std::string& peer_
 }
 
 // Tricky - we must ensure that the node has finished its handshake procedure (asynchronous).
-bool node_connector::wait_for_handshake_result(unique_lock<mutex>& lock)
+bool node_connector::wait_for_handshake_result(boost::unique_lock<boost::mutex>& lock)
 {
   while(!handshake_done)
     handshake_cond.wait(lock);
@@ -132,7 +132,7 @@ bool node_connector::wait_for_handshake_result(unique_lock<mutex>& lock)
 void node_connector::handshake_success(bool handshake_result)
 {
   {
-    lock_guard<mutex> lock(node_connections_mutex);
+    boost::lock_guard<boost::mutex> lock(node_connections_mutex);
 
     handshake_done = handshake_result;
   }

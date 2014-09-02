@@ -63,20 +63,20 @@ void linker::break_links_for_local(const e_pid& dying_process)
 {
   const string exit_reason = "error";
   const notification_fn_type exit_request = bind(&mailbox_controller_type::request_exit,
-                                                  ref(mailbox_controller),
-                                                  cref(dying_process),
+                                                  boost::ref(mailbox_controller),
+                                                  boost::cref(dying_process),
                                                   _1,
-                                                  cref(exit_reason));
+                                                  boost::cref(exit_reason));
   on_broken_links(exit_request, dying_process);
 }
 
 void linker::close_links_for_local(const e_pid& dying_process, const string& reason)
 {
   const notification_fn_type exit2_request = bind(&mailbox_controller_type::request_exit2,
-                                                   ref(mailbox_controller),
-                                                   cref(dying_process),
+                                                   boost::ref(mailbox_controller),
+                                                   boost::cref(dying_process),
                                                    _1,
-                                                   cref(reason));
+                                                   boost::cref(reason));
   on_broken_links(exit2_request, dying_process);
 }
 

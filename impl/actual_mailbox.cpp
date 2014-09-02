@@ -170,14 +170,14 @@ msg_seq actual_mailbox::pick_first_msg()
 
 void actual_mailbox::on_incoming(const msg_seq& msg)
 {
-  notify_receive(bind(&received_msgs_type::push_front, ref(received_msgs), cref(msg)));
+  notify_receive(bind(&received_msgs_type::push_front, boost::ref(received_msgs), boost::cref(msg)));
 }
 
 void actual_mailbox::on_link_broken(const std::string& reason, const e_pid& pid)
 {
   const broken_links_type::value_type info(reason, pid);
 
-  notify_receive(bind(&broken_links_type::push_back, ref(broken_links), cref(info)));
+  notify_receive(bind(&broken_links_type::push_back, boost::ref(broken_links), boost::cref(info)));
 }
 
 // Used to abstract away the common pattern of lock-and-notify.

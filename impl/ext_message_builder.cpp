@@ -35,7 +35,7 @@ namespace {
 
   // Design: The different send methods are similiar, just the control message differs.
   // Thus, we parameterize with a generator (basically emulating closures).
-  typedef function<void (msg_seq_out_iter&)> add_ctrl_msg_fn;
+  typedef boost::function<void (msg_seq_out_iter&)> add_ctrl_msg_fn;
      
   void add_ctrl_message_send(msg_seq_out_iter& out, const tinch_pp::e_pid& destination_pid);
 
@@ -61,32 +61,32 @@ namespace tinch_pp {
  
 msg_seq build_send_msg(const msg_seq& payload, const e_pid& destination_pid)
 {
-  return build(payload, bind(&add_ctrl_message_send, _1, cref(destination_pid)));
+  return build(payload, bind(&add_ctrl_message_send, _1, boost::cref(destination_pid)));
 }
 
 msg_seq build_reg_send_msg(const msg_seq& payload, const e_pid& self, const string& destination_name)
 {
-  return build(payload, bind(&add_ctrl_message_reg_send, _1, cref(self), cref(destination_name)));
+  return build(payload, bind(&add_ctrl_message_reg_send, _1, boost::cref(self), boost::cref(destination_name)));
 }
 
 msg_seq build_exit_msg(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason)
 {
-  return build(bind(&add_ctrl_message_exit, _1, constants::ctrl_msg_exit, cref(from_pid), cref(to_pid), cref(reason)));
+  return build(bind(&add_ctrl_message_exit, _1, constants::ctrl_msg_exit, boost::cref(from_pid), boost::cref(to_pid), boost::cref(reason)));
 }
 
 msg_seq build_exit2_msg(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason)
 {
-  return build(bind(&add_ctrl_message_exit, _1, constants::ctrl_msg_exit2, cref(from_pid), cref(to_pid), cref(reason)));
+  return build(bind(&add_ctrl_message_exit, _1, constants::ctrl_msg_exit2, boost::cref(from_pid), boost::cref(to_pid), boost::cref(reason)));
 }
 
 msg_seq build_link_msg(const e_pid& from_pid, const e_pid& to_pid)
 {
-  return build(bind(&add_ctrl_message_linkage, _1, constants::ctrl_msg_link, cref(from_pid), cref(to_pid)));
+  return build(bind(&add_ctrl_message_linkage, _1, constants::ctrl_msg_link, boost::cref(from_pid), boost::cref(to_pid)));
 }
 
 msg_seq build_unlink_msg(const e_pid& from_pid, const e_pid& to_pid)
 {
-  return build(bind(&add_ctrl_message_linkage, _1, constants::ctrl_msg_unlink, cref(from_pid), cref(to_pid)));
+  return build(bind(&add_ctrl_message_linkage, _1, constants::ctrl_msg_unlink, boost::cref(from_pid), boost::cref(to_pid)));
 }
 
 }

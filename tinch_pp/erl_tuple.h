@@ -70,7 +70,7 @@ public:
     const bool success = qi::parse(f, l, tuple_head_p, parsed_length);
     const bool tuple_matched = success && (tuple_length == parsed_length);
 
-    return tuple_matched && fusion::all(contained, bind(&object::match, ::_1, boost::ref(f), cref(l)));
+    return tuple_matched && fusion::all(contained, bind(&object::match, ::_1, boost::ref(f), boost::cref(l)));
   }
 
 private:

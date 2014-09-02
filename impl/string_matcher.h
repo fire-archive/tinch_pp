@@ -48,7 +48,7 @@ struct string_matcher
     // When packed as a string, there's no encoding-tag prepended to the individual elements
     return length_matched && (val.end() == std::find_if(val.begin(), val.end(), 
 							                                                  bind(&erl::int_::match_string_element, 
-                                                               ::_1, boost::ref(f), cref(l)) == false));
+                                                               ::_1, boost::ref(f), boost::cref(l)) == false));
   }
 
   static bool assign_match(list_type* val, msg_seq_iter& f, const msg_seq_iter& l)
