@@ -23,7 +23,6 @@
 #include "tinch_pp/mailbox.h"
 #include "tinch_pp/erlang_types.h"
 #include <boost/thread.hpp>
-#include <boost/bind.hpp>
 #include <iostream>
 
 using namespace tinch_pp;
