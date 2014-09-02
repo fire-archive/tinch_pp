@@ -83,7 +83,7 @@ public:
 private:
   // Used to abstract away the common pattern of lock-and-notify as a process 
   // sends some (message or exit) event to this mailbox.
-  void notify_receive(const boost::function<void ()>& receive_action);
+  void notify_receive(const std::function<void ()>& receive_action);
 
   void wait_for_at_least_one_message(boost::unique_lock<boost::mutex>& lock);
 

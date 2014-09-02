@@ -24,7 +24,6 @@
 #include "node_access.h"
 #include "matchable_seq.h"
 #include "tinch_pp/exceptions.h"
-#include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <exception>
 #include <functional>
@@ -171,14 +170,14 @@ msg_seq actual_mailbox::pick_first_msg()
 
 void actual_mailbox::on_incoming(const msg_seq& msg)
 {
-  notify_receive(std::bind(&received_msgs_type::push_front, std::ref(received_msgs), std::cref(msg)));
+  notify_receive(std::bind(static_cast<void (received_msgs_type::*)(received_msgs_type::value_type const&)>(&received_msgs_type::push_front), std::ref(received_msgs), std::cref(msg)));
 }
 
 void actual_mailbox::on_link_broken(const std::string& reason, const e_pid& pid)
 {
   const broken_links_type::value_type info(reason, pid);
 
-  notify_receive(std::bind(&broken_links_type::push_back, std::ref(broken_links), std::cref(info)));
+  notify_receive(std::bind(static_cast<void (broken_links_type::*)(broken_links_type::value_type const&)>(&broken_links_type::push_back), std::ref(broken_links), std::cref(info)));
 }
 
 // Used to abstract away the common pattern of lock-and-notify.
