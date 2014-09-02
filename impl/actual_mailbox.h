@@ -29,6 +29,7 @@
 #include <boost/function.hpp>
 #include <list>
 #include <utility>
+#include <functional>
 
 namespace tinch_pp {
 
