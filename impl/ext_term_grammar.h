@@ -30,7 +30,6 @@
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/home/phoenix/container.hpp>
 
 // Namespace aliases.
 namespace qi = boost::spirit::qi;
