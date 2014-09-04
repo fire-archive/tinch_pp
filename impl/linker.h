@@ -24,7 +24,7 @@
 
 #include "types.h"
 #include "boost/utility.hpp"
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 #include <boost/function.hpp>
 #include <utility>
 #include <list>
@@ -71,7 +71,7 @@ private:
 
   // The control messages (Link, Exit, etc) are received in the context of 
   // the I/O thread. We always lock on API level before delegating to worker functions.
-  boost::mutex links_lock;
+  std::mutex links_lock;
 
   typedef std::pair<e_pid, e_pid> link_type;
   typedef std::list<link_type> links_type;

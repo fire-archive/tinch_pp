@@ -27,7 +27,6 @@
 #include "impl/types.h"
 
 #include <boost/utility.hpp>
-#include <boost/shared_ptr.hpp>
 #include <utility>
 #include <string>
 #include <memory>

@@ -23,8 +23,8 @@
 #define LINK_POLICIES_H
 
 #include "types.h"
-#include <boost/shared_ptr.hpp>
 #include <functional>
+#include <memory>
 
 namespace tinch_pp {
 

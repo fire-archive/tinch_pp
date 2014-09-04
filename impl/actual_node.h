@@ -30,10 +30,10 @@
 #include "impl/mailbox_controller_type.h"
 
 #include <boost/asio.hpp>
-#include <boost/thread.hpp>
 #include <boost/utility.hpp>
 #include <string>
 #include <map>
+#include <thread>
 
 namespace tinch_pp {
 
@@ -109,7 +109,7 @@ private:
   node_connector connector;
 
    // A separate thread that runs the io_service in order to perform aynchronous requests...
-  boost::thread async_io_runner;
+  std::thread async_io_runner;
   // ...and executes the following function:
   void run_async_io();
 
@@ -130,7 +130,7 @@ private:
   typedef std::map<std::string, actual_mailbox_ptr> registered_mailboxes_type;
   registered_mailboxes_type registered_mailboxes;
 
-  boost::mutex mailboxes_lock;
+  std::mutex mailboxes_lock;
 
   linker mailbox_linker;
 

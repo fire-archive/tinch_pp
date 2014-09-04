@@ -64,7 +64,7 @@ void node_connector::trigger_accept()
   incoming_connections_acceptor->async_accept(new_connection->socket(),
                           std::bind(&node_connector::handle_accept, this,
 							  new_connection,
-                              boost::asio::placeholders::error));
+                              std::placeholders::_1)); // _1 is asio::placeholders::error
 }
 
 node_connection_ptr node_connector::get_connection_to(const std::string& peer_node_name)
@@ -86,11 +86,11 @@ void node_connector::drop_connection_to(const std::string& node_name)
   node_connections.erase(node_name);
 }
 
-vector<string> node_connector::connected_nodes() const
+std::vector<std::string> node_connector::connected_nodes() const
 {
   std::unique_lock<std::mutex> lock(node_connections_mutex);
 
-  vector<string> connected;
+  std::vector<std::string> connected;
 
   transform(node_connections.begin(), node_connections.end(), back_inserter(connected),
         std::bind(&node_connections_type::value_type::first, std::placeholders::_1));
@@ -103,7 +103,7 @@ node_connection_ptr node_connector::make_new_connection(const std::string& peer_
                             std::unique_lock<std::mutex>& lock)
 {
   node_connection_ptr new_connection = request_node_connection(io_service, peer_node_name, node);
-  new_connection->start_handshake_as_A(bind(&node_connector::handshake_success, this, ::_1), 
+  new_connection->start_handshake_as_A(std::bind(&node_connector::handshake_success, this, std::placeholders::_1),
                                        challenge_generator());
 
   const bool success = wait_for_handshake_result(lock);
@@ -132,7 +132,7 @@ bool node_connector::wait_for_handshake_result(std::unique_lock<std::mutex>& loc
 void node_connector::handshake_success(bool handshake_result)
 {
   {
-    boost::lock_guard<std::mutex> lock(node_connections_mutex);
+    std::lock_guard<std::mutex> lock(node_connections_mutex);
 
     handshake_done = handshake_result;
   }
@@ -157,7 +157,7 @@ void node_connector::handle_accept(node_connection_ptr new_connection,
   if(!error) {
     // The new_connection signals once its handshake is done - then it's added to the container and
     // the next accept is triggered.
-    new_connection->start_handshake_as_B(bind(&node_connector::handshake_success_as_B, this, new_connection, ::_1),
+    new_connection->start_handshake_as_B(std::bind(&node_connector::handshake_success_as_B, this, new_connection, std::placeholders::_1),
                                          challenge_generator());
   } else {
     trigger_accept();
@@ -166,7 +166,7 @@ void node_connector::handle_accept(node_connection_ptr new_connection,
 
 namespace {
 
-node_connection_ptr request_node_connection(asio::io_service& io_service, 
+node_connection_ptr request_node_connection(boost::asio::io_service& io_service,
 					    const std::string& peer_node,
 					    node_access& node)
 {

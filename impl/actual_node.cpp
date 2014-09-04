@@ -31,6 +31,7 @@
 #include <iostream>
 #include <cassert>
 #include <functional>
+#include <mutex>
 
 using namespace tinch_pp;
 using boost::lexical_cast;
@@ -39,7 +40,7 @@ using std::shared_ptr;
 namespace {
 
 using tinch_pp::e_pid;
-typedef boost::lock_guard<boost::mutex> mutex_guard;
+typedef std::lock_guard<std::mutex> mutex_guard;
 
 std::string valid_node_name(const std::string& user_provided)
 {
@@ -130,7 +131,7 @@ bool actual_node::ping_peer(const std::string& peer_node_name)
   try {
     pong = !!connector.get_connection_to(peer_node_name);
   } catch(const tinch_pp_exception&) {
-    // don't let a failed connection atempt propage through this API.
+    // don't let a failed connection attempt propagate through this API.
   }
 
   return pong;
@@ -138,7 +139,7 @@ bool actual_node::ping_peer(const std::string& peer_node_name)
 
 mailbox_ptr actual_node::create_mailbox()
 {
-  shared_ptr<actual_mailbox> mbox(new actual_mailbox(*this, make_pid(), io_service));
+  std::shared_ptr<actual_mailbox> mbox(new actual_mailbox(*this, make_pid(), io_service));
 
   const mutex_guard guard(mailboxes_lock);
 
@@ -150,7 +151,7 @@ mailbox_ptr actual_node::create_mailbox()
 
 mailbox_ptr actual_node::create_mailbox(const std::string& registered_name)
 {
-  shared_ptr<actual_mailbox> mbox(new actual_mailbox(*this, make_pid(), io_service, registered_name));
+  std::shared_ptr<actual_mailbox> mbox(new actual_mailbox(*this, make_pid(), io_service, registered_name));
 
   const mutex_guard guard(mailboxes_lock);
 

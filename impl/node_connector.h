@@ -32,7 +32,6 @@
 #include "types.h"
 #include <boost/asio.hpp>
 #include <boost/utility.hpp>
-#include <boost/thread.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/variate_generator.hpp>
@@ -67,7 +66,7 @@ private:
   node_connection_ptr make_new_connection(const std::string& peer_node_name, 
                       std::unique_lock<std::mutex>& lock);
 
-  bool wait_for_handshake_result(boost::unique_lock<boost::mutex>& lock);
+  bool wait_for_handshake_result(std::unique_lock<std::mutex>& lock);
 
   void trigger_accept();
 
@@ -87,7 +86,7 @@ private:
   node_connections_type node_connections;
 
   // ..and protect the node_connections:
-  boost::condition_variable handshake_cond;
+  std::condition_variable handshake_cond;
   mutable std::mutex node_connections_mutex;
   boost::optional<bool> handshake_done;
 

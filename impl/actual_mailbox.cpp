@@ -118,7 +118,7 @@ void actual_mailbox::send(const std::string& to_name, const std::string& on_give
 
 matchable_ptr actual_mailbox::receive()
 {
-  boost::unique_lock<boost::mutex> lock(received_msgs_mutex);
+  std::unique_lock<std::mutex> lock(received_msgs_mutex);
 
   wait_for_at_least_one_message(lock);
 
@@ -141,7 +141,7 @@ matchable_ptr actual_mailbox::receive(time_type_sec tmo)
 }
 
 // Always invoked with the mutex locked.
-void actual_mailbox::wait_for_at_least_one_message(boost::unique_lock<boost::mutex>& lock)
+void actual_mailbox::wait_for_at_least_one_message(std::unique_lock<std::mutex>& lock)
 {
   if(!received_msgs.empty())
     return;
@@ -183,7 +183,7 @@ void actual_mailbox::on_link_broken(const std::string& reason, const e_pid& pid)
 void actual_mailbox::notify_receive(const std::function<void ()>& receive_action)
 {
   {
-    boost::lock_guard<boost::mutex> lock(received_msgs_mutex);
+    std::lock_guard<std::mutex> lock(received_msgs_mutex);
 
     receive_action();
 

@@ -23,9 +23,8 @@
 #define NODE_CONNECTION_ACCESS_H
 
 #include "types.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <functional>
+#include <memory>
 
 namespace tinch_pp {
 
@@ -46,7 +45,7 @@ typedef boost::uint32_t challenge_type;
 
 // An interface exposed solely to the states for callbacks: a node_connection typically 
 // implements this as a Private Interface.
-class node_connection_access : public boost::enable_shared_from_this<node_connection_access>
+class node_connection_access : public std::enable_shared_from_this<node_connection_access>
 {
  public:
   virtual ~node_connection_access() {}

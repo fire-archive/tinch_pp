@@ -23,10 +23,8 @@
 #define ACTUAL_MAILBOX_H
 
 #include "tinch_pp/mailbox.h"
-#include <boost/thread.hpp>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
-#include <boost/function.hpp>
 #include <list>
 #include <utility>
 #include <functional>
@@ -85,7 +83,7 @@ private:
   // sends some (message or exit) event to this mailbox.
   void notify_receive(const std::function<void ()>& receive_action);
 
-  void wait_for_at_least_one_message(boost::unique_lock<boost::mutex>& lock);
+  void wait_for_at_least_one_message(std::unique_lock<std::mutex>& lock);
 
   msg_seq pick_first_msg();
 
@@ -104,8 +102,8 @@ private:
 
   // The client typically blocks in a receive until a message arrives.
   // The messages arrive (from a node_connection) in another thread context.
-  boost::condition_variable message_received_cond;
-  boost::mutex received_msgs_mutex;
+  std::condition_variable message_received_cond;
+  std::mutex received_msgs_mutex;
   bool message_ready;
 
   // A mailbox may be linked to multiple Erlang processes and/or other mailboxes.

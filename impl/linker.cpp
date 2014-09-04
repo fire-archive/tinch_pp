@@ -21,21 +21,20 @@
 // ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "linker.h"
 #include "mailbox_controller_type.h"
-#include <boost/thread/locks.hpp>
 #include <algorithm>
 #include <functional>
+#include <thread>
+#include <mutex>
 
 using namespace tinch_pp;
-using namespace boost;
-using namespace std;
 
 namespace {
-typedef boost::lock_guard<boost::mutex> mutex_guard;
+typedef std::lock_guard<std::mutex> mutex_guard;
 }
 
 namespace tinch_pp {
-  bool operator==(const pair<e_pid, e_pid>& v1,
-                  const pair<e_pid, e_pid>& v2);
+  bool operator==(const std::pair<e_pid, e_pid>& v1,
+                  const std::pair<e_pid, e_pid>& v2);
 }
 
 linker::linker(mailbox_controller_type& a_mailbox_controller)
@@ -61,7 +60,7 @@ void linker::unlink(const e_pid& from, const e_pid& to)
 
 void linker::break_links_for_local(const e_pid& dying_process)
 {
-  const string exit_reason = "error";
+  const std::string exit_reason = "error";
   const notification_fn_type exit_request = std::bind(&mailbox_controller_type::request_exit,
                                                   std::ref(mailbox_controller),
                                                   std::cref(dying_process),
@@ -70,7 +69,7 @@ void linker::break_links_for_local(const e_pid& dying_process)
   on_broken_links(exit_request, dying_process);
 }
 
-void linker::close_links_for_local(const e_pid& dying_process, const string& reason)
+void linker::close_links_for_local(const e_pid& dying_process, const std::string& reason)
 {
   const notification_fn_type exit2_request = std::bind(&mailbox_controller_type::request_exit2,
                                                    std::ref(mailbox_controller),
@@ -87,8 +86,8 @@ void linker::establish_link_between(const e_pid& pid1, const e_pid& pid2)
 
 void linker::remove_link_between(const e_pid& pid1, const e_pid& pid2)
 {
-  established_links.remove(make_pair(pid1, pid2));
-  established_links.remove(make_pair(pid2, pid1));
+  established_links.remove(std::make_pair(pid1, pid2));
+  established_links.remove(std::make_pair(pid2, pid1));
 }
 
 void linker::on_broken_links(const linker::notification_fn_type& notification_fn, const e_pid& dying_process)
