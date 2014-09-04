@@ -25,9 +25,10 @@
 #include "control_msg.h"
 #include "node_connection_state.h"
 
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <sstream>
+#include <memory>
+#include <functional>
 
 // Design
 // ======

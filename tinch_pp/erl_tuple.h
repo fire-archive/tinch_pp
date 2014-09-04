@@ -63,7 +63,7 @@ public:
     size_t parsed_length = 0;
     small_tuple_head_ext tuple_head_p;
 
-    const bool success = boost::qi::parse(f, l, tuple_head_p, parsed_length);
+    const bool success = boost::spirit::qi::parse(f, l, tuple_head_p, parsed_length);
     const bool tuple_matched = success && (tuple_length == parsed_length);
 
     return tuple_matched && boost::fusion::all(contained, std::bind(&object::match, std::placeholders::_1, std::ref(f), std::cref(l)));

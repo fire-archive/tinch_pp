@@ -61,11 +61,11 @@ private:
   node_access& node;
   boost::asio::io_service& io_service;
 
-  typedef boost::shared_ptr<boost::asio::ip::tcp::acceptor> acceptor_ptr;
+  typedef std::shared_ptr<boost::asio::ip::tcp::acceptor> acceptor_ptr;
   acceptor_ptr incoming_connections_acceptor;
 
   node_connection_ptr make_new_connection(const std::string& peer_node_name, 
-					  boost::unique_lock<boost::mutex>& lock);
+                      std::unique_lock<std::mutex>& lock);
 
   bool wait_for_handshake_result(boost::unique_lock<boost::mutex>& lock);
 
@@ -88,7 +88,7 @@ private:
 
   // ..and protect the node_connections:
   boost::condition_variable handshake_cond;
-  mutable boost::mutex node_connections_mutex;
+  mutable std::mutex node_connections_mutex;
   boost::optional<bool> handshake_done;
 
   // When establishing a connection, our node must provide a challenge for the peer node.

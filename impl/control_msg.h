@@ -22,12 +22,12 @@
 #ifndef CONTROL_MSG_H
 #define CONTROL_MSG_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace tinch_pp {
 
 class connection_state;
-typedef boost::shared_ptr<connection_state> connection_access_ptr;
+typedef std::shared_ptr<connection_state> connection_access_ptr;
 
 /// A control_msg encodes a distributed operation sent to another node.
 /// The control_msg gets serialized on Erlangs external format as a tuple, 

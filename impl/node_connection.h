@@ -36,7 +36,7 @@ typedef std::function<void (bool /*success*/)> handshake_success_fn_type;
 class control_msg;
 class node_access;
 class node_connection;
-typedef boost::shared_ptr<node_connection> node_connection_ptr;
+typedef std::shared_ptr<node_connection> node_connection_ptr;
 
 class node_connection : boost::noncopyable, 
                         public node_connection_access

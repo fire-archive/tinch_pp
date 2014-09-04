@@ -22,8 +22,8 @@
 #include "linker.h"
 #include "mailbox_controller_type.h"
 #include <boost/thread/locks.hpp>
-#include "boost/bind.hpp"
 #include <algorithm>
+#include <functional>
 
 using namespace tinch_pp;
 using namespace boost;
@@ -62,7 +62,7 @@ void linker::unlink(const e_pid& from, const e_pid& to)
 void linker::break_links_for_local(const e_pid& dying_process)
 {
   const string exit_reason = "error";
-  const notification_fn_type exit_request = bind(&mailbox_controller_type::request_exit,
+  const notification_fn_type exit_request = std::bind(&mailbox_controller_type::request_exit,
                                                   std::ref(mailbox_controller),
                                                   std::cref(dying_process),
                                                   std::placeholders::_1,
@@ -72,7 +72,7 @@ void linker::break_links_for_local(const e_pid& dying_process)
 
 void linker::close_links_for_local(const e_pid& dying_process, const string& reason)
 {
-  const notification_fn_type exit2_request = bind(&mailbox_controller_type::request_exit2,
+  const notification_fn_type exit2_request = std::bind(&mailbox_controller_type::request_exit2,
                                                    std::ref(mailbox_controller),
                                                    std::cref(dying_process),
                                                    std::placeholders::_1,

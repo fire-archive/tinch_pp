@@ -23,7 +23,7 @@
 #define NODE_CONNECTION_STATE_H
 
 #include "types.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace tinch_pp {
 
