@@ -25,7 +25,7 @@
 #include "types.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/function.hpp>
+#include <functional>
 
 namespace tinch_pp {
 
@@ -39,8 +39,8 @@ typedef boost::shared_ptr<node_connection_access> access_ptr;
 // Invoked once a complete message has been read.
 namespace utils { class msg_lexer; }
 
-typedef boost::function<void (utils::msg_lexer&)> message_read_fn;
-typedef  boost::function<void ()> message_written_fn;
+typedef std::function<void (utils::msg_lexer&)> message_read_fn;
+typedef  std::function<void ()> message_written_fn;
 
 typedef boost::uint32_t challenge_type;
 

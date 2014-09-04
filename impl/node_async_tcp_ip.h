@@ -25,9 +25,9 @@
 #include "types.h"
 #include <boost/utility.hpp>
 #include <boost/asio.hpp>
-#include <boost/function.hpp>
 #include <deque>
 #include <utility>
+#include <functional>
 
 namespace tinch_pp {
 
@@ -40,12 +40,12 @@ namespace utils {
 
 // The client registers callbacks to be invoked upon successfull completion of the 
 // requested operation.
-typedef boost::function<void (utils::msg_lexer&)> message_read_fn;
-typedef boost::function<void ()> message_written_fn;
+typedef std::function<void (utils::msg_lexer&)> message_read_fn;
+typedef std::function<void ()> message_written_fn;
 
 // All errors detected by this class are reported to a provided error handler.
 // This allows the client to add some context before possibly throwing an exception.
-typedef boost::function<void (const boost::system::error_code& /* reason */)> error_handler_fn;
+typedef std::function<void (const boost::system::error_code& /* reason */)> error_handler_fn;
 
 class node_async_tcp_ip : boost::noncopyable
 {

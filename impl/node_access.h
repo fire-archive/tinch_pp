@@ -27,7 +27,7 @@
 namespace tinch_pp {
 
 class mailbox;
-typedef boost::shared_ptr<mailbox> mailbox_ptr;
+typedef std::shared_ptr<mailbox> mailbox_ptr;
 
 class node_access
 {

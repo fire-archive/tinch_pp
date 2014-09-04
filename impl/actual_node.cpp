@@ -27,13 +27,14 @@
 #include "control_msg_send.h"
 #include "control_msg_reg_send.h"
 #include "ScopeGuard.h"
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 #include <cassert>
+#include <functional>
 
 using namespace tinch_pp;
-using namespace boost;
+using boost::lexical_cast;
+using std::shared_ptr;
 
 namespace {
 
@@ -64,7 +65,7 @@ std::string key_to_name(const e_pid& p)
 }
 
 template<typename Key, typename T>
-shared_ptr<actual_mailbox> fetch_mailbox(const Key& name,
+std::shared_ptr<actual_mailbox> fetch_mailbox(const Key& name,
                                          T& registered_mboxes)
 {
   typename T::iterator mbox = registered_mboxes.find(name);
@@ -72,7 +73,7 @@ shared_ptr<actual_mailbox> fetch_mailbox(const Key& name,
   if(mbox == registered_mboxes.end())
     throw tinch_pp_exception("Failed to deliver message - mailbox not known. Name = " + key_to_name(name));
 
-  shared_ptr<actual_mailbox> destination = mbox->second.lock();
+  std::shared_ptr<actual_mailbox> destination = mbox->second.lock();
 
   if(!destination) {
     remove_expired(name, registered_mboxes);
@@ -100,7 +101,7 @@ actual_node::actual_node(const std::string& a_node_name, const std::string& a_co
     // variabled used to build pids:
     pid_id(1), serial(0), creation(0),
     mailbox_linker(*this),
-    remote_link_dispatcher(make_remote_link_dispatcher(*this, mailbox_linker, bind(&actual_node::request, this, _1, _2))),
+    remote_link_dispatcher(make_remote_link_dispatcher(*this, mailbox_linker, std::bind(&actual_node::request, this, std::placeholders::_1, std::placeholders::_2))),
     local_link_dispatcher(make_local_link_dispatcher(*this))
 {
 }
@@ -154,7 +155,7 @@ mailbox_ptr actual_node::create_mailbox(const std::string& registered_name)
   const mutex_guard guard(mailboxes_lock);
 
   mailboxes.insert(std::make_pair(mbox->self(), mbox));
-  Loki::ScopeGuard insert_guard = Loki::MakeGuard(bind(&actual_node::remove, this, ::_1), mbox);
+  Loki::ScopeGuard insert_guard = Loki::MakeGuard(std::bind(static_cast<void (actual_node::*)(mailbox_ptr)> (&actual_node::remove), this, std::placeholders::_1), mbox);
 
   registered_mailboxes.insert(std::make_pair(registered_name, mbox));
 
@@ -176,7 +177,7 @@ void actual_node::close_mailbox_async(const e_pid& id, const std::string& name)
 {
   const std::string reason = "error";
 
-  io_service.post(bind(&actual_node::close_mailbox, this, id, name, reason));
+  io_service.post(std::bind(static_cast<void (actual_node::*)(const e_pid&, const std::string&, const std::string&)> (&actual_node::close_mailbox), this, id, name, reason));
 }
 
 void actual_node::close_mailbox(const e_pid& id, const std::string& name, const std::string& reason)

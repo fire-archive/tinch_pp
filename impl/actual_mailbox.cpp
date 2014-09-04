@@ -131,7 +131,7 @@ matchable_ptr actual_mailbox::receive(time_type_sec tmo)
 {
   boost::asio::deadline_timer timer(service, boost::posix_time::seconds(tmo));
 
-  timer.async_wait(bind(&actual_mailbox::receive_tmo, this, boost::asio::placeholders::error));
+  timer.async_wait(std::bind(&actual_mailbox::receive_tmo, this, std::placeholders::_1));
   
   matchable_ptr msg = receive();
 

@@ -23,7 +23,7 @@
 #define ERLANG_VALUE_TYPES_H
 
 #include "erl_object.h"
-#include <boost/function.hpp>
+#include <functional>
 
 namespace tinch_pp {
 namespace erl {
@@ -33,7 +33,7 @@ class any;
 // As an object is used in a match, it's either a value-match or a type-match.
 // In the latter case, we want to assign the matched value. That difference 
 // in behaviour is encapsulated by a match_fn.
-typedef boost::function<bool (msg_seq_iter&, const msg_seq_iter&)> match_fn_type;
+typedef std::function<bool (msg_seq_iter&, const msg_seq_iter&)> match_fn_type;
 
 class int_ : public object
 {

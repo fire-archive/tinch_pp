@@ -24,7 +24,7 @@
 
 #include "types.h"
 #include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
+#include <functional>
 
 namespace tinch_pp {
 
@@ -49,9 +49,9 @@ class node_access;
 class linker;
 class control_msg;
 
-typedef boost::shared_ptr<link_operation_dispatcher_type> link_operation_dispatcher_type_ptr;
+typedef std::shared_ptr<link_operation_dispatcher_type> link_operation_dispatcher_type_ptr;
 
-typedef boost::function<void (control_msg&, const std::string&)> request_fn;
+typedef std::function<void (control_msg&, const std::string&)> request_fn;
 
 link_operation_dispatcher_type_ptr make_remote_link_dispatcher(node_access& a_node,
                                                                linker& a_mailbox_linker,

@@ -29,7 +29,7 @@
 #include <boost/fusion/include/for_each.hpp>
 #include <boost/fusion/algorithm/query/all.hpp>
 #include <boost/fusion/include/all.hpp>
-#include <boost/bind.hpp>
+#include <functional>
 
 namespace tinch_pp {
 namespace erl {
@@ -57,7 +57,7 @@ public:
     karma::generate(out, g, tuple_length);
 
     // Serialize each contained element.
-    fusion::for_each(contained, bind(&object::serialize, ::_1, boost::ref(out)));
+    fusion::for_each(contained, std::bind(&object::serialize, std::placeholders::_1, std::ref(out)));
   }
 
   virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const
@@ -70,7 +70,7 @@ public:
     const bool success = qi::parse(f, l, tuple_head_p, parsed_length);
     const bool tuple_matched = success && (tuple_length == parsed_length);
 
-    return tuple_matched && fusion::all(contained, bind(&object::match, ::_1, boost::ref(f), boost::cref(l)));
+    return tuple_matched && fusion::all(contained, std::bind(&object::match, std::placeholders::_1, std::ref(f), std::cref(l)));
   }
 
 private:

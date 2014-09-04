@@ -27,11 +27,11 @@
 #include "node_async_tcp_ip.h"
 #include <boost/optional.hpp>
 #include <boost/signals2.hpp>
-#include <boost/function.hpp>
+#include <functional>
 
 namespace tinch_pp {
 
-typedef boost::function<void (bool /*success*/)> handshake_success_fn_type;
+typedef std::function<void (bool /*success*/)> handshake_success_fn_type;
 
 class control_msg;
 class node_access;

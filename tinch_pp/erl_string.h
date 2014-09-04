@@ -34,7 +34,7 @@ class any;
 // As an object is used in a match, it's either a value-match or a type-match.
 // In the latter case, we want to assign the matched value. That difference 
 // in behaviour is encapsulated by a match_fn.
-typedef boost::function<bool (msg_seq_iter&, const msg_seq_iter&)> match_fn_type;
+typedef std::function<bool (msg_seq_iter&, const msg_seq_iter&)> match_fn_type;
 
 /// String does NOT have a corresponding Erlang representation, but is an 
 /// optimization for sending lists of bytes (integer in the range 0-255) 

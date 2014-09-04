@@ -39,11 +39,11 @@
 namespace tinch_pp {
 
 class mailbox;
-typedef boost::shared_ptr<mailbox> mailbox_ptr;
+typedef std::shared_ptr<mailbox> mailbox_ptr;
 class actual_mailbox;
 class control_msg;
 class link_operation_dispatcher_type;
-typedef boost::shared_ptr<link_operation_dispatcher_type> link_operation_dispatcher_type_ptr;
+typedef std::shared_ptr<link_operation_dispatcher_type> link_operation_dispatcher_type_ptr;
 
 /// A node represents one, distributed C++ node connected to the EPMD.
 /// A node is responsible for establishing connections with other 

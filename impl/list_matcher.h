@@ -23,8 +23,8 @@
 #define LIST_MATCHER_H
 
 #include "impl/ext_term_grammar.h"
-#include <boost/bind.hpp>
 #include <algorithm>
+#include <functional>
 
 namespace tinch_pp {
 namespace detail {
@@ -36,8 +36,6 @@ struct list_matcher
 {
   static bool match(const T& val, msg_seq_iter& f, const msg_seq_iter& l)
   {
-    using namespace boost;
-
     size_t parsed_length = 0;
     list_head_ext list_head_p;
 
@@ -48,7 +46,7 @@ struct list_matcher
     // Ensure that we can handle improper lists( [a|b] ) too (parse one more element, different length check).
     const bool matched = length_matched && (val.end() == 
 					                                        std::find_if(val.begin(), val.end(), 
-                                                bind(&erl::object::match, ::_1, boost::ref(f), boost::cref(l)) == false));
+                                                std::bind(&erl::object::match, std::placeholders::_1, std::ref(f), std::cref(l))));
     // TODO: check once we're handling lists properly!
     qi::parse(f, l, qi::byte_(tinch_pp::type_tag::nil_ext));
 
@@ -57,8 +55,6 @@ struct list_matcher
 
   static bool assign_match(T* val, msg_seq_iter& f, const msg_seq_iter& l)
   {
-    using namespace boost;
-
     size_t parsed_length = 0;
     list_head_ext list_head_p;
 
