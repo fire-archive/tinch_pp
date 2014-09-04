@@ -28,7 +28,7 @@
 namespace tinch_pp {
 
 class node_connection_access;
-typedef boost::shared_ptr<node_connection_access> access_ptr;
+typedef std::shared_ptr<node_connection_access> access_ptr;
 
 class connection_state
 {
@@ -66,7 +66,7 @@ protected:
   access_ptr access;
 };
 
-typedef boost::shared_ptr<connection_state> connection_state_ptr;
+typedef std::shared_ptr<connection_state> connection_state_ptr;
 
 connection_state_ptr initial_state(access_ptr access);
 

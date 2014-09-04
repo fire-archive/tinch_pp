@@ -86,10 +86,10 @@ class node_connection_access : public boost::enable_shared_from_this<node_connec
   virtual void request_exit2(const e_pid& from, const e_pid& to, const std::string& reason) = 0;
 
   template<typename new_state>
-  boost::shared_ptr<new_state> change_state_to() 
+  std::shared_ptr<new_state> change_state_to()
   { 
     connection_state_ptr next(new new_state(shared_from_this()));
-    return boost::dynamic_pointer_cast<new_state>(this->change_state(next));
+    return std::dynamic_pointer_cast<new_state>(this->change_state(next));
   }
 
   virtual connection_state_ptr change_state(connection_state_ptr new_state) = 0;

@@ -30,6 +30,7 @@
 #include <boost/shared_ptr.hpp>
 #include <utility>
 #include <string>
+#include <memory>
 
 namespace tinch_pp {
 
@@ -42,13 +43,13 @@ typedef std::pair<std::string, std::string> module_and_function_type;
 typedef erl::list<erl::object_ptr> rpc_argument_type;
 
 class node;
-typedef boost::shared_ptr<node> node_ptr;
+typedef std::shared_ptr<node> node_ptr;
 
 class mailbox;
-typedef boost::shared_ptr<mailbox> mailbox_ptr;
+typedef std::shared_ptr<mailbox> mailbox_ptr;
 
 class matchable;
-typedef boost::shared_ptr<matchable> matchable_ptr;
+typedef std::shared_ptr<matchable> matchable_ptr;
 
 /// This is a convenience class for remote procedure calls.
 /// A remote procedure call is a method to call a function on a remote node and collect the answer.

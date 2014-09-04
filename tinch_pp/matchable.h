@@ -23,7 +23,7 @@
 #define MATCHABLE_H
 
 #include "impl/types.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace tinch_pp {
 
@@ -45,7 +45,7 @@ public:
   virtual bool match(const erl::object& pattern) const = 0;
 };
 
-typedef boost::shared_ptr<matchable> matchable_ptr;
+typedef std::shared_ptr<matchable> matchable_ptr;
 
 }
 

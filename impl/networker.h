@@ -42,17 +42,17 @@ public:
 
   void trigger_read(ReadCallback callback)
   {
-    access->trigger_checked_read(boost::bind(callback, state, ::_1));
+    access->trigger_checked_read(std::bind(callback, state, std::placeholders::_1));
   }
 
   void trigger_write(const msg_seq& msg, WriteCallback callback)
   {
-    access->trigger_checked_write(msg, boost::bind(callback, state));
+    access->trigger_checked_write(msg, std::bind(callback, state));
   }
 
   void trigger_write(const msg_seq& msg)
   {
-    access->trigger_checked_write(msg, boost::bind(&OwnType::ignore_write_notification, this));
+    access->trigger_checked_write(msg, std::bind(&OwnType::ignore_write_notification, this));
   }
 
 private:

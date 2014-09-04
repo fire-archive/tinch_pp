@@ -24,6 +24,7 @@
 
 #include "types.h"
 #include <boost/utility.hpp>
+#include <memory>
 
 namespace tinch_pp {
 

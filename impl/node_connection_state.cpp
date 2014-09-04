@@ -26,11 +26,11 @@
 #include "ext_message_builder.h"
 #include "ctrl_msg_dispatcher.h"
 #include "networker.h"
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
+#include <functional>
 
 using namespace tinch_pp;
-using namespace boost;
+using boost::lexical_cast;
 
 // Implementation of the different states of a node_connection.
 //
@@ -135,7 +135,7 @@ struct connected : connection_state
 // still maintaining valid objects. The trick is to make a copy of the access smart-pointer.
 void make_transition_to_connected(access_ptr access)
 {
-  boost::shared_ptr<connected> connected_state = access->change_state_to<connected>();
+   std::shared_ptr<connected> connected_state = access->change_state_to<connected>();
   access->handshake_complete();
   connected_state->start_receiving();
 }
@@ -315,7 +315,7 @@ struct waiting_for_status : connection_state
     const bool ok = (status == "ok") || (status == "ok_simultaneous");
 
     if(ok) {
-      shared_ptr<receiving_challenge> new_state = access->change_state_to<receiving_challenge>();
+       std::shared_ptr<receiving_challenge> new_state = access->change_state_to<receiving_challenge>();
       new_state->receive_challenge(read_msgs);
     } else {
       const std::string problem = "Handshake not OK, B sent status = " + status;

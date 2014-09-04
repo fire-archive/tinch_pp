@@ -23,24 +23,24 @@
 #include "tinch_pp/exceptions.h"
 #include "node_access.h"
 #include "epmd_requestor.h"
-#include <boost/bind.hpp>
 #include <ctime>
 #include <algorithm>
+#include <functional>
+#include <memory>
+#include <mutex>
 
 using namespace tinch_pp;
-using namespace boost;
 using boost::asio::ip::tcp;
-using namespace std;
 
 namespace {
 
-node_connection_ptr request_node_connection(asio::io_service& io_service,
+node_connection_ptr request_node_connection(boost::asio::io_service& io_service,
 					    const std::string& peer_node,
 					    node_access& node);
 }
 
 node_connector::node_connector(node_access& a_node,
-			       asio::io_service& a_io_service)
+                   boost::asio::io_service& a_io_service)
   : node(a_node),
     io_service(a_io_service),
     // initialize our random challenge generator
@@ -52,7 +52,7 @@ node_connector::node_connector(node_access& a_node,
 
 void node_connector::start_accept_incoming(port_number_type port_no)
 {
-  incoming_connections_acceptor.reset(new asio::ip::tcp::acceptor(io_service, tcp::endpoint(tcp::v4(), port_no)));
+  incoming_connections_acceptor.reset(new boost::asio::ip::tcp::acceptor(io_service, tcp::endpoint(tcp::v4(), port_no)));
 
   trigger_accept();
 }
@@ -62,14 +62,14 @@ void node_connector::trigger_accept()
   node_connection_ptr new_connection = node_connection::create(io_service, node);
 
   incoming_connections_acceptor->async_accept(new_connection->socket(),
-					      boost::bind(&node_connector::handle_accept, this, 
+                          std::bind(&node_connector::handle_accept, this,
 							  new_connection,
-							  asio::placeholders::error));
+                              boost::asio::placeholders::error));
 }
 
 node_connection_ptr node_connector::get_connection_to(const std::string& peer_node_name)
 {
-  boost::unique_lock<boost::mutex> lock(node_connections_mutex);
+  std::unique_lock<std::mutex> lock(node_connections_mutex);
 
   node_connections_type::iterator existing = node_connections.find(peer_node_name);
 
@@ -81,26 +81,26 @@ node_connection_ptr node_connector::get_connection_to(const std::string& peer_no
 
 void node_connector::drop_connection_to(const std::string& node_name)
 {
-  boost::unique_lock<boost::mutex> lock(node_connections_mutex);
+  std::unique_lock<std::mutex> lock(node_connections_mutex);
 
   node_connections.erase(node_name);
 }
 
 vector<string> node_connector::connected_nodes() const
 {
-  boost::unique_lock<boost::mutex> lock(node_connections_mutex);
+  std::unique_lock<std::mutex> lock(node_connections_mutex);
 
   vector<string> connected;
 
   transform(node_connections.begin(), node_connections.end(), back_inserter(connected),
-	    bind(&node_connections_type::value_type::first, ::_1));
+        std::bind(&node_connections_type::value_type::first, std::placeholders::_1));
 
   return connected;
 }
 
 // Always invoked with the mutex locked.
 node_connection_ptr node_connector::make_new_connection(const std::string& peer_node_name,
-                            boost::unique_lock<boost::mutex>& lock)
+                            std::unique_lock<std::mutex>& lock)
 {
   node_connection_ptr new_connection = request_node_connection(io_service, peer_node_name, node);
   new_connection->start_handshake_as_A(bind(&node_connector::handshake_success, this, ::_1), 
@@ -117,7 +117,7 @@ node_connection_ptr node_connector::make_new_connection(const std::string& peer_
 }
 
 // Tricky - we must ensure that the node has finished its handshake procedure (asynchronous).
-bool node_connector::wait_for_handshake_result(boost::unique_lock<boost::mutex>& lock)
+bool node_connector::wait_for_handshake_result(std::unique_lock<std::mutex>& lock)
 {
   while(!handshake_done)
     handshake_cond.wait(lock);
@@ -132,7 +132,7 @@ bool node_connector::wait_for_handshake_result(boost::unique_lock<boost::mutex>&
 void node_connector::handshake_success(bool handshake_result)
 {
   {
-    boost::lock_guard<boost::mutex> lock(node_connections_mutex);
+    boost::lock_guard<std::mutex> lock(node_connections_mutex);
 
     handshake_done = handshake_result;
   }

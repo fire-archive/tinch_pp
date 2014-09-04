@@ -72,7 +72,7 @@ node_connection::node_connection(asio::io_service& io_service,
 				                             const std::string& a_peer_node)
   : connection(io_service),
     node(a_node),
-    async_tcp_ip(connection, bind(&node_connection::handle_io_error, this, ::_1)),
+    async_tcp_ip(connection, std::bind(&node_connection::handle_io_error, this, std::placeholders::_1)),
     peer_name(utils::node_name(a_peer_node)),
     node_name(node.name()),
     received_msgs(&handshake_msgs),
@@ -84,7 +84,7 @@ node_connection::node_connection(asio::io_service& io_service,
 				                             node_access& a_node)
   : connection(io_service),
     node(a_node),
-    async_tcp_ip(connection, bind(&node_connection::handle_io_error, this, ::_1)),
+    async_tcp_ip(connection, std::bind(&node_connection::handle_io_error, this, std::placeholders::_1)),
     node_name(node.name()),
     received_msgs(&handshake_msgs),
     own_challenge_(0)

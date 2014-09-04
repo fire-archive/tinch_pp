@@ -33,7 +33,7 @@ namespace erl {
   class object;
 }
 class matchable;
-typedef boost::shared_ptr<matchable> matchable_ptr;
+typedef std::shared_ptr<matchable> matchable_ptr;
 
 struct e_pid;
 
