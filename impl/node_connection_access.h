@@ -30,10 +30,10 @@
 namespace tinch_pp {
 
 class connection_state;
-typedef boost::shared_ptr<connection_state> connection_state_ptr;
+typedef std::shared_ptr<connection_state> connection_state_ptr;
 
 class node_connection_access;
-typedef boost::shared_ptr<node_connection_access> access_ptr;
+typedef std::shared_ptr<node_connection_access> access_ptr;
 
 // A callback funtion provided by the requester of an synchronous read.
 // Invoked once a complete message has been read.

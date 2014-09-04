@@ -23,13 +23,13 @@
 #include "ext_term_grammar.h"
 #include "tinch_pp/erl_any.h"
 #include "term_conversions.h"
-#include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <limits>
 #include <cassert>
 #include <cstdio>
 #include <cmath>
 #include <iostream>
+#include <functional>
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
@@ -65,19 +65,19 @@ bool match_any_int(msg_seq_iter& f, const msg_seq_iter& l, const any& any_int)
 int_::int_(int32_t a_val) 
   : val(a_val),
     to_assign(0),
-    match_fn(bind(match_int_value, ::_1, ::_2, val))
+    match_fn(std::bind(match_int_value, std::placeholders::_1, std::placeholders::_2, val))
  {}
 
 int_::int_(boost::int32_t* a_to_assign)
   : val(0),
     to_assign(a_to_assign),
-    match_fn(bind(assign_matched_int, ::_1, ::_2, to_assign))
+    match_fn(std::bind(assign_matched_int, std::placeholders::_1, std::placeholders::_2, to_assign))
 {}
 
 int_::int_(const any& any_int)
 : val(0),
   to_assign(0),
-  match_fn(bind(match_any_int, ::_1, ::_2, cref(any_int)))
+  match_fn(std::bind(match_any_int, std::placeholders::_1, std::placeholders::_2, std::cref(any_int)))
 {}
 
 void int_::serialize(msg_seq_out_iter& out) const
@@ -266,17 +266,17 @@ bool match_any_ref(msg_seq_iter& f, const msg_seq_iter& l, const any& match_any)
 pid::pid(const e_pid& a_val)
   : val(a_val),
     e_pido_assign(0),
-    match_fn(bind(match_value, ::_1, ::_2, cref(val)))
+    match_fn(std::bind(match_value, std::placeholders::_1, std::placeholders::_2, std::cref(val)))
 {}
 
 pid::pid(e_pid* a_e_pido_assign)
   : e_pido_assign(a_e_pido_assign),
-    match_fn(bind(assign_matched, ::_1, ::_2, e_pido_assign))
+    match_fn(std::bind(assign_matched, std::placeholders::_1, std::placeholders::_2, e_pido_assign))
 {}
 
 pid::pid(const any& match_any)
    : e_pido_assign(0),
-     match_fn(bind(match_any_pid, ::_1, ::_2, cref(match_any)))
+     match_fn(std::bind(match_any_pid, std::placeholders::_1, std::placeholders::_2, std::cref(match_any)))
 {}
 
 void pid::serialize(msg_seq_out_iter& out) const
@@ -294,16 +294,16 @@ bool pid::match(msg_seq_iter& f, const msg_seq_iter& l) const
 float_::float_(double a_val)
   : val(a_val),
     float_to_assign(0),
-    match_fn(bind(match_float_value, ::_1, ::_2, val)) {}
+    match_fn(std::bind(match_float_value, std::placeholders::_1, std::placeholders::_2, val)) {}
 
   // Used for assigning a match during pattern matching.
 float_::float_(double* a_float_to_assign)
   : float_to_assign(a_float_to_assign),
-    match_fn(bind(assign_matched_float, ::_1, ::_2, float_to_assign)) {}
+    match_fn(std::bind(assign_matched_float, std::placeholders::_1, std::placeholders::_2, float_to_assign)) {}
 
 float_::float_(const any& match_any)
    : float_to_assign(0),
-     match_fn(bind(match_any_float, ::_1, ::_2, cref(match_any))) {}
+     match_fn(std::bind(match_any_float, std::placeholders::_1, std::placeholders::_2, std::cref(match_any))) {}
 
 void float_::serialize(msg_seq_out_iter& out) const
 {
@@ -318,15 +318,15 @@ bool float_::match(msg_seq_iter& f, const msg_seq_iter& l) const
 atom::atom(const std::string& a_val)
   : val(a_val),
     to_assign(0),
-    match_fn(bind(match_atom_value, ::_1, ::_2, boost::cref(val))) {}
+    match_fn(std::bind(match_atom_value, std::placeholders::_1, std::placeholders::_2, std::cref(val))) {}
 
 atom::atom(std::string* a_to_assign)
   : to_assign(a_to_assign),
-    match_fn(bind(assign_matched_atom, ::_1, ::_2, to_assign)) {}
+    match_fn(std::bind(assign_matched_atom, std::placeholders::_1, std::placeholders::_2, to_assign)) {}
 
 atom::atom(const any& match_any)
    : to_assign(0),
-     match_fn(bind(match_any_atom, ::_1, ::_2, boost::cref(match_any))) {}
+     match_fn(std::bind(match_any_atom, std::placeholders::_1, std::placeholders::_2, std::cref(match_any))) {}
 
 void atom::serialize(msg_seq_out_iter& out) const
 {
@@ -344,15 +344,15 @@ bool atom::match(msg_seq_iter& f, const msg_seq_iter& l) const
 binary::binary(const binary_value_type& a_val)
   : val(a_val),
     to_assign(0),
-    match_fn(bind(match_binary_value, ::_1, ::_2, cref(val))) {}
+    match_fn(std::bind(match_binary_value, std::placeholders::_1, std::placeholders::_2, std::cref(val))) {}
 
 binary::binary(binary_value_type* a_to_assign)
   : to_assign(a_to_assign),
-    match_fn(bind(assign_matched_binary, ::_1, ::_2, to_assign)) {}
+    match_fn(std::bind(assign_matched_binary, std::placeholders::_1, std::placeholders::_2, to_assign)) {}
 
 binary::binary(const any& match_any)
    : to_assign(0),
-     match_fn(bind(match_any_binary, ::_1, ::_2, cref(match_any))) {}
+     match_fn(std::bind(match_any_binary, std::placeholders::_1, std::placeholders::_2, cref(match_any))) {}
 
 void binary::serialize(msg_seq_out_iter& out) const
 {
@@ -375,16 +375,16 @@ bool binary::match(msg_seq_iter& f, const msg_seq_iter& l) const
 ref::ref(const new_reference_type& a_val)
   : val(a_val),
     to_assign(0),
-    match_fn(bind(match_ref_value, ::_1, ::_2, cref(val))) {}
+    match_fn(std::bind(match_ref_value, std::placeholders::_1, std::placeholders::_2, std::cref(val))) {}
 
   // Used for assigning a match during pattern matching.
 ref::ref(new_reference_type* a_to_assign)
   : to_assign(a_to_assign),
-    match_fn(bind(assign_matched_ref, ::_1, ::_2, to_assign)) {}
+    match_fn(std::bind(assign_matched_ref, std::placeholders::_1, std::placeholders::_2, to_assign)) {}
 
 ref::ref(const any& match_any)
    : to_assign(0),
-     match_fn(bind(match_any_ref, ::_1, ::_2, cref(match_any))) {}
+     match_fn(std::bind(match_any_ref, std::placeholders::_1, std::placeholders::_2, std::cref(match_any))) {}
 
 void ref::serialize(msg_seq_out_iter& out) const
 {

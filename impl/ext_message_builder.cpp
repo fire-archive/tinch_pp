@@ -60,32 +60,32 @@ namespace tinch_pp {
  
 msg_seq build_send_msg(const msg_seq& payload, const e_pid& destination_pid)
 {
-  return build(payload, std::bind(&add_ctrl_message_send, _1, boost::cref(destination_pid)));
+  return build(payload, std::bind(&add_ctrl_message_send, std::placeholders::_1, std::cref(destination_pid)));
 }
 
 msg_seq build_reg_send_msg(const msg_seq& payload, const e_pid& self, const string& destination_name)
 {
-  return build(payload, std::bind(&add_ctrl_message_reg_send, _1, boost::cref(self), boost::cref(destination_name)));
+  return build(payload, std::bind(&add_ctrl_message_reg_send, std::placeholders::_1, std::cref(self), std::cref(destination_name)));
 }
 
 msg_seq build_exit_msg(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason)
 {
-  return build(std::bind(&add_ctrl_message_exit, _1, constants::ctrl_msg_exit, boost::cref(from_pid), boost::cref(to_pid), boost::cref(reason)));
+  return build(std::bind(&add_ctrl_message_exit, std::placeholders::_1, constants::ctrl_msg_exit, std::cref(from_pid), std::cref(to_pid), std::cref(reason)));
 }
 
 msg_seq build_exit2_msg(const e_pid& from_pid, const e_pid& to_pid, const std::string& reason)
 {
-  return build(std::bind(&add_ctrl_message_exit, _1, constants::ctrl_msg_exit2, boost::cref(from_pid), boost::cref(to_pid), boost::cref(reason)));
+  return build(std::bind(&add_ctrl_message_exit, std::placeholders::_1, constants::ctrl_msg_exit2, std::cref(from_pid), std::cref(to_pid), std::cref(reason)));
 }
 
 msg_seq build_link_msg(const e_pid& from_pid, const e_pid& to_pid)
 {
-  return build(std::bind(&add_ctrl_message_linkage, _1, constants::ctrl_msg_link, boost::cref(from_pid), boost::cref(to_pid)));
+  return build(std::bind(&add_ctrl_message_linkage, std::placeholders::_1, constants::ctrl_msg_link, std::cref(from_pid), std::cref(to_pid)));
 }
 
 msg_seq build_unlink_msg(const e_pid& from_pid, const e_pid& to_pid)
 {
-  return build(std::bind(&add_ctrl_message_linkage, _1, constants::ctrl_msg_unlink, boost::cref(from_pid), boost::cref(to_pid)));
+  return build(std::bind(&add_ctrl_message_linkage, std::placeholders::_1, constants::ctrl_msg_unlink, std::cref(from_pid), std::cref(to_pid)));
 }
 
 }

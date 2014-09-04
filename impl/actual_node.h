@@ -32,7 +32,6 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/utility.hpp>
-#include <boost/weak_ptr.hpp>
 #include <string>
 #include <map>
 
@@ -124,7 +123,7 @@ private:
 
   // Use a weak-pointer to break the cyclic ownership => now, the 
   // client owns the mailbox.
-  typedef boost::weak_ptr<actual_mailbox> actual_mailbox_ptr;
+  typedef std::weak_ptr<actual_mailbox> actual_mailbox_ptr;
   typedef std::map<e_pid, actual_mailbox_ptr> mailboxes_type;
   mailboxes_type mailboxes;
 

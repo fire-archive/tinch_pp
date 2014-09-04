@@ -25,10 +25,10 @@
 #include "impl/list_matcher.h"
 #include "impl/string_matcher.h"
 #include "erl_object.h"
-#include <boost/bind.hpp>
 #include <list>
 #include <algorithm>
 #include <cassert>
+#include <functional>
 
 namespace tinch_pp {
 namespace erl {
@@ -123,7 +123,7 @@ public:
     list_head_g g;
     karma::generate(out, g, val.size());
 
-    std::for_each(val.begin(), val.end(), bind(&erl::int_::serialize, std::placeholders::_1, std::ref(out)));
+    std::for_each(val.begin(), val.end(), std::bind(&erl::int_::serialize, std::placeholders::_1, std::ref(out)));
     karma::generate(out, karma::byte_(tinch_pp::type_tag::nil_ext));
   }
 

@@ -118,17 +118,17 @@ optional<int> extract_type_tag(msg_seq_iter& f, const msg_seq_iter& l)
 const any::dynamic_element_matcher_type any::dynamic_element_matcher = 
    map_list_of
       //    Type                    Match function
-      (type_tag::small_integer,     std::bind(match_int,        ::_1, ::_2, ::_3))
-      (type_tag::integer,           std::bind(match_int,        ::_1, ::_2, ::_3))
-      (type_tag::atom_ext,          std::bind(match_atom,       ::_1, ::_2, ::_3))
-      (type_tag::small_tuple,       std::bind(match_tuple,      ::_1, ::_2, ::_3))
-      (type_tag::list,              std::bind(match_list,       ::_1, ::_2, ::_3))
-      (type_tag::string_ext,        std::bind(match_string,     ::_1, ::_2, ::_3))
-      (type_tag::pid,               std::bind(match_pid,        ::_1, ::_2, ::_3))
-      (type_tag::new_reference_ext, std::bind(match_reference,  ::_1, ::_2, ::_3))
-      (type_tag::float_ext,         std::bind(match_float,      ::_1, ::_2, ::_3))
-      (type_tag::binary_ext,        std::bind(match_binary,     ::_1, ::_2, ::_3))
-      (type_tag::bit_binary_ext,    std::bind(match_binary,     ::_1, ::_2, ::_3));
+      (type_tag::small_integer,     std::bind(match_int,        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+      (type_tag::integer,           std::bind(match_int,        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+      (type_tag::atom_ext,          std::bind(match_atom,       std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+      (type_tag::small_tuple,       std::bind(match_tuple,      std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+      (type_tag::list,              std::bind(match_list,       std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+      (type_tag::string_ext,        std::bind(match_string,     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+      (type_tag::pid,               std::bind(match_pid,        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+      (type_tag::new_reference_ext, std::bind(match_reference,  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+      (type_tag::float_ext,         std::bind(match_float,      std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+      (type_tag::binary_ext,        std::bind(match_binary,     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+      (type_tag::bit_binary_ext,    std::bind(match_binary,     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 bool any::match_dynamically(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
 {

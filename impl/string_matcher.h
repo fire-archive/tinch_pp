@@ -24,9 +24,9 @@
 
 #include "ext_term_grammar.h"
 #include "tinch_pp/erlang_value_types.h"
-#include <boost/bind.hpp>
 #include <algorithm>
 #include <list>
+#include <functional>
 
 namespace tinch_pp {
 namespace detail {

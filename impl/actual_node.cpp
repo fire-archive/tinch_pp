@@ -73,7 +73,7 @@ std::shared_ptr<actual_mailbox> fetch_mailbox(const Key& name,
   if(mbox == registered_mboxes.end())
     throw tinch_pp_exception("Failed to deliver message - mailbox not known. Name = " + key_to_name(name));
 
-  std::shared_ptr<actual_mailbox> destination = mbox->second.lock();
+  auto destination = mbox->second.lock();
 
   if(!destination) {
     remove_expired(name, registered_mboxes);
@@ -247,7 +247,7 @@ void actual_node::receive_incoming(const msg_seq& msg, const e_pid& to)
 {
   const mutex_guard guard(mailboxes_lock);
 
-  shared_ptr<actual_mailbox> destination = fetch_mailbox(to, mailboxes);
+  std::shared_ptr<actual_mailbox> destination = fetch_mailbox(to, mailboxes);
   destination->on_incoming(msg);
 }
 
@@ -255,7 +255,7 @@ void actual_node::receive_incoming(const msg_seq& msg, const std::string& to)
 {
   const mutex_guard guard(mailboxes_lock);
 
-  shared_ptr<actual_mailbox> destination = fetch_mailbox(to, registered_mailboxes);
+  std::shared_ptr<actual_mailbox> destination = fetch_mailbox(to, registered_mailboxes);
   destination->on_incoming(msg);
 }
 
@@ -273,7 +273,7 @@ void actual_node::incoming_exit(const e_pid& from, const e_pid& to, const std::s
 {
   const mutex_guard guard(mailboxes_lock);
 
-  shared_ptr<actual_mailbox> linked_mailbox = fetch_mailbox(to, mailboxes);
+  std::shared_ptr<actual_mailbox> linked_mailbox = fetch_mailbox(to, mailboxes);
 
   linked_mailbox->on_link_broken(reason, from);
 

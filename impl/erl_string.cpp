@@ -24,10 +24,10 @@
 #include "string_matcher.h"
 #include "ext_term_grammar.h"
 #include "term_conversions.h"
-#include <boost/bind.hpp>
 #include <list>
 #include <algorithm>
 #include <cassert>
+#include <functional>
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
@@ -66,7 +66,7 @@ bool assign_matched_string(msg_seq_iter& f, const msg_seq_iter& l, string* to_as
   const bool res = matcher_s::assign_match(&as_ints, f, l);
 
   for_each(as_ints.begin(), as_ints.end(), bind(&string::push_back, to_assign,
-                                                bind(shrink_int, ::_1)));
+                                                bind(shrink_int, std::placeholders::_1)));
 
   return res;
 }
@@ -84,15 +84,15 @@ bool match_any_string(msg_seq_iter& f, const msg_seq_iter& l, const any& match_a
 e_string::e_string(const std::string& a_val)
   : val(a_val),
     to_assign(0),
-    match_fn(bind(match_string_value, ::_1, ::_2, boost::cref(val))) {}
+    match_fn(std::bind(match_string_value, std::placeholders::_1, std::placeholders::_2, std::cref(val))) {}
 
 e_string::e_string(std::string* a_to_assign)
  : to_assign(a_to_assign),
-   match_fn(bind(assign_matched_string, ::_1, ::_2, to_assign)) {}
+   match_fn(std::bind(assign_matched_string, std::placeholders::_1, std::placeholders::_2, to_assign)) {}
 
 e_string::e_string(const any& match_any)
   : to_assign(0),
-    match_fn(bind(match_any_string, ::_1, ::_2, boost::cref(match_any))) {}
+    match_fn(std::bind(match_any_string, std::placeholders::_1, std::placeholders::_2, std::cref(match_any))) {}
 
 
 void e_string::serialize(msg_seq_out_iter& out) const
