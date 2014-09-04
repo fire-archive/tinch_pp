@@ -23,10 +23,10 @@
 #include "tinch_pp/rpc.h"
 #include "tinch_pp/mailbox.h"
 #include "tinch_pp/erlang_types.h"
-#include <boost/thread.hpp>
 #include <boost/assign/list_of.hpp>
 #include <iostream>
 #include <stdexcept>
+#include <thread>
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
@@ -130,7 +130,7 @@ private:
   mailbox_ptr mbox;
   std::string chat_server;
 
-  boost::thread msg_receiver;
+  std::thread msg_receiver;
 };
 
 std::string prompt_user(const std::string& user)

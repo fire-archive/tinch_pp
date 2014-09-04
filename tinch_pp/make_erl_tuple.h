@@ -26,26 +26,26 @@
 #include <boost/preprocessor/iterate.hpp>
 #include <boost/preprocessor/repetition/enum_params.hpp>
 #include <boost/preprocessor/repetition/enum_binary_params.hpp>
-#include <boost/fusion/tuple/tuple.hpp>
+#include <boost/fusion/adapted/std_tuple.hpp>
 #include "erl_tuple.h"
 
 namespace tinch_pp {
 namespace erl {
 
-inline e_tuple<boost::fusion::tuple<> > make_e_tuple()
+inline e_tuple<std::tuple<> > make_e_tuple()
 {
-  typedef boost::fusion::tuple<> Tuple;
+  typedef std::tuple<> Tuple;
   
-  return erl::e_tuple<Tuple>(boost::fusion::tuple<>());
+  return erl::e_tuple<Tuple>(std::tuple<>());
 }
 
 // A pointer to a tuple is typically used to store it in a list 
 // as RPC argument.
 inline object_ptr make_tuple_ptr()
 {
-  typedef boost::fusion::tuple<> Tuple;
+  typedef std::tuple<> Tuple;
   
-  object_ptr created(new erl::e_tuple<Tuple>(boost::fusion::tuple<>()));
+  object_ptr created(new erl::e_tuple<Tuple>(std::tuple<>()));
 
   return created;
 }

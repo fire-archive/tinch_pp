@@ -22,7 +22,7 @@
 #include "tinch_pp/node.h"
 #include "tinch_pp/mailbox.h"
 #include "tinch_pp/erlang_types.h"
-#include <boost/thread.hpp>
+#include <thread>
 #include <iostream>
 
 using namespace tinch_pp;
@@ -52,10 +52,10 @@ int main()
   const size_t number_of_orders = 10;
 
   mailbox_ptr worker_mbox = my_node->create_mailbox("worker");
-  boost::thread worker(boost::bind(&worker_thread, worker_mbox));
+  std::thread worker(std::bind(&worker_thread, worker_mbox));
 
   mailbox_ptr control_mbox = my_node->create_mailbox("controller");
-  boost::thread controller(boost::bind(&control_thread, control_mbox, number_of_orders));
+  std::thread controller(std::bind(&control_thread, control_mbox, number_of_orders));
   
   controller.join();
   worker.join();

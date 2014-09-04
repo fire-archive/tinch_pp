@@ -24,7 +24,7 @@
 #include "tinch_pp/mailbox.h"
 #include "tinch_pp/exceptions.h"
 #include "tinch_pp/erlang_types.h"
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/assign/list_of.hpp>
 #include <iostream>
 #include <stdexcept>
@@ -38,7 +38,7 @@ using namespace boost::assign;
 // 1. Start an Erlang node with the cookie abcdef.
 // 2. Start the Erlang program reflect_msg:
 //          (testnode@127.0.0.1)4> reflect_msg:start_link().
-// 3. Start this program (will íssue different types of RPC, all based on sending one message and getting the same message back).
+// 3. Start this program (will Issue different types of RPC, all based on sending one message and getting the same message back).
 
 namespace {
 

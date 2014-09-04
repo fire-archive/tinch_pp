@@ -22,8 +22,7 @@
 #include "tinch_pp/node.h"
 #include "tinch_pp/mailbox.h"
 #include "tinch_pp/erlang_types.h"
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/assign/list_of.hpp>
 #include <iostream>
 
@@ -74,13 +73,13 @@ int main()
 
   mailbox_ptr mbox = my_node->create_mailbox();
 
-  const sender_fn_type senders[] = {bind(assign_atom, ::_1),
-                                    bind(assign_binary, ::_1),
-                                    bind(assign_bitstring, ::_1),
-                                    bind(assign_nested_tuples, ::_1),
-                                    bind(assign_list, ::_1),
-                                    bind(assign_string, ::_1),
-                                    bind(assign_float, ::_1)};
+  const sender_fn_type senders[] = {std::bind(assign_atom, std::placeholders::_1),
+                                    std::bind(assign_binary, std::placeholders::_1),
+                                    std::bind(assign_bitstring, std::placeholders::_1),
+                                    std::bind(assign_nested_tuples, std::placeholders::_1),
+                                    std::bind(assign_list, std::placeholders::_1),
+                                    std::bind(assign_string, std::placeholders::_1),
+                                    std::bind(assign_float, std::placeholders::_1)};
   const size_t number_of_senders = sizeof senders / sizeof senders[0];
 
   for(size_t i = 0; i < number_of_senders; ++i)

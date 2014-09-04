@@ -22,10 +22,10 @@
 #include "tinch_pp/node.h"
 #include "tinch_pp/mailbox.h"
 #include "tinch_pp/erlang_types.h"
-#include <boost/thread.hpp>
-#include <boost/bind.hpp>
 #include <iostream>
 #include <utility>
+#include <thread>
+#include <functional>
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
@@ -69,7 +69,7 @@ void run_emulation(const std::string& node_name, const std::string& cookie)
   my_node->publish_port(0xACDC);
 
   mailbox_ptr net_adm_mailbox = my_node->create_mailbox("net_kernel");
-  boost::thread net_adm(boost::bind(&net_adm_emulator, net_adm_mailbox));
+  std::thread net_adm(std::bind(&net_adm_emulator, net_adm_mailbox));
 
   net_adm.join();
 }

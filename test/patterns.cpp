@@ -22,14 +22,12 @@
 #include "tinch_pp/node.h"
 #include "tinch_pp/mailbox.h"
 #include "tinch_pp/erlang_types.h"
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/assign/list_of.hpp>
 #include <iostream>
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
-using namespace boost;
 using namespace boost::assign;
 
 // USAGE:
@@ -71,14 +69,14 @@ int main()
 
   mailbox_ptr mbox = my_node->create_mailbox();
 
-  const sender_fn_type senders[] = {bind(echo_atom, ::_1), bind(echo_atom, ::_1),
-                                    bind(echo_binary, ::_1), bind(echo_binary, ::_1),
-                                    bind(echo_bit_string, ::_1),
-                                    bind(echo_nested_tuples, ::_1, "start"), bind(echo_nested_tuples, ::_1, "next"),
-                                    bind(echo_empty_tuple, ::_1),
-                                    bind(echo_list, ::_1), bind(echo_list, ::_1),
-                                    bind(echo_string, ::_1, "start"), bind(echo_string, ::_1, "next"),
-                                    bind(echo_float, ::_1, "start"), bind(echo_float, ::_1, "next")};
+  const sender_fn_type senders[] = { std::bind(echo_atom, std::placeholders::_1),  std::bind(echo_atom, std::placeholders::_1),
+                                     std::bind(echo_binary, std::placeholders::_1),  std::bind(echo_binary, std::placeholders::_1),
+                                     std::bind(echo_bit_string, std::placeholders::_1),
+                                     std::bind(echo_nested_tuples, std::placeholders::_1, "start"),  std::bind(echo_nested_tuples, std::placeholders::_1, "next"),
+                                     std::bind(echo_empty_tuple, std::placeholders::_1),
+                                     std::bind(echo_list, std::placeholders::_1),  std::bind(echo_list, std::placeholders::_1),
+                                     std::bind(echo_string, std::placeholders::_1, "start"),  std::bind(echo_string, std::placeholders::_1, "next"),
+                                     std::bind(echo_float, std::placeholders::_1, "start"),  std::bind(echo_float, std::placeholders::_1, "next")};
   const size_t number_of_senders = sizeof senders / sizeof senders[0];
 
   for(size_t i = 0; i < number_of_senders; ++i)
