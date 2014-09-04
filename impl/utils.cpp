@@ -23,7 +23,7 @@
 #include "md5.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/qi_binary.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 #include <cassert>
 
 namespace asio = boost::asio;
@@ -39,10 +39,10 @@ typedef std::pair<std::string, std::string> name_host_pair;
 name_host_pair split_node_name(const std::string& node)
 {
   // TODO: find a perfect pattern for a domain and specify the Erlang rules for a name!
-  boost::regex pattern("([\\w\\.\\-]+)@([\\w\\.\\-]+)");
-  boost::smatch m;
+  std::regex pattern("([\\w\\.\\-]+)@([\\w\\.\\-]+)");
+  std::smatch m;
 
-  if(!boost::regex_match(node, m, pattern)) {
+  if(!std::regex_match(node, m, pattern)) {
     const std::string reason = "The given node = " + node + " is invalid. Check the Erlang docs for a valid format.";
     throw tinch_pp_exception(reason);
   }

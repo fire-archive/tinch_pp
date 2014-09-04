@@ -28,7 +28,6 @@
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
-using namespace boost;
 using namespace boost::assign;
 
 // USAGE:
