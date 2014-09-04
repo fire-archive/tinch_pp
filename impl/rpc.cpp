@@ -25,12 +25,10 @@
 #include "tinch_pp/erlang_types.h"
 #include "tinch_pp/exceptions.h"
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+#include <functional>
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
-using namespace boost;
 
 namespace {
 
@@ -40,7 +38,7 @@ typedef boost::fusion::tuple<pid, e_tuple<call_type> > rpc_call_type;
 
 // The difference between a blocking RPC and an RPC with timeout is in the receive function-
 // We abstract away the differences here.
-typedef function<matchable_ptr ()> receiver_fn_type;
+typedef std::function<matchable_ptr ()> receiver_fn_type;
 
 void do_rpc(mailbox_ptr mbox,
             const std::string& remote_node,
@@ -63,7 +61,7 @@ matchable_ptr rpc::blocking_rpc(const std::string& remote_node,
 {
   do_rpc(mbox, remote_node, remote_fn, arguments);
 
-  return receive_rpc_reply(bind(&mailbox::receive, mbox), remote_node, remote_fn);
+  return receive_rpc_reply(std::bind(static_cast<matchable_ptr (mailbox::*)()> (&mailbox::receive), mbox), remote_node, remote_fn);
 }
 
 matchable_ptr rpc::blocking_rpc(const std::string& remote_node,
@@ -73,7 +71,7 @@ matchable_ptr rpc::blocking_rpc(const std::string& remote_node,
 {
   do_rpc(mbox, remote_node, remote_fn, arguments);
 
-  return receive_rpc_reply(bind(&mailbox::receive, mbox, tmo), remote_node, remote_fn);
+  return receive_rpc_reply(std::bind(static_cast<matchable_ptr (mailbox::*)(time_type_sec)> (&mailbox::receive), mbox, tmo), remote_node, remote_fn);
 }
 
 namespace {
