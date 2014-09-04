@@ -26,7 +26,7 @@
 #include "node_connection_access.h"
 #include "node_async_tcp_ip.h"
 #include <boost/optional.hpp>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include <boost/function.hpp>
 
 namespace tinch_pp {
@@ -127,7 +127,7 @@ private:
   utils::msg_lexer_connected connected_msgs;
   utils::msg_lexer* received_msgs;
 
-  typedef boost::signal<void (bool /*success*/)> handshake_complete_signal_type;
+  typedef boost::signals2::signal<void (bool /*success*/)> handshake_complete_signal_type;
   handshake_complete_signal_type handshake_success;
 
   challenge_type own_challenge_;
