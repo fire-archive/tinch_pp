@@ -26,6 +26,7 @@
 #include "tinch_pp/exceptions.h"
 
 #include <functional>
+#include <boost/fusion/adapted/std_tuple.hpp>
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
@@ -33,8 +34,8 @@ using namespace tinch_pp::erl;
 namespace {
 
 // {self, { call, Mod, Fun, Args, user}}
-typedef boost::fusion::tuple<atom, atom, atom, rpc_argument_type, atom> call_type;
-typedef boost::fusion::tuple<pid, e_tuple<call_type> > rpc_call_type;
+typedef std::tuple<atom, atom, atom, rpc_argument_type, atom> call_type;
+typedef std::tuple<pid, e_tuple<call_type> > rpc_call_type;
 
 // The difference between a blocking RPC and an RPC with timeout is in the receive function-
 // We abstract away the differences here.
