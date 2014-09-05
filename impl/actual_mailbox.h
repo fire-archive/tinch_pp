@@ -28,6 +28,9 @@
 #include <list>
 #include <utility>
 #include <functional>
+#include <mutex>
+#include <thread>
+#include <condition_variable>
 
 namespace tinch_pp {
 

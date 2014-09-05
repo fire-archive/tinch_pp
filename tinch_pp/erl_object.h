@@ -23,7 +23,7 @@
 #define ERL_OBJECT_H
 
 #include "impl/types.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace tinch_pp {
 namespace erl {
@@ -44,7 +44,7 @@ public:
   virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const = 0;
 };
 
-typedef boost::shared_ptr<object> object_ptr;
+typedef std::shared_ptr<object> object_ptr;
 
 }
 }

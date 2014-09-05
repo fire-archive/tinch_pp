@@ -24,7 +24,7 @@
 
 #include "make_erl_tuple.h"
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <string>
 
 namespace tinch_pp {
@@ -32,7 +32,7 @@ namespace tinch_pp {
 struct e_pid;
 namespace erl {
   class object;
-  typedef boost::shared_ptr<object> object_ptr;
+  typedef std::shared_ptr<object> object_ptr;
 }
 
 namespace erl {

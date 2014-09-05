@@ -37,6 +37,9 @@
 #include <boost/random/variate_generator.hpp>
 #include <string>
 #include <map>
+#include <mutex>
+#include <thread>
+#include <condition_variable>
 
 namespace tinch_pp {
 
