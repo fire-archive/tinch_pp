@@ -61,7 +61,7 @@ bool assign_matched_string(msg_seq_iter& f, const msg_seq_iter& l, std::string* 
   assert(to_assign != 0);
   
   std::list<int_> as_ints;
-  const bool res = matcher_s::assign_match(&as_ints, f, l);
+  const auto res = matcher_s::assign_match(&as_ints, f, l);
 
   for_each(as_ints.begin(), as_ints.end(), bind(&std::string::push_back, to_assign,
                                                 std::bind(shrink_int, std::placeholders::_1)));

@@ -142,7 +142,7 @@ tinch_pp::mailbox_ptr tinch_pp::actual_node::create_mailbox()
 
   const mutex_guard guard(mailboxes_lock);
 
-  const bool added = mailboxes.insert(std::make_pair(mbox->self(), mbox)).second;
+  const auto added = mailboxes.insert(std::make_pair(mbox->self(), mbox)).second;
   assert(added);
 
   return mbox;
@@ -155,7 +155,7 @@ tinch_pp::mailbox_ptr tinch_pp::actual_node::create_mailbox(const std::string& r
   const mutex_guard guard(mailboxes_lock);
 
   mailboxes.insert(std::make_pair(mbox->self(), mbox));
-  Loki::ScopeGuard insert_guard = Loki::MakeGuard(std::bind(static_cast<void (actual_node::*)(mailbox_ptr)> (&actual_node::remove), this, std::placeholders::_1), mbox);
+  auto insert_guard = Loki::MakeGuard(std::bind(static_cast<void (actual_node::*)(mailbox_ptr)> (&actual_node::remove), this, std::placeholders::_1), mbox);
 
   registered_mailboxes.insert(std::make_pair(registered_name, mbox));
 

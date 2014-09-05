@@ -35,7 +35,7 @@ namespace tinch_pp {
 
 void check_term_version(msg_seq_iter& first, const msg_seq_iter& last)
 {
-  const boost::uint8_t term_version = *first++;
+  const auto term_version = *first++;
 
   if(constants::magic_version != term_version) {
     
@@ -136,7 +136,7 @@ public:
 
   virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
   {
-    bool handled = false;
+    auto handled = false;
     std::string to_name;
     e_pid from_pid; // what should I do with this one?
      
@@ -167,7 +167,7 @@ public:
 
   virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
   {
-    bool handled = false;
+    auto handled = false;
     e_pid from_pid;
     e_pid to_pid;
      
@@ -193,7 +193,7 @@ public:
 
   virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
   {
-    bool handled = false;
+    auto handled = false;
     e_pid from_pid;
     e_pid to_pid;
      
@@ -220,7 +220,7 @@ public:
 
   virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
   {
-    bool handled = false;
+    auto handled = false;
     e_pid from_pid;
     e_pid to_pid;
     std::string reason;
@@ -249,7 +249,7 @@ public:
 
   virtual bool handle(msg_seq_iter& f, const msg_seq_iter& l) const
   {
-    bool handled = false;
+    auto handled = false;
     e_pid from_pid;
     e_pid to_pid;
     std::string reason;
@@ -280,8 +280,8 @@ ctrl_msg_dispatcher::ctrl_msg_dispatcher(access_ptr access)
 void ctrl_msg_dispatcher::dispatch(msg_seq& msg) const
 {
   // On each successfully parsed element, the first-iterator is advanced.
-  msg_seq_iter first = msg.begin();
-  msg_seq_iter last = msg.end();
+  auto first = msg.begin();
+  auto last = msg.end();
 
   parse_header(first, last);
 

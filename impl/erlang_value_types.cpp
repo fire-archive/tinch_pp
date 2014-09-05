@@ -40,7 +40,7 @@ bool match_int_value(msg_seq_iter& f, const msg_seq_iter& l, int32_t val)
 {
   boost::int32_t res = 0;
 
-  const bool success = binary_to_term<tinch_pp::integer>(f, l, res);
+  const auto success = binary_to_term<tinch_pp::integer>(f, l, res);
 
   return success && (val == res);
 }
@@ -171,7 +171,7 @@ bool match_float_value(msg_seq_iter& f, const msg_seq_iter& l, double val)
 {
   assert(to_assign != 0);
   std::string res;
-  const bool success = binary_to_term<float_ext>(f, l, res);
+  const auto success = binary_to_term<float_ext>(f, l, res);
 
   *to_assign = success ? decode_float(res) : 0.0;
 
@@ -181,7 +181,7 @@ bool match_float_value(msg_seq_iter& f, const msg_seq_iter& l, double val)
 bool match_any_float(msg_seq_iter& f, const msg_seq_iter& l, const any& match_any)
 {
   std::string ignore;
-  msg_seq_iter start = f;
+  auto start = f;
 
   return binary_to_term<float_ext>(f, l, ignore) ? match_any.save_matched_bytes(msg_seq(start, f)) : false;
 }
@@ -189,7 +189,7 @@ bool match_any_float(msg_seq_iter& f, const msg_seq_iter& l, const any& match_an
 bool match_atom_value(msg_seq_iter& f, const msg_seq_iter& l, const std::string& val)
 {
   std::string res;
-  const bool success = binary_to_term<atom_ext>(f, l, res);
+  const auto success = binary_to_term<atom_ext>(f, l, res);
 
   return success && (val == res);
 }
@@ -203,7 +203,7 @@ bool assign_matched_atom(msg_seq_iter& f, const msg_seq_iter& l, std::string* to
 bool match_any_atom(msg_seq_iter& f, const msg_seq_iter& l, const any& match_any)
 {
   std::string ignore;
-  msg_seq_iter start = f;
+  auto start = f;
 
   return binary_to_term<atom_ext>(f, l, ignore) ? match_any.save_matched_bytes(msg_seq(start, f)) : false;
 }
@@ -241,7 +241,7 @@ bool match_any_binary(msg_seq_iter& f, const msg_seq_iter& l, const any& match_a
 bool match_ref_value(msg_seq_iter& f, const msg_seq_iter& l, const new_reference_type& val)
 {
   new_reference_type res;
-  const bool success = binary_to_term<new_reference_ext_p>(f, l, res);
+  const auto success = binary_to_term<new_reference_ext_p>(f, l, res);
 
   return success && (val == res);
 }
@@ -255,7 +255,7 @@ bool assign_matched_ref(msg_seq_iter& f, const msg_seq_iter& l, new_reference_ty
 bool match_any_ref(msg_seq_iter& f, const msg_seq_iter& l, const any& match_any)
 {
   new_reference_type ignore;
-  msg_seq_iter start = f;
+  auto start = f;
 
   return binary_to_term<new_reference_ext_p>(f, l, ignore) ? match_any.save_matched_bytes(msg_seq(start, f)) : false;
 }

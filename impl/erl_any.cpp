@@ -130,7 +130,7 @@ const any::dynamic_element_matcher_type any::dynamic_element_matcher =
 
 bool any::match_dynamically(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
-   bool matched = false;
+   auto matched = false;
 
    if(const boost::optional<term_id_type> tag = extract_type_tag(f, l)) {
       dynamic_element_matcher_type::const_iterator m = dynamic_element_matcher.find(*tag);
