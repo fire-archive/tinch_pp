@@ -27,8 +27,6 @@
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
-using namespace boost;
-using namespace std;
 
 namespace {
 
@@ -38,13 +36,13 @@ namespace {
      
   void add_ctrl_message_send(msg_seq_out_iter& out, const tinch_pp::e_pid& destination_pid);
 
-  void add_ctrl_message_reg_send(msg_seq_out_iter& out, const tinch_pp::e_pid& self, const string& destination_name);
+  void add_ctrl_message_reg_send(msg_seq_out_iter& out, const tinch_pp::e_pid& self, const std::string& destination_name);
 
   void add_ctrl_message_exit(msg_seq_out_iter& out, 
                                const int request, 
                                const tinch_pp::e_pid& from, 
                                const tinch_pp::e_pid& to,
-                               const string& reason);
+                               const std::string& reason);
 
   void add_ctrl_message_linkage(msg_seq_out_iter& out, 
                                const int request,
@@ -63,7 +61,7 @@ msg_seq build_send_msg(const msg_seq& payload, const e_pid& destination_pid)
   return build(payload, std::bind(&add_ctrl_message_send, std::placeholders::_1, std::cref(destination_pid)));
 }
 
-msg_seq build_reg_send_msg(const msg_seq& payload, const e_pid& self, const string& destination_name)
+msg_seq build_reg_send_msg(const msg_seq& payload, const e_pid& self, const std::string& destination_name)
 {
   return build(payload, std::bind(&add_ctrl_message_reg_send, std::placeholders::_1, std::cref(self), std::cref(destination_name)));
 }
@@ -103,14 +101,14 @@ namespace {
   {
     add_message_header(out);
 
-    const string no_cookie;
+    const std::string no_cookie;
 
     // SEND: tuple of {2, Cookie, ToPid} 
     make_e_tuple(int_(constants::ctrl_msg_send), atom(no_cookie), pid(destination_pid)).serialize(out);
   }
 
   // Used when sending to a registered name on a node.
-  void add_ctrl_message_reg_send(msg_seq_out_iter& out, const tinch_pp::e_pid& self, const string& destination_name)
+  void add_ctrl_message_reg_send(msg_seq_out_iter& out, const tinch_pp::e_pid& self, const std::string& destination_name)
   {
     add_message_header(out);
 
@@ -125,7 +123,7 @@ namespace {
                              const int request, 
                              const tinch_pp::e_pid& from, 
                              const tinch_pp::e_pid& to,
-                             const string& reason)
+                             const std::string& reason)
   {
     add_message_header(out);
 

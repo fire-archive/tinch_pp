@@ -29,57 +29,55 @@
 #include <boost/assign/list_of.hpp>
 #include <cassert>
 
-using namespace tinch_pp;
 using namespace tinch_pp::erl;
-using namespace boost;
 using namespace boost::assign;
 
 namespace {
 
-bool match_int(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
+bool match_int(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
    return int_(instance).match(f, l);
 }
 
-bool match_atom(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
+bool match_atom(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
    return atom(instance).match(f, l);
 }
 
-bool match_string(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
+bool match_string(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
    return e_string(instance).match(f, l);
 }
 
-bool match_float(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
+bool match_float(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
    return float_(instance).match(f, l);
 }
 
-bool match_reference(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
+bool match_reference(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
-  return erl::ref(instance).match(f, l);
+  return tinch_pp::erl::ref(instance).match(f, l);
 }
 
-bool match_pid(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
+bool match_pid(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
    return pid(instance).match(f, l);
 }
 
-bool match_binary(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
+bool match_binary(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
    return binary(instance).match(f, l);
 }
 
-bool match_tuple(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
+bool match_tuple(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
-   msg_seq_iter start = f;
+   tinch_pp::msg_seq_iter start = f;
 
    size_t parsed_length = 0;
-   bool match = binary_to_term<small_tuple_head_ext>(f, l, parsed_length);
+   bool match = tinch_pp::binary_to_term<tinch_pp::small_tuple_head_ext>(f, l, parsed_length);
    assert(match); // already checked in the previous dispatch-mechanism
 
-   instance.save_matched_bytes(msg_seq(start, f));
+   instance.save_matched_bytes(tinch_pp::msg_seq(start, f));
 
    for(size_t i = 0; match && (i < parsed_length); ++i)
       match &= instance.match(f, l);
@@ -87,15 +85,15 @@ bool match_tuple(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
    return match;
 }
 
-bool match_list(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
+bool match_list(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
-   msg_seq_iter start = f;
+   tinch_pp::msg_seq_iter start = f;
 
    size_t parsed_length = 0;
-   bool match = binary_to_term<list_head_ext>(f, l, parsed_length);
+   bool match = tinch_pp::binary_to_term<tinch_pp::list_head_ext>(f, l, parsed_length);
    assert(match); // already checked in the previous dispatch-mechanism
 
-   instance.save_matched_bytes(msg_seq(start, f));
+   instance.save_matched_bytes(tinch_pp::msg_seq(start, f));
 
    for(size_t i = 0; match && (i < parsed_length); ++i)
       match &= instance.match(f, l);
@@ -103,9 +101,9 @@ bool match_list(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
    return match;
 }
 
-optional<int> extract_type_tag(msg_seq_iter& f, const msg_seq_iter& l)
+boost::optional<int> extract_type_tag(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l)
 {
-   optional<int> tag;
+   boost::optional<int> tag;
 
    if(f != l)
       tag = static_cast<int>(*f);
@@ -130,11 +128,11 @@ const any::dynamic_element_matcher_type any::dynamic_element_matcher =
       (type_tag::binary_ext,        std::bind(match_binary,     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
       (type_tag::bit_binary_ext,    std::bind(match_binary,     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
-bool any::match_dynamically(msg_seq_iter& f, const msg_seq_iter& l, const any& instance)
+bool any::match_dynamically(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
    bool matched = false;
 
-   if(const optional<term_id_type> tag = extract_type_tag(f, l)) {
+   if(const boost::optional<term_id_type> tag = extract_type_tag(f, l)) {
       dynamic_element_matcher_type::const_iterator m = dynamic_element_matcher.find(*tag);
 
       // TODO: Once we support all types, this should be considered an erronoues term (raise exception).
@@ -155,7 +153,7 @@ any::any(matchable_ptr* a_to_assign)
    : to_assign(a_to_assign)
 {}
 
-bool any::match(msg_seq_iter& f, const msg_seq_iter& l) const
+bool any::match(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l) const
 {
    const bool res = match_dynamically(f, l, *this);
    to_assign->reset(new matchable_seq(matched_raw_bytes));

@@ -41,10 +41,8 @@
 // has been received before the invoker (i.e. a state-object) is notified.
 
 using namespace tinch_pp;
-using namespace boost;
-using  boost::asio::ip::tcp;
 
-node_connection_ptr node_connection::create(asio::io_service& io_service, 
+node_connection_ptr node_connection::create(boost::asio::io_service& io_service,
 					    node_access& node,
 					    const std::string& peer_node)
 {
@@ -54,7 +52,7 @@ node_connection_ptr node_connection::create(asio::io_service& io_service,
   return connection;
 }
 
-node_connection_ptr node_connection::create(asio::io_service& io_service, 
+node_connection_ptr node_connection::create(boost::asio::io_service& io_service,
 					    node_access& node)
 {
   node_connection_ptr connection(new node_connection(io_service, node));
@@ -68,7 +66,7 @@ void node_connection::init()
   state = initial_state(shared_from_this());
 }
 
-node_connection::node_connection(asio::io_service& io_service, 
+node_connection::node_connection(boost::asio::io_service& io_service,
 				                             node_access& a_node,
 				                             const std::string& a_peer_node)
   : connection(io_service),
@@ -81,7 +79,7 @@ node_connection::node_connection(asio::io_service& io_service,
 { 
 }
 
-node_connection::node_connection(asio::io_service& io_service,
+node_connection::node_connection(boost::asio::io_service& io_service,
 				                             node_access& a_node)
   : connection(io_service),
     node(a_node),

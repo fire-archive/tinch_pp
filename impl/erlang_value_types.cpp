@@ -33,7 +33,6 @@
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
-using namespace boost;
 
 namespace {
 
@@ -352,7 +351,7 @@ binary::binary(binary_value_type* a_to_assign)
 
 binary::binary(const any& match_any)
    : to_assign(0),
-     match_fn(std::bind(match_any_binary, std::placeholders::_1, std::placeholders::_2, cref(match_any))) {}
+     match_fn(std::bind(match_any_binary, std::placeholders::_1, std::placeholders::_2, std::cref(match_any))) {}
 
 void binary::serialize(msg_seq_out_iter& out) const
 {

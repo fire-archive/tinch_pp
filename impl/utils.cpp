@@ -28,8 +28,6 @@
 
 namespace asio = boost::asio;
 namespace qi = boost::spirit::qi;
-using boost::asio::ip::tcp;
-using boost::optional;
 
 namespace tinch_pp {
 namespace utils {
@@ -80,15 +78,15 @@ std::string to_printable_string(msg_seq_iter& first, const msg_seq_iter& last)
   return to_printable_string(m);
 }
 
-tcp::socket& connect_socket(asio::io_service& io_service, 
-			    tcp::socket& socket, 
+boost::asio::ip::tcp::socket& connect_socket(asio::io_service& io_service,
+                boost::asio::ip::tcp::socket& socket,
 			    const std::string& host,
 			    int port)
 {
-  tcp::resolver resolver(io_service);
-  tcp::resolver::query query(host, boost::lexical_cast<std::string>(port));
-  tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-  tcp::resolver::iterator end;
+  boost::asio::ip::tcp::resolver resolver(io_service);
+  boost::asio::ip::tcp::resolver::query query(host, boost::lexical_cast<std::string>(port));
+  boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+  boost::asio::ip::tcp::resolver::iterator end;
   
   boost::system::error_code error = boost::asio::error::host_not_found;
   while(error && endpoint_iterator != end) {
@@ -146,9 +144,9 @@ bool msg_lexer::has_complete_msg() const
   return !msgs.empty(); 
 }
 
-optional<msg_seq> msg_lexer::next_message()
+boost::optional<msg_seq> msg_lexer::next_message()
 {
-  optional<msg_seq> m;
+  boost::optional<msg_seq> m;
 
   if(!msgs.empty()) {
     m = msgs.front();
@@ -161,7 +159,7 @@ optional<msg_seq> msg_lexer::next_message()
 void msg_lexer::handle_new_condition()
 {
   // A parse failure is not an error - we simply don't have the whole message yet.
-  if(optional<size_t> msg_and_header_size = this->read_msg_size(incomplete)) {
+  if(boost::optional<size_t> msg_and_header_size = this->read_msg_size(incomplete)) {
     const size_t left = incomplete.size();
 
     if(left == *msg_and_header_size) {
@@ -200,9 +198,9 @@ void msg_lexer::strip_incomplete(size_t start)
 // Implementation of concrete lexers:
 //
 
-optional<size_t>  msg_lexer_handshake::read_msg_size(const msg_seq& msg) const
+boost::optional<size_t>  msg_lexer_handshake::read_msg_size(const msg_seq& msg) const
 {
-  optional<size_t> msg_and_header_size;
+  boost::optional<size_t> msg_and_header_size;
   boost::uint16_t msg_size = 0;
   msg_seq_citer f = msg.begin();
   msg_seq_citer l = msg.end();
@@ -215,9 +213,9 @@ optional<size_t>  msg_lexer_handshake::read_msg_size(const msg_seq& msg) const
 }
 
 // Used for a 4 bytes msg-length field.
-optional<size_t>  msg_lexer_connected::read_msg_size(const msg_seq& msg) const
+boost::optional<size_t>  msg_lexer_connected::read_msg_size(const msg_seq& msg) const
 {
-  optional<size_t> msg_and_header_size;
+  boost::optional<size_t> msg_and_header_size;
   boost::uint32_t msg_size = 0;
   msg_seq_citer f = msg.begin();
   msg_seq_citer l = msg.end();

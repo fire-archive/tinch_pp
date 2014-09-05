@@ -31,8 +31,6 @@
 
 using namespace tinch_pp;
 using namespace tinch_pp::erl;
-using namespace boost;
-using namespace std;
 
 namespace {
 
@@ -44,7 +42,7 @@ erl::int_ create_int(char val)
   return erl::int_(int_val);
 }
 
-bool match_string_value(msg_seq_iter& f, const msg_seq_iter& l, const string& val)
+bool match_string_value(msg_seq_iter& f, const msg_seq_iter& l, const std::string& val)
 {
   // We're reusing the list implementation:
   std::list<int_> as_ints;
@@ -58,15 +56,15 @@ char shrink_int(const erl::int_& val)
   return static_cast<char>(val.value());
 }
 
-bool assign_matched_string(msg_seq_iter& f, const msg_seq_iter& l, string* to_assign)
+bool assign_matched_string(msg_seq_iter& f, const msg_seq_iter& l, std::string* to_assign)
 {
   assert(to_assign != 0);
   
   std::list<int_> as_ints;
   const bool res = matcher_s::assign_match(&as_ints, f, l);
 
-  for_each(as_ints.begin(), as_ints.end(), bind(&string::push_back, to_assign,
-                                                bind(shrink_int, std::placeholders::_1)));
+  for_each(as_ints.begin(), as_ints.end(), bind(&std::string::push_back, to_assign,
+                                                std::bind(shrink_int, std::placeholders::_1)));
 
   return res;
 }

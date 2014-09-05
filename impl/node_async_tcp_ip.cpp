@@ -25,7 +25,6 @@
 #include <cassert>
 
 using namespace tinch_pp;
-using namespace boost;
 
 namespace {
   const size_t read_buffer_size = 128;
@@ -38,7 +37,7 @@ template<typename T>
 message_written_fn callback_fn(const T& t) { return t.second; }
 }
 
-node_async_tcp_ip::node_async_tcp_ip(asio::ip::tcp::socket& a_connection,
+node_async_tcp_ip::node_async_tcp_ip(boost::asio::ip::tcp::socket& a_connection,
 				     const error_handler_fn& a_error_handler)
   : connection(a_connection),
     error_handler(a_error_handler)
@@ -51,12 +50,12 @@ void node_async_tcp_ip::trigger_read(const message_read_fn& callback,
   read_buffer.clear();
   read_buffer.resize(read_buffer_size);
 
-  connection.async_read_some(asio::buffer(read_buffer),
+  connection.async_read_some(boost::asio::buffer(read_buffer),
 			                          bind(&node_async_tcp_ip::checked_read, this, 
 				                         callback,
 				                         received_msgs,
-				                         asio::placeholders::error,
-				                         asio::placeholders::bytes_transferred));
+                                         boost::asio::placeholders::error,
+                                         boost::asio::placeholders::bytes_transferred));
 }
 
 void node_async_tcp_ip::trigger_write(const msg_seq& msg, const message_written_fn& callback)
@@ -66,10 +65,10 @@ void node_async_tcp_ip::trigger_write(const msg_seq& msg, const message_written_
    write_queue.push_back(msg_and_callback(msg, callback));
    
    if (!write_in_progress) { // otherwise we fire the next write once the first one has completed.
-     asio::async_write(connection, asio::buffer(message(write_queue.front())), 
+     boost::asio::async_write(connection, boost::asio::buffer(message(write_queue.front())),
                        bind(&node_async_tcp_ip::checked_write, this, 
-                       asio::placeholders::error,
-                       asio::placeholders::bytes_transferred));
+                       boost::asio::placeholders::error,
+                       boost::asio::placeholders::bytes_transferred));
    }
 }
 
@@ -108,10 +107,10 @@ void node_async_tcp_ip::checked_write(const boost::system::error_code& error,
    write_queue.pop_front();
 
    if(!write_queue.empty()) {
-      asio::async_write(connection, asio::buffer(message(write_queue.front())), 
+      boost::asio::async_write(connection, boost::asio::buffer(message(write_queue.front())),
                        bind(&node_async_tcp_ip::checked_write, this, 
-                       asio::placeholders::error,
-                       asio::placeholders::bytes_transferred));
+                       boost::asio::placeholders::error,
+                       boost::asio::placeholders::bytes_transferred));
    }
 
    callback();
