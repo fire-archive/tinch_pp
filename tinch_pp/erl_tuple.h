@@ -34,7 +34,6 @@
 namespace tinch_pp {
 namespace erl {
 
-/// A wrapper around boost::fusion::tuple (basically a TR1 representation). 
 /// For you as a client, simply work with the full boost::fusion::tuple API and just 
 /// wrap it in an instance of this class (using make_e_tuple below) in the call
 /// to mailbox::send.
