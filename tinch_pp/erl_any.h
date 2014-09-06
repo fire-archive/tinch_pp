@@ -54,7 +54,7 @@ class any : public object
 public:
    any();
 
-   explicit any(matchable_ptr* to_assign);
+   explicit any(matchable_ptr *to_assign);
 
    virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const;
 
@@ -67,7 +67,7 @@ private:
    // Should we be able to serialize an erl_any? Possible, but does it make sense?
    virtual void serialize(msg_seq_out_iter& out) const {} // no implementation!
 
-   typedef boost::function<bool (msg_seq_iter& f, const msg_seq_iter& l, const any&)> term_matcher_type;
+   typedef std::function<bool (msg_seq_iter& f, const msg_seq_iter& l, const any&)> term_matcher_type;
    typedef int term_id_type;
    typedef std::map<term_id_type, term_matcher_type> dynamic_element_matcher_type;
 

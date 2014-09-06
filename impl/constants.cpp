@@ -35,7 +35,7 @@ namespace constants {
 
   const int node_type = 72; // hidden node (i.e. not native Erlang)
   const boost::uint16_t supported_version = 5; // R6B and later
-  const auto capabilities = extended_references | extended_pid_ports | support_bit_binaries;
+  const boost::uint32_t capabilities = extended_references | extended_pid_ports | support_bit_binaries;
 
   const int magic_version = 131;
   const int pass_through = 112;

@@ -29,7 +29,6 @@
 #include <boost/assign/list_of.hpp>
 #include <cassert>
 
-using namespace tinch_pp::erl;
 using namespace boost::assign;
 
 namespace {
@@ -101,6 +100,8 @@ bool match_list(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, cons
    return match;
 }
 
+*/
+
 boost::optional<int> extract_type_tag(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l)
 {
    boost::optional<int> tag;
@@ -113,27 +114,64 @@ boost::optional<int> extract_type_tag(tinch_pp::msg_seq_iter& f, const tinch_pp:
 
 }
 
-const any::dynamic_element_matcher_type any::dynamic_element_matcher = 
+const tinch_pp::erl::any::dynamic_element_matcher_type tinch_pp::erl::any::dynamic_element_matcher =
    map_list_of
       //    Type                    Match function
-      (type_tag::small_integer,     std::bind(match_int,        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
-      (type_tag::integer,           std::bind(match_int,        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
-      (type_tag::atom_ext,          std::bind(match_atom,       std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
-      (type_tag::small_tuple,       std::bind(match_tuple,      std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
-      (type_tag::list,              std::bind(match_list,       std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
-      (type_tag::string_ext,        std::bind(match_string,     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
-      (type_tag::pid,               std::bind(match_pid,        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
-      (type_tag::new_reference_ext, std::bind(match_reference,  std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
-      (type_tag::float_ext,         std::bind(match_float,      std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
-      (type_tag::binary_ext,        std::bind(match_binary,     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
-      (type_tag::bit_binary_ext,    std::bind(match_binary,     std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+      (tinch_pp::type_tag::small_integer,     [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::int_(instance).match(f, l);})
+      (tinch_pp::type_tag::integer,           [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::int_(instance).match(f, l);})
+      (tinch_pp::type_tag::atom_ext,          [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::atom(instance).match(f, l);})
+      (tinch_pp::type_tag::small_tuple,       [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+        tinch_pp::msg_seq_iter start = f;
 
-bool any::match_dynamically(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
+        size_t parsed_length = 0;
+        bool match = tinch_pp::binary_to_term<tinch_pp::small_tuple_head_ext>(f, l, parsed_length);
+        assert(match); // already checked in the previous dispatch-mechanism
+
+        instance.save_matched_bytes(tinch_pp::msg_seq(start, f));
+
+        for(size_t i = 0; match && (i < parsed_length); ++i)
+           match &= instance.match(f, l);
+
+        return match;})
+      (tinch_pp::type_tag::list,              [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance){
+        tinch_pp::msg_seq_iter start = f;
+
+        size_t parsed_length = 0;
+        bool match = tinch_pp::binary_to_term<tinch_pp::list_head_ext>(f, l, parsed_length);
+        assert(match); // already checked in the previous dispatch-mechanism
+
+        instance.save_matched_bytes(tinch_pp::msg_seq(start, f));
+
+        for(size_t i = 0; match && (i < parsed_length); ++i)
+         match &= instance.match(f, l);
+
+        return match;
+      })
+      (tinch_pp::type_tag::string_ext,        [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+        return tinch_pp::erl::e_string(instance).match(f, l);
+      })
+      (tinch_pp::type_tag::pid,               [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance){
+        return tinch_pp::erl::pid(instance).match(f, l);
+      })
+      (tinch_pp::type_tag::new_reference_ext, [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+        return tinch_pp::erl::ref(instance).match(f, l);
+      })
+      (tinch_pp::type_tag::float_ext,        [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+        return tinch_pp::erl::float_(instance).match(f, l);
+      })
+      (tinch_pp::type_tag::binary_ext,        [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+        return tinch_pp::erl::binary(instance).match(f, l);
+      })
+      (tinch_pp::type_tag::bit_binary_ext,    [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+         return tinch_pp::erl::binary(instance).match(f, l);
+      });
+
+bool tinch_pp::erl::any::match_dynamically(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
    auto matched = false;
 
-   if(const boost::optional<term_id_type> tag = extract_type_tag(f, l)) {
-      dynamic_element_matcher_type::const_iterator m = dynamic_element_matcher.find(*tag);
+   if(const boost::optional<tinch_pp::erl::any::term_id_type> tag = extract_type_tag(f, l)) {
+      tinch_pp::erl::any::dynamic_element_matcher_type::const_iterator m = dynamic_element_matcher.find(*tag);
 
       // TODO: Once we support all types, this should be considered an erronoues term (raise exception).
       if(m != dynamic_element_matcher.end()) {
@@ -145,25 +183,25 @@ bool any::match_dynamically(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_i
    return matched;
 }
 
-any::any()
-   : to_assign(&placeholder)
+tinch_pp::erl::any::any()
+   : to_assign(&tinch_pp::erl::any::placeholder)
 {}
 
-any::any(matchable_ptr* a_to_assign)
+tinch_pp::erl::any::any(tinch_pp::matchable_ptr* a_to_assign)
    : to_assign(a_to_assign)
 {}
 
-bool any::match(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l) const
+bool tinch_pp::erl::any::match(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l) const
 {
-   const bool res = match_dynamically(f, l, *this);
-   to_assign->reset(new matchable_seq(matched_raw_bytes));
+   const bool res = tinch_pp::erl::any::match_dynamically(f, l, *this);
+   to_assign->reset(new tinch_pp::matchable_seq(matched_raw_bytes));
 
    return res;
 }
 
-bool any::save_matched_bytes(const msg_seq& raw_msg_part) const
+bool tinch_pp::erl::any::save_matched_bytes(const tinch_pp::msg_seq& raw_msg_part) const
 {
-   matched_raw_bytes.insert(matched_raw_bytes.end(), raw_msg_part.begin(), raw_msg_part.end());
+   tinch_pp::erl::any::matched_raw_bytes.insert(matched_raw_bytes.end(), raw_msg_part.begin(), raw_msg_part.end());
 
    return true;
 }

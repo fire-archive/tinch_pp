@@ -75,21 +75,21 @@ inline object_ptr make_tuple_ptr()
 #define N BOOST_PP_ITERATION()
 
 template <BOOST_PP_ENUM_PARAMS(N, typename T)>
-inline e_tuple<boost::fusion::tuple<BOOST_PP_ENUM_PARAMS(N, T)> >
+inline e_tuple<std::tuple<BOOST_PP_ENUM_PARAMS(N, T)> >
 make_e_tuple(BOOST_PP_ENUM_BINARY_PARAMS(N, T, const& t))
 {
-  typedef boost::fusion::tuple<BOOST_PP_ENUM_PARAMS(N, T)> Tuple;
+  typedef std::tuple<BOOST_PP_ENUM_PARAMS(N, T)> Tuple;
   
-  return erl::e_tuple<Tuple>(boost::fusion::tuple<BOOST_PP_ENUM_PARAMS(N, T)>(
+  return erl::e_tuple<Tuple>(std::tuple<BOOST_PP_ENUM_PARAMS(N, T)>(
                              BOOST_PP_ENUM_PARAMS(N, t)));
 }
 
 template <BOOST_PP_ENUM_PARAMS(N, typename T)>
 inline object_ptr make_tuple_ptr(BOOST_PP_ENUM_BINARY_PARAMS(N, T, const& t))
 {
-  typedef boost::fusion::tuple<BOOST_PP_ENUM_PARAMS(N, T)> Tuple;
+  typedef std::tuple<BOOST_PP_ENUM_PARAMS(N, T)> Tuple;
   
-  object_ptr created(new erl::e_tuple<Tuple>(boost::fusion::tuple<BOOST_PP_ENUM_PARAMS(N, T)>(
+  object_ptr created(new erl::e_tuple<Tuple>(std::tuple<BOOST_PP_ENUM_PARAMS(N, T)>(
                                              BOOST_PP_ENUM_PARAMS(N, t))));
   return created;
 }

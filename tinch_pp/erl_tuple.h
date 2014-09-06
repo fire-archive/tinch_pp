@@ -24,7 +24,7 @@
 
 #include "erl_object.h"
 #include "impl/ext_term_grammar.h"
-#include <boost/fusion/tuple/tuple.hpp>
+#include <boost/fusion/adapted/std_tuple.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/include/for_each.hpp>
 #include <boost/fusion/algorithm/query/all.hpp>
@@ -44,7 +44,7 @@ class e_tuple : public object
 public:
   e_tuple(const Tuple& t)
     : contained(t),
-      tuple_length(boost::fusion::tuple_size<Tuple>::value)
+      tuple_length(std::tuple_size<Tuple>::value)
   {
   }
 
