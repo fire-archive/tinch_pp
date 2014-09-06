@@ -26,10 +26,8 @@
 #include "ext_term_grammar.h"
 #include "matchable_seq.h"
 #include <boost/optional.hpp>
-#include <boost/assign/list_of.hpp>
 #include <cassert>
-
-using namespace boost::assign;
+#include <map>
 
 namespace {
 
@@ -46,12 +44,12 @@ boost::optional<int> extract_type_tag(tinch_pp::msg_seq_iter& f, const tinch_pp:
 }
 
 const tinch_pp::erl::any::dynamic_element_matcher_type tinch_pp::erl::any::dynamic_element_matcher =
-   map_list_of
-      //    Type                    Match function
-      (tinch_pp::type_tag::small_integer,     [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::int_(instance).match(f, l);})
-      (tinch_pp::type_tag::integer,           [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::int_(instance).match(f, l);})
-      (tinch_pp::type_tag::atom_ext,          [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::atom(instance).match(f, l);})
-      (tinch_pp::type_tag::small_tuple,       [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+      {
+      //    Type                              Match function
+      {tinch_pp::type_tag::small_integer,     [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::int_(instance).match(f, l);}},
+      {tinch_pp::type_tag::integer,           [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::int_(instance).match(f, l);}},
+      {tinch_pp::type_tag::atom_ext,          [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::atom(instance).match(f, l);}},
+      {tinch_pp::type_tag::small_tuple,       [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
         tinch_pp::msg_seq_iter start = f;
 
         size_t parsed_length = 0;
@@ -63,8 +61,8 @@ const tinch_pp::erl::any::dynamic_element_matcher_type tinch_pp::erl::any::dynam
         for(size_t i = 0; match && (i < parsed_length); ++i)
            match &= instance.match(f, l);
 
-        return match;})
-      (tinch_pp::type_tag::list,              [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance){
+        return match;}},
+      {tinch_pp::type_tag::list,              [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance){
         tinch_pp::msg_seq_iter start = f;
 
         size_t parsed_length = 0;
@@ -77,25 +75,25 @@ const tinch_pp::erl::any::dynamic_element_matcher_type tinch_pp::erl::any::dynam
          match &= instance.match(f, l);
 
         return match;
-      })
-      (tinch_pp::type_tag::string_ext,        [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+      }},
+      {tinch_pp::type_tag::string_ext,        [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
         return tinch_pp::erl::e_string(instance).match(f, l);
-      })
-      (tinch_pp::type_tag::pid,               [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance){
+      }},
+      {tinch_pp::type_tag::pid,               [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance){
         return tinch_pp::erl::pid(instance).match(f, l);
-      })
-      (tinch_pp::type_tag::new_reference_ext, [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+      }},
+      {tinch_pp::type_tag::new_reference_ext, [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
         return tinch_pp::erl::ref(instance).match(f, l);
-      })
-      (tinch_pp::type_tag::float_ext,        [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+      }},
+      {tinch_pp::type_tag::float_ext,        [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
         return tinch_pp::erl::float_(instance).match(f, l);
-      })
-      (tinch_pp::type_tag::binary_ext,        [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+      }},
+      {tinch_pp::type_tag::binary_ext,        [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
         return tinch_pp::erl::binary(instance).match(f, l);
-      })
-      (tinch_pp::type_tag::bit_binary_ext,    [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+      }},
+      {tinch_pp::type_tag::bit_binary_ext,    [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
          return tinch_pp::erl::binary(instance).match(f, l);
-      });
+      }}};
 
 bool tinch_pp::erl::any::match_dynamically(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance)
 {
@@ -115,7 +113,7 @@ bool tinch_pp::erl::any::match_dynamically(tinch_pp::msg_seq_iter& f, const tinc
 }
 
 tinch_pp::erl::any::any()
-   : to_assign(&tinch_pp::erl::any::placeholder)
+   : to_assign(&placeholder)
 {}
 
 tinch_pp::erl::any::any(tinch_pp::matchable_ptr* a_to_assign)
