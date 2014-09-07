@@ -92,7 +92,7 @@ private:
   list_type val;
   list_type* to_assign;
   
-  typedef boost::function<bool (const own_type*, msg_seq_iter&, const msg_seq_iter&)> match_list_fn_type;
+  typedef std::function<bool (const own_type*, msg_seq_iter&, const msg_seq_iter&)> match_list_fn_type;
   match_list_fn_type match_fn;
 };
 
@@ -165,7 +165,7 @@ private:
   list_type val;
   list_type* to_assign;
 
-  typedef boost::function<bool (const own_type*, msg_seq_iter&, const msg_seq_iter&)> match_list_fn_type;
+  typedef std::function<bool (const own_type*, msg_seq_iter&, const msg_seq_iter&)> match_list_fn_type;
   match_list_fn_type match_fn;
 };
 

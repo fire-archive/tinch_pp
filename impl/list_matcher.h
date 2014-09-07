@@ -46,7 +46,7 @@ struct list_matcher
     // Ensure that we can handle improper lists( [a|b] ) too (parse one more element, different length check).
     const bool matched = length_matched && (val.end() == 
 					                                        std::find_if(val.begin(), val.end(), 
-                                                [&f, &l](tinch_pp::erl::object const& obj) { return obj.match(f, l); })); // Todo: What to do when l is false?
+                                                [&f, &l](tinch_pp::erl::object const &obj) { return obj.match(f, l); })); // Todo: What to do when l is false?
     // TODO: check once we're handling lists properly!
     qi::parse(f, l, qi::byte_(tinch_pp::type_tag::nil_ext));
 
