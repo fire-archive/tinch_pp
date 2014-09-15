@@ -6,6 +6,16 @@ language: cpp
 compiler: clang
 
 before_script:
+  - wget http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.bz2
+  - tar --bzip2 -xf boost_1_55_0.tar.bz2
+  - cd boost_1_55_0
+  - ./bootstrap.sh --help
+  # We only need atomic (and also only header-only).
+  # All the rest takes way too much time to compile.
+  - sudo ./bootstrap.sh --with-libraries="thread,system,regex,signal"
+  # Way too much output, so just display the last 50 lines.
+  - sudo ./b2 install | tail -n 50
+  - cd ..
   - mkdir build
   - cd build
   - cmake ..
