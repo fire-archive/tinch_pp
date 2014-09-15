@@ -16,5 +16,5 @@ before_script:
   - export CXX="clang++-3.5"
   - cmake ..
 
-script
+script:
   - make
