@@ -24,7 +24,7 @@
 
 #include "impl/types.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <map>
 
 namespace tinch_pp {
