@@ -11,7 +11,7 @@ before_script:
   - ./bootstrap.sh --help
   # We only need atomic (and also only header-only).
   # All the rest takes way too much time to compile.
-  - sudo ./bootstrap.sh --with-libraries="thread,system,regex,signal"
+  - sudo ./bootstrap.sh --with-libraries="thread,system,regex"
   # Way too much output, so just display the last 50 lines.
   - sudo ./b2 install | tail -n 50
   - cd ..
