@@ -16,7 +16,6 @@ compiler: clang
 before_script:
   - mkdir build
   - cd build
-  - CXX="clang++" 
   - cmake ..
 
 script:
