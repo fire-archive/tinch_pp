@@ -1,4 +1,5 @@
-# tinch_pp
+# tinch_pp ![Travis status](https://travis-ci.org/fire/tinch_pp#)
+
 
 Distributed Erlang nodes in C++.
 
