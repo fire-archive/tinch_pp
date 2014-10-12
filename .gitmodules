@@ -1,0 +1,3 @@
+[submodule "ThirdParty/Optional"]
+	path = ThirdParty/Optional
+	url = https://github.com/fire/Optional.git

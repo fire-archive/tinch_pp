@@ -45,7 +45,7 @@ else()
         message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
 
-include_directories(${CMAKE_SOURCE_DIR} ${Boost_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR} ${Boost_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/ThirdParty/Optional)
 add_library(tinch++ ${CPP_SOURCE})
 
 install(TARGETS tinch++ 

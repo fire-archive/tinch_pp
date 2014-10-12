@@ -27,10 +27,11 @@
 #include <boost/asio.hpp>
 #include <boost/spirit/include/qi_parse.hpp>
 #include <boost/spirit/include/karma_generate.hpp>
-#include <boost/optional.hpp>
+#include "optional.hpp"
 #include <string>
 #include <iterator>
 #include <deque>
+#include "optional.hpp"
 
 namespace tinch_pp {
 namespace utils {
@@ -85,7 +86,7 @@ public:
 
   bool has_complete_msg() const;
 
-  boost::optional<msg_seq> next_message();
+  std::experimental::optional<msg_seq> next_message();
 
 protected:
   ~msg_lexer();
@@ -98,7 +99,7 @@ private:
   // Erlang uses different message formats for handshake and between connected nodes.
   // For the msg_lexer, what differs is the size of the message-length field.
   // We abstract is away with a TEMPLATE METHOD (design pattern).
-  virtual boost::optional<size_t> read_msg_size(const msg_seq& msg) const = 0;
+  virtual std::experimental::optional<size_t> read_msg_size(const msg_seq& msg) const = 0;
 
   msg_seq incomplete;
   std::deque<msg_seq> msgs;
@@ -107,13 +108,13 @@ private:
 // Used for a 2 bytes msg-length field.
 class msg_lexer_handshake : public msg_lexer
 {
-  virtual boost::optional<size_t> read_msg_size(const msg_seq& msg) const;
+  virtual std::experimental::optional<size_t> read_msg_size(const msg_seq& msg) const;
 };
 
 // Used for a 4 bytes msg-length field.
 class msg_lexer_connected : public msg_lexer
 {
-  virtual boost::optional<size_t> read_msg_size(const msg_seq& msg) const;
+  virtual std::experimental::optional<size_t> read_msg_size(const msg_seq& msg) const;
 };
 
 }

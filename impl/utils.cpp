@@ -144,9 +144,9 @@ bool msg_lexer::has_complete_msg() const
   return !msgs.empty(); 
 }
 
-boost::optional<msg_seq> msg_lexer::next_message()
+std::experimental::optional<msg_seq> msg_lexer::next_message()
 {
-  boost::optional<msg_seq> m;
+  std::experimental::optional<msg_seq> m;
 
   if(!msgs.empty()) {
     m = msgs.front();
@@ -159,7 +159,7 @@ boost::optional<msg_seq> msg_lexer::next_message()
 void msg_lexer::handle_new_condition()
 {
   // A parse failure is not an error - we simply don't have the whole message yet.
-  if(boost::optional<size_t> msg_and_header_size = this->read_msg_size(incomplete)) {
+  if(std::experimental::optional<size_t> msg_and_header_size = this->read_msg_size(incomplete)) {
     const size_t left = incomplete.size();
 
     if(left == *msg_and_header_size) {
@@ -198,9 +198,9 @@ void msg_lexer::strip_incomplete(size_t start)
 // Implementation of concrete lexers:
 //
 
-boost::optional<size_t>  msg_lexer_handshake::read_msg_size(const msg_seq& msg) const
+std::experimental::optional<size_t>  msg_lexer_handshake::read_msg_size(const msg_seq& msg) const
 {
-  boost::optional<size_t> msg_and_header_size;
+  std::experimental::optional<size_t> msg_and_header_size;
   boost::uint16_t msg_size = 0;
   msg_seq_citer f = msg.begin();
   msg_seq_citer l = msg.end();
@@ -213,9 +213,9 @@ boost::optional<size_t>  msg_lexer_handshake::read_msg_size(const msg_seq& msg) 
 }
 
 // Used for a 4 bytes msg-length field.
-boost::optional<size_t>  msg_lexer_connected::read_msg_size(const msg_seq& msg) const
+std::experimental::optional<size_t>  msg_lexer_connected::read_msg_size(const msg_seq& msg) const
 {
-  boost::optional<size_t> msg_and_header_size;
+  std::experimental::optional<size_t> msg_and_header_size;
   boost::uint32_t msg_size = 0;
   msg_seq_citer f = msg.begin();
   msg_seq_citer l = msg.end();
