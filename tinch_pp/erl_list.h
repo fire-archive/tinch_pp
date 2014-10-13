@@ -42,14 +42,12 @@ public:
 
   list(const list_type& contained)
     : val(contained),
-      to_assign(0),
-      match_fn([=](own_type type){type.match_value;})
+      to_assign(0)
   {
   }
 
   list(list_type* contained)
-    : to_assign(contained),
-      match_fn([=](own_type type){type.assign_matched(contained,,);})
+    : to_assign(contained)
   {
   }
 
@@ -66,7 +64,7 @@ public:
 
   virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const
   {
-    return match_fn(this, f, l);
+    return [=](own_type type){type.assign_matched(this, f, l);};
   }
 
   list_type value() const 
@@ -77,7 +75,7 @@ public:
 private:
   static bool match_value(const own_type* self, msg_seq_iter& f, const msg_seq_iter& l)
   {
-    return matcher::match(self->value(), f, l);
+    return [=](own_type type){type.match_value(self->value(), f, l);};
   }
 
   static bool assign_matched(const own_type*, msg_seq_iter& f, const msg_seq_iter& l, list_type* dest)
