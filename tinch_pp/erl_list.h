@@ -62,9 +62,9 @@ public:
     karma::generate(out, karma::byte_(tinch_pp::type_tag::nil_ext));
   }
 
-  virtual bool match(msg_seq_iter& f, const msg_seq_iter& l)
+  virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const
   {
-    return [=](own_type type){return type.assign_matched(this, f, l, to_assign);};
+    return [this, &f, &l](){return own_type::assign_matched(this, f, l, to_assign);}();
   }
 
   list_type value() const 
@@ -75,7 +75,7 @@ public:
 private:
   static bool match_value(const own_type* self, msg_seq_iter& f, const msg_seq_iter& l)
   {
-    return [=](own_type type){return type.match_value(self->value(), f, l);};
+    return [&self, &f, &l](){return own_type::match_value(self->value(), f, l);}();
   }
 
   static bool assign_matched(const own_type*, msg_seq_iter& f, const msg_seq_iter& l, list_type* dest)
@@ -89,9 +89,6 @@ private:
 
   list_type val;
   list_type* to_assign;
-  
-  typedef std::function<bool (const own_type*, msg_seq_iter&, const msg_seq_iter&)> match_list_fn_type;
-  match_list_fn_type match_fn;
 };
 
 template<>
