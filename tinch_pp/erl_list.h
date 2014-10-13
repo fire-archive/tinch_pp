@@ -64,7 +64,7 @@ public:
 
   virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const
   {
-    return [=](own_type type){type.assign_matched(this, f, l);};
+    return [=](own_type type){type.assign_matched(this, f, l, contained);};
   }
 
   list_type value() const 
