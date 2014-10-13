@@ -64,7 +64,7 @@ public:
 
   virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const
   {
-    return [=](own_type type){type.assign_matched(this, f, l, to_assign);};
+    return [=](own_type type){return type.assign_matched(this, f, l, to_assign);};
   }
 
   list_type value() const 
@@ -75,7 +75,7 @@ public:
 private:
   static bool match_value(const own_type* self, msg_seq_iter& f, const msg_seq_iter& l)
   {
-    return [=](own_type type){type.match_value(self->value(), f, l);};
+    return [=](own_type type){return type.match_value(self->value(), f, l);};
   }
 
   static bool assign_matched(const own_type*, msg_seq_iter& f, const msg_seq_iter& l, list_type* dest)
