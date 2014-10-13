@@ -12,7 +12,6 @@ if(BUILD_TEST)
       thread
       system
       regex
-      signals
     REQUIRED )
  
   find_program( ERLANG_ERLC erlc
