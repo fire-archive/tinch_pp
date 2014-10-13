@@ -43,7 +43,7 @@ public:
   list(const list_type& contained)
     : val(contained),
       to_assign(0),
-      match_fn([=](own_type type){type.match_value;}
+      match_fn([=](own_type type){type.match_value;})
   {
   }
 
