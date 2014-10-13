@@ -62,7 +62,7 @@ public:
     karma::generate(out, karma::byte_(tinch_pp::type_tag::nil_ext));
   }
 
-  virtual bool match(const msg_seq_iter& f, const msg_seq_iter& l) const
+  virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const
   {
     return [=](own_type type){return type.assign_matched(this, f, l, to_assign);};
   }

@@ -41,7 +41,7 @@ public:
   /// Attempts to match the given sequence [f..l)
   /// This function is typically used by the receive-mechanism and 
   /// not intended for clients.
-  virtual bool match(const msg_seq_iter& f, const msg_seq_iter& l) const = 0;
+  virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const = 0;
 };
 
 typedef std::shared_ptr<object> object_ptr;
