@@ -11,4 +11,8 @@ Usage examples and more information is given on [the project homepage](http://ww
 
 ## Requirements 
 
-Requires Boost: Being developed on `1.55`.
+Requires Boost: Developed on `1.55`.
+
+Tested on Clang 3.4.
+
+Probably broken on Windows.
