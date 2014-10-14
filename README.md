@@ -9,3 +9,6 @@ tinch++ is a platform independent, open-source library for building distributed 
 
 Usage examples and more information is given on [the project homepage](http://www.adamtornhill.com/code/tinchpp.htm).
 
+## Requirements 
+
+Requires Boost: Being developed on `1.55`.
