@@ -23,8 +23,6 @@
 #define NETWORKER_H
 
 #include "node_connection_access.h"
-#include <boost/shared_ptr.hpp>
-#include <boost/bind.hpp>
 
 namespace tinch_pp {
 
