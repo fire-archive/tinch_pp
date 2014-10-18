@@ -31,7 +31,6 @@
 #include <string>
 #include <iterator>
 #include <deque>
-#include "optional.hpp"
 
 namespace tinch_pp {
 namespace utils {
