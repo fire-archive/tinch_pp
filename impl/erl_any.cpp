@@ -25,15 +25,15 @@
 #include "term_conversions.h"
 #include "ext_term_grammar.h"
 #include "matchable_seq.h"
-#include "optional.hpp"
+#include <boost/optional.hpp>
 #include <cassert>
 #include <map>
 
 namespace {
 
-std::experimental::optional<int> extract_type_tag(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l)
+boost::optional<int> extract_type_tag(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l)
 {
-   std::experimental::optional<int> tag;
+   boost::optional<int> tag;
 
    if(f != l)
       tag = static_cast<int>(*f);
@@ -99,7 +99,7 @@ bool tinch_pp::erl::any::match_dynamically(tinch_pp::msg_seq_iter& f, const tinc
 {
    auto matched = false;
 
-   if(const std::experimental::optional<tinch_pp::erl::any::term_id_type> tag = extract_type_tag(f, l)) {
+   if(const boost::optional<tinch_pp::erl::any::term_id_type> tag = extract_type_tag(f, l)) {
       tinch_pp::erl::any::dynamic_element_matcher_type::const_iterator m = dynamic_element_matcher.find(*tag);
 
       // TODO: Once we support all types, this should be considered an erronoues term (raise exception).
