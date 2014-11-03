@@ -25,7 +25,7 @@
 #include "utils.h"
 #include "node_connection_access.h"
 #include "node_async_tcp_ip.h"
-#include "optional.hpp"
+#include <boost/optional.hpp>
 #include <boost/signals2.hpp>
 #include <functional>
 
@@ -116,7 +116,7 @@ private:
   node_async_tcp_ip async_tcp_ip;
 
   // In case the other node is the originator, we don't now its name until later.
-  std::experimental::optional<std::string> peer_name;
+  boost::optional<std::string> peer_name;
   std::string node_name;
 
   // The state machine used to establish and maintain a connection.

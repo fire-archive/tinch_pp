@@ -91,7 +91,7 @@ private:
   // ..and protect the node_connections:
   std::condition_variable handshake_cond;
   mutable std::mutex node_connections_mutex;
-  std::experimental::optional<bool> handshake_done;
+  boost::optional<bool> handshake_done;
 
   // When establishing a connection, our node must provide a challenge for the peer node.
   // And according to the Erlang documentation, "the challenges are expected to be very random numbers."

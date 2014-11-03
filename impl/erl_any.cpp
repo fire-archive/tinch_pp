@@ -25,15 +25,15 @@
 #include "term_conversions.h"
 #include "ext_term_grammar.h"
 #include "matchable_seq.h"
-#include "optional.hpp"
+#include <boost/optional.hpp>
 #include <cassert>
 #include <map>
 
 namespace {
 
-std::experimental::optional<int> extract_type_tag(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l)
+boost::optional<int> extract_type_tag(tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l)
 {
-   std::experimental::optional<int> tag;
+   boost::optional<int> tag;
 
    if(f != l)
       tag = static_cast<int>(*f);
@@ -46,10 +46,10 @@ std::experimental::optional<int> extract_type_tag(tinch_pp::msg_seq_iter& f, con
 const tinch_pp::erl::any::dynamic_element_matcher_type tinch_pp::erl::any::dynamic_element_matcher =
       {
       //    Type                              Match function
-      {tinch_pp::type_tag::small_integer,     [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::int_(instance).match(f, l);}},
-      {tinch_pp::type_tag::integer,           [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::int_(instance).match(f, l);}},
-      {tinch_pp::type_tag::atom_ext,          [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::atom(instance).match(f, l);}},
-      {tinch_pp::type_tag::small_tuple,       [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+      {tinch_pp::type_tag::small_integer,     [](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::int_(instance).match(f, l);}},
+      {tinch_pp::type_tag::integer,           [](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::int_(instance).match(f, l);}},
+      {tinch_pp::type_tag::atom_ext,          [](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {return tinch_pp::erl::atom(instance).match(f, l);}},
+      {tinch_pp::type_tag::small_tuple,       [](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
         tinch_pp::msg_seq_iter start = f;
 
         size_t parsed_length = 0;
@@ -76,22 +76,22 @@ const tinch_pp::erl::any::dynamic_element_matcher_type tinch_pp::erl::any::dynam
 
         return match;
       }},
-      {tinch_pp::type_tag::string_ext,        [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+      {tinch_pp::type_tag::string_ext,        [](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
         return tinch_pp::erl::e_string(instance).match(f, l);
       }},
-      {tinch_pp::type_tag::pid,               [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance){
+      {tinch_pp::type_tag::pid,               [](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance){
         return tinch_pp::erl::pid(instance).match(f, l);
       }},
-      {tinch_pp::type_tag::new_reference_ext, [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+      {tinch_pp::type_tag::new_reference_ext, [](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
         return tinch_pp::erl::ref(instance).match(f, l);
       }},
-      {tinch_pp::type_tag::float_ext,        [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+      {tinch_pp::type_tag::float_ext,        [](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
         return tinch_pp::erl::float_(instance).match(f, l);
       }},
-      {tinch_pp::type_tag::binary_ext,        [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+      {tinch_pp::type_tag::binary_ext,        [](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
         return tinch_pp::erl::binary(instance).match(f, l);
       }},
-      {tinch_pp::type_tag::bit_binary_ext,    [&](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
+      {tinch_pp::type_tag::bit_binary_ext,    [](tinch_pp::msg_seq_iter& f, const tinch_pp::msg_seq_iter& l, const any& instance) {
          return tinch_pp::erl::binary(instance).match(f, l);
       }}};
 
@@ -99,10 +99,10 @@ bool tinch_pp::erl::any::match_dynamically(tinch_pp::msg_seq_iter& f, const tinc
 {
    auto matched = false;
 
-   if(const std::experimental::optional<tinch_pp::erl::any::term_id_type> tag = extract_type_tag(f, l)) {
+   if(const boost::optional<tinch_pp::erl::any::term_id_type> tag = extract_type_tag(f, l)) {
       tinch_pp::erl::any::dynamic_element_matcher_type::const_iterator m = dynamic_element_matcher.find(*tag);
 
-      // TODO: Once we support all types, this should be considered an erronoues term (raise exception).
+      // TODO: Once we support all types, this should be considered an erroneously term (raise exception).
       if(m != dynamic_element_matcher.end()) {
          const term_matcher_type matcher = m->second;
          matched = matcher(f, l, instance);
