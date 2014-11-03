@@ -42,12 +42,14 @@ public:
 
   list(const list_type& contained)
     : val(contained),
-      to_assign(0)
+      to_assign(0),
+	  match_fn(std::bind(&own_type::match_value, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
   {
   }
 
   list(list_type* contained)
-    : to_assign(contained)
+    : to_assign(contained),
+      match_fn(std::bind(&own_type::assign_matched, ::_1, ::_2, ::_3, contained))
   {
   }
 
@@ -64,7 +66,7 @@ public:
 
   virtual bool match(msg_seq_iter& f, const msg_seq_iter& l) const
   {
-    return [this, &f, &l](){return own_type::assign_matched(this, f, l, to_assign);}();
+    return match_fn(this, f, l);
   }
 
   list_type value() const 
@@ -75,7 +77,7 @@ public:
 private:
   static bool match_value(const own_type* self, msg_seq_iter& f, const msg_seq_iter& l)
   {
-    return [&self, &f, &l](){return own_type::match_value(self->value(), f, l);}();
+    return matcher::match(self->value(), f, l);
   }
 
   static bool assign_matched(const own_type*, msg_seq_iter& f, const msg_seq_iter& l, list_type* dest)
@@ -89,6 +91,9 @@ private:
 
   list_type val;
   list_type* to_assign;
+
+  typedef std::function<bool (const own_type*, msg_seq_iter&, const msg_seq_iter&)> match_list_fn_type;
+  match_list_fn_type match_fn;
 };
 
 template<>
