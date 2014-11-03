@@ -45,7 +45,7 @@ struct list_matcher
     // TODO: this code only handles proper Erlang lists (the ones ending with a cdr of nil).
     // Ensure that we can handle improper lists( [a|b] ) too (parse one more element, different length check).
     const bool matched = length_matched && (val.end() == std::find_if(val.begin(), val.end(),
-                                                [&f, &l](const tinch_pp::erl::object &obj) { return obj.match(f, l); })); // Todo: What to do when l is false?
+						std::bind(&erl::object::match, std::placeholders::_1, std::ref(f), std::cref(l)))); // Todo: What to do when l is false?
     // TODO: check once we're handling lists properly!
     qi::parse(f, l, qi::byte_(tinch_pp::type_tag::nil_ext));
 
