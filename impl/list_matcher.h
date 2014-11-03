@@ -29,6 +29,27 @@
 namespace tinch_pp {
 namespace detail {
 
+namespace {
+
+  template<class>   struct is_pointery : std::false_type {};
+  template<class T> struct is_pointery<T*> : std::true_type {};
+  template<class T> struct is_pointery<std::shared_ptr<T>> : std::true_type {};
+  template<class T> struct is_pointery<std::unique_ptr<T>> : std::true_type {};
+
+  template<class T>
+  inline typename std::enable_if<is_pointery<T>::value, bool>::type
+  match_adaptor(const T& val, msg_seq_iter& f, const msg_seq_iter& l) {
+    return val->match(f, l);
+  }
+
+  template<class T>
+  inline typename std::enable_if<!is_pointery<T>::value, bool>::type
+  match_adaptor(const T& val, msg_seq_iter& f, const msg_seq_iter& l) {
+    return val.match(f, l);
+  }
+
+} // anonymous namespace
+
 // TODO: We probably have to handle the reception of a list with hetereogenous types in 
 // a specialization.
 template<typename T>
@@ -44,8 +65,12 @@ struct list_matcher
 
     // TODO: this code only handles proper Erlang lists (the ones ending with a cdr of nil).
     // Ensure that we can handle improper lists( [a|b] ) too (parse one more element, different length check).
-    const bool matched = length_matched && (val.end() == std::find_if(val.begin(), val.end(),
-						std::bind(&erl::object::match, std::placeholders::_1, std::ref(f), std::cref(l)))); // Todo: What to do when l is false?
+	const bool matched = length_matched && (
+		val.end() == std::find_if_not(
+		val.begin(), val.end(),
+		std::bind(&match_adaptor<typename T::value_type>, std::placeholders::_1, std::ref(f), std::cref(l)))
+	);
+
     // TODO: check once we're handling lists properly!
     qi::parse(f, l, qi::byte_(tinch_pp::type_tag::nil_ext));
 
