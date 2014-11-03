@@ -43,13 +43,13 @@ public:
   list(const list_type& contained)
     : val(contained),
       to_assign(0),
-	  match_fn(std::bind(&own_type::match_value, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
+		match_fn(std::bind(&own_type::match_value, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3))
   {
   }
 
   list(list_type* contained)
     : to_assign(contained),
-      match_fn(std::bind(&own_type::assign_matched, ::_1, ::_2, ::_3, contained))
+		match_fn(std::bind(&own_type::assign_matched, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, contained))
   {
   }
 
