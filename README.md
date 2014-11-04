@@ -1,6 +1,5 @@
 # tinch_pp [![Build Status](https://travis-ci.org/fire/tinch_pp.svg?branch=master)](https://travis-ci.org/fire/tinch_pp)
 
-
 Distributed Erlang nodes in C++.
 
 ## Usage
@@ -11,8 +10,6 @@ Usage examples and more information is given on [the project homepage](http://ww
 
 ## Requirements 
 
-Requires Boost: Developed on `1.55`.
+Boost: Developed on `1.55`.
 
-Tested on Clang 3.4.
-
-Probably broken on Windows.
+Clang 3.4 or MSVC 2013 or Gcc
