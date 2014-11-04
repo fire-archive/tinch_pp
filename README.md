@@ -13,3 +13,16 @@ Usage examples and more information is given on [the project homepage](http://ww
 Boost: Developed on `1.55`.
 
 Clang 3.4 or MSVC 2013 or Gcc
+
+## Boost dependencies
+
+- Fusion
+- Thread
+- System
+- Regex
+- Optional
+- Signals2
+- Utility
+- Spirit
+- Qi
+- Asio
