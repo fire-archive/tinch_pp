@@ -11,7 +11,13 @@ install:
 
 language: cpp
 
-compiler: clang
+compiler: 
+  - clang
+  - gcc
+
+os: 
+  - linux
+  - osx
 
 before_script:
   - mkdir build
