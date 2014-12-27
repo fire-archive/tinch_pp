@@ -88,13 +88,13 @@ struct serializable_bit_seq
   // used to represent bit_binary_ext
   serializable_bit_seq(const msg_seq& a_val,
                        int a_unused_bits)
-   : size(a_val.size()),
-      val(a_val),
-      unused_bits(a_unused_bits) {}
-
+   : val(a_val),
+     size(a_val.size()),
+     unused_bits(a_unused_bits) {}
+    
+  msg_seq val;
   size_t size;
   int unused_bits;
-  msg_seq val;
 };
 
 
