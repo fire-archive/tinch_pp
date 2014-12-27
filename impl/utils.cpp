@@ -71,7 +71,7 @@ std::string to_printable_string(const msg_seq& msg)
    return s;
 }
 
-std::string to_printable_string(const msg_seq_iter& first, const msg_seq_iter& last)
+std::string to_printable_string(msg_seq_iter& first, const msg_seq_iter& last)
 {
   const msg_seq m(first, last);
 

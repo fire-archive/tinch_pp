@@ -46,7 +46,7 @@ void check_term_version(msg_seq_iter& first, const msg_seq_iter& last)
   }
 }
 
-void parse_header(msg_seq_iter& first, msg_seq_iter& last)
+void parse_header(msg_seq_iter& first, const msg_seq_iter& last)
 {
   using namespace qi;
 
@@ -277,7 +277,7 @@ ctrl_msg_dispatcher::ctrl_msg_dispatcher(access_ptr access)
 {
 }
 
-void ctrl_msg_dispatcher::dispatch(const msg_seq& msg) const
+void ctrl_msg_dispatcher::dispatch(msg_seq& msg) const
 {
   // On each successfully parsed element, the first-iterator is advanced.
   auto first = msg.begin();

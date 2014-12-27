@@ -32,7 +32,7 @@ namespace tinch_pp {
 
 typedef std::vector<char> msg_seq;
 typedef std::back_insert_iterator<msg_seq> msg_seq_out_iter;
-typedef msg_seq::const_iterator msg_seq_iter;
+typedef msg_seq::iterator msg_seq_iter;
 typedef msg_seq::const_iterator msg_seq_citer;
 
 // TODO: boost types!
