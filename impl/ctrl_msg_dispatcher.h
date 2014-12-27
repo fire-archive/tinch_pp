@@ -43,7 +43,7 @@ class ctrl_msg_dispatcher : boost::noncopyable
 public:
   ctrl_msg_dispatcher(access_ptr operation_handler);
 
-  void dispatch(msg_seq& msg) const;
+  void dispatch(const msg_seq& msg) const;
 
 private:
   access_ptr operation_handler;

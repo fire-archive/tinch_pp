@@ -50,10 +50,10 @@ boost::asio::ip::tcp::socket& connect_socket(boost::asio::io_service& io_service
 					     int port);
 
 template <typename S, typename P, typename T>
-void parse(S& stream, P& p, T& attr)
+void parse(const S& stream, P& p, T& attr)
 {
-    typename S::iterator f = stream.begin();
-    typename S::iterator l = stream.end();
+    typename S::const_iterator f = stream.begin();
+    typename S::const_iterator l = stream.end();
 
     if(!boost::spirit::qi::parse(f, l, p, attr)) {
       throw tinch_pp_exception("Parse failure!"); // TODO: more info - let qi throw!

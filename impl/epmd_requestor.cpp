@@ -110,7 +110,6 @@ tinch_pp::creation_number_type receive_alive_response(tcp::socket& epmd_socket)
 
   tinch_pp::epmd::alive2_resp_result response;
   tinch_pp::epmd::alive2_resp alive2_resp;
-
   tinch_pp::utils::parse(msg, alive2_resp, response);
 
   if(response.result != 0)
